@@ -12,9 +12,17 @@ struct CueCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(cue.spokenText)
-                .font(Tokens.Typography.body)
-                .foregroundStyle(Tokens.Color.textPrimary)
+            HStack(alignment: .top, spacing: 8) {
+                if cue.isMilestone {
+                    Image(systemName: "sparkle")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Tokens.Color.ochre)
+                        .padding(.top, 2)
+                }
+                Text(cue.spokenText)
+                    .font(Tokens.Typography.body)
+                    .foregroundStyle(Tokens.Color.textPrimary)
+            }
 
             if let action = cue.action {
                 VStack(alignment: .leading, spacing: 4) {
