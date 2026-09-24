@@ -1,14 +1,11 @@
 import SwiftUI
 
 /// DETAIL speaking a CUE — one thing it noticed — plus the ACTION it
-/// already took in response. Advances on its own after a beat, or
-/// immediately if she taps through, into whatever comes next (e.g. a
-/// threshold proposal following from this same moment).
+/// already took in response. Stays until she dismisses it herself, by
+/// "Got it" or a swipe — never on its own.
 struct CueCard: View {
     var cue: Cue
     var onAcknowledge: () -> Void
-
-    @State private var acknowledged = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -21,46 +18,36 @@ struct CueCard: View {
                 }
                 Text(cue.spokenText)
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.fog)
             }
 
             if let action = cue.action {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("What I did")
                         .font(Tokens.Typography.labelSmall)
-                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .foregroundStyle(Tokens.Color.ochre)
                         .textCase(.uppercase)
                         .kerning(1.2)
                     Text(action.description)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textSecondary)
+                        .foregroundStyle(Tokens.Color.silt)
                 }
             }
 
             HStack {
                 Spacer()
-                Button("Got it", action: acknowledge)
+                Button("Got it", action: onAcknowledge)
                     .font(Tokens.Typography.caption)
-                    .foregroundStyle(Tokens.Color.textSecondary)
+                    .foregroundStyle(Tokens.Color.silt)
             }
         }
         .padding(16)
-        .background(Tokens.Color.white)
+        .background(Tokens.Color.ink)
         .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Tokens.Color.hairline)
+                .strokeBorder(Color.white.opacity(0.12))
         )
-        .task {
-            try? await Task.sleep(nanoseconds: 2_200_000_000)
-            acknowledge()
-        }
-    }
-
-    private func acknowledge() {
-        guard !acknowledged else { return }
-        acknowledged = true
-        onAcknowledge()
     }
 }
 

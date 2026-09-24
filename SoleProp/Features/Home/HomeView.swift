@@ -18,7 +18,10 @@ struct HomeView: View {
     @State private var checkoutRecommendation: RecommendedItem?
     @State private var showQuarterlyBrief = false
     @State private var placeholderMessage: String?
-    @State private var currentMoment = HomeMockData.pendingCue.map { DetailMoment.cue($0) }
+    @State private var momentQueue: [DetailMoment] = [
+        HomeMockData.pendingCue.map(DetailMoment.cue),
+        HomeMockData.pendingThresholdProposal.map(DetailMoment.proposal),
+    ].compactMap { $0 }
     /// Shown once per app launch before any of Home's own content — see
     /// `homeContent`/`DailyBriefView`.
     @State private var showDailyBrief = true
@@ -169,7 +172,7 @@ struct HomeView: View {
         if appointmentCount > 0 {
             weights.append((.appointments, appointmentCount * 10))
         }
-        if currentMoment != nil {
+        if !momentQueue.isEmpty {
             weights.append((.decision, 35))
         }
         // Her one real job in week one is getting bookings, so the link
@@ -250,22 +253,10 @@ struct HomeView: View {
 
     @ViewBuilder
     private var decisionSection: some View {
-        if let moment = currentMoment {
-            switch moment {
-            case .cue(let cue):
-                CueCard(cue: cue) {
-                    withAnimation {
-                        currentMoment = HomeMockData.pendingThresholdProposal.map { .proposal($0) }
-                    }
-                }
-                .id("cue")
-            case .proposal(let proposal):
-                ThresholdProposalCard(
-                    proposal: proposal,
-                    onAccept: { _ in withAnimation { currentMoment = nil } },
-                    onDecline: { withAnimation { currentMoment = nil } }
-                )
-                .id("proposal")
+        if !momentQueue.isEmpty {
+            DetailMomentStack(moments: momentQueue) {
+                guard !momentQueue.isEmpty else { return }
+                momentQueue.removeFirst()
             }
         }
     }
@@ -282,13 +273,6 @@ private enum HomeSection: Identifiable {
     case handled
 
     var id: Self { self }
-}
-
-/// The sequence of things DETAIL surfaces in one moment: the CUE first,
-/// then — because it's still learning — the PROPOSAL that follows from it.
-private enum DetailMoment {
-    case cue(Cue)
-    case proposal(Proposal)
 }
 
 #Preview {
