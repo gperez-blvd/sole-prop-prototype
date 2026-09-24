@@ -13,7 +13,7 @@ struct BackIconButtonModifier: ViewModifier {
                     Button(action: onBack) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }
             }

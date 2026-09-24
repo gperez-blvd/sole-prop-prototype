@@ -8,10 +8,10 @@ struct PlaceholderScreen: View {
 
     var body: some View {
         ZStack {
-            BUITokens.Color.background.ignoresSafeArea()
+            Tokens.Color.background.ignoresSafeArea()
             Text("\(title) — not designed yet")
-                .font(.system(size: 13.5))
-                .foregroundStyle(BUITokens.Color.disabled)
+                .font(Tokens.Typography.bodyRegular)
+                .foregroundStyle(Tokens.Color.textTertiary)
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
