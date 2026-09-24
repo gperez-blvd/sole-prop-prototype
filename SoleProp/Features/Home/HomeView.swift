@@ -21,75 +21,78 @@ struct HomeView: View {
         ZStack {
             BUITokens.Color.background.ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 32) {
-                HomeHeaderBar(
-                    businessName: HomeMockData.businessName,
-                    onMenuTap: { showMenu = true },
-                    onMessagesTap: { router.push(.messages) },
-                    onNotificationsTap: { router.push(.notifications) }
-                )
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    HomeHeaderBar(
+                        businessName: HomeMockData.businessName,
+                        onMenuTap: { showMenu = true },
+                        onMessagesTap: { router.push(.messages) },
+                        onNotificationsTap: { router.push(.notifications) }
+                    )
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Good morning \(HomeMockData.ownerFirstName).")
-                        .font(BUITokens.Typography.greeting)
-                        .foregroundStyle(BUITokens.Color.textPrimary)
-                    Text(Self.todayDateString)
-                        .font(.system(size: 10))
-                        .foregroundStyle(BUITokens.Color.textStrong)
-                }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Good morning \(HomeMockData.ownerFirstName).")
+                            .font(BUITokens.Typography.greeting)
+                            .foregroundStyle(BUITokens.Color.textPrimary)
+                        Text(Self.todayDateString)
+                            .font(.system(size: 10))
+                            .foregroundStyle(BUITokens.Color.textStrong)
+                    }
 
-                if let moment = currentMoment {
-                    Group {
-                        switch moment {
-                        case .cue(let cue):
-                            CueCard(cue: cue) {
-                                withAnimation {
-                                    currentMoment = HomeMockData.pendingThresholdProposal.map { .proposal($0) }
+                    if let moment = currentMoment {
+                        Group {
+                            switch moment {
+                            case .cue(let cue):
+                                CueCard(cue: cue) {
+                                    withAnimation {
+                                        currentMoment = HomeMockData.pendingThresholdProposal.map { .proposal($0) }
+                                    }
                                 }
+                                .id("cue")
+                            case .proposal(let proposal):
+                                ThresholdProposalCard(
+                                    proposal: proposal,
+                                    onAccept: { _ in withAnimation { currentMoment = nil } },
+                                    onDecline: { withAnimation { currentMoment = nil } }
+                                )
+                                .id("proposal")
                             }
-                            .id("cue")
-                        case .proposal(let proposal):
-                            ThresholdProposalCard(
-                                proposal: proposal,
-                                onAccept: { _ in withAnimation { currentMoment = nil } },
-                                onDecline: { withAnimation { currentMoment = nil } }
+                        }
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Next appointment")
+                            .font(BUITokens.Typography.sectionLabel)
+                            .foregroundStyle(BUITokens.Color.textStrong)
+
+                        if let next = HomeMockData.nextAppointment {
+                            NextAppointmentCard(
+                                appointment: next,
+                                onTap: { selectedAppointment = next },
+                                onEdit: { placeholderMessage = "Edit — not designed yet." },
+                                onClientInfo: { placeholderMessage = "Client info — not designed yet." },
+                                onMessage: { placeholderMessage = "Message — not designed yet." },
+                                onCheckout: {
+                                    checkoutRecommendation = nil
+                                    checkoutAppointment = next
+                                }
                             )
-                            .id("proposal")
+                        }
+
+                        DayStripCard(slots: HomeMockData.dayStripSlots) {
+                            router.push(.schedule)
                         }
                     }
-                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Next appointment")
-                        .font(BUITokens.Typography.sectionLabel)
-                        .foregroundStyle(BUITokens.Color.textStrong)
-
-                    if let next = HomeMockData.nextAppointment {
-                        NextAppointmentCard(
-                            appointment: next,
-                            onTap: { selectedAppointment = next },
-                            onEdit: { placeholderMessage = "Edit — not designed yet." },
-                            onClientInfo: { placeholderMessage = "Client info — not designed yet." },
-                            onMessage: { placeholderMessage = "Message — not designed yet." },
-                            onCheckout: {
-                                checkoutRecommendation = nil
-                                checkoutAppointment = next
-                            }
-                        )
-                    }
-
-                    DayStripCard(slots: HomeMockData.dayStripSlots) {
-                        router.push(.schedule)
-                    }
-                }
-
-                Spacer(minLength: 0)
+                .padding(.horizontal, 28)
+                .padding(.top, 19)
+                // Reserves room below the last card for the fixed actions/orb
+                // overlay, so scrolled content never sits underneath it.
+                .padding(.bottom, 180)
             }
-            .padding(.horizontal, 28)
-            .padding(.top, 19)
 
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 HStack(spacing: 12) {
                     QuickActionButton(title: "Book", systemImage: "calendar.badge.plus") {
                         placeholderMessage = "Book — not designed yet."
@@ -108,7 +111,7 @@ struct HomeView: View {
                         router.push(.voiceConversation)
                     }
             }
-            .padding(.bottom, 28)
+            .padding(.bottom, 12)
             .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .navigationBarHidden(true)
