@@ -83,6 +83,18 @@ final class VoiceConversationViewModel {
         }
     }
 
+    /// Plays the morning Brief's real pre-recorded voiceover (not ElevenLabs
+    /// — a bundled clip) and logs its spoken text to the transcript, same
+    /// as any other Cue reply.
+    func announceDailyBrief(_ brief: DailyBrief) {
+        messages.append(ConversationMessage(role: .assistant, text: brief.spokenText))
+        do {
+            try player.play(resource: "daily-brief", withExtension: "mp3")
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     /// Called when the operator taps a growth idea on `QuarterlyBriefSheet`
     /// to hear more — logs Cue's elaboration to the transcript and speaks it,
     /// same as any other reply.

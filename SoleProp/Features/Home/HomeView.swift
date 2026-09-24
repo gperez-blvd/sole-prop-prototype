@@ -22,6 +22,9 @@ struct HomeView: View {
         HomeMockData.pendingCue.map(DetailMoment.cue),
         HomeMockData.pendingThresholdProposal.map(DetailMoment.proposal),
     ].compactMap { $0 }
+    /// Shown once per app launch before any of Home's own content — see
+    /// `homeContent`/`DailyBriefView`.
+    @State private var showDailyBrief = true
 
     private static let todayDateString: String = {
         let formatter = DateFormatter()
@@ -33,6 +36,32 @@ struct HomeView: View {
         ZStack {
             Tokens.Color.background.ignoresSafeArea()
 
+            homeContent
+                .opacity(showDailyBrief ? 0 : 1)
+                .scaleEffect(showDailyBrief ? 0.96 : 1)
+                .allowsHitTesting(!showDailyBrief)
+
+            if showDailyBrief {
+                DailyBriefView(brief: HomeMockData.dailyBrief) {
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        showDailyBrief = false
+                    }
+                }
+                .transition(.opacity)
+                .zIndex(1)
+            }
+        }
+        .onAppear {
+            if showDailyBrief {
+                voiceAssistant.announceDailyBrief(HomeMockData.dailyBrief)
+            }
+        }
+        .navigationBarHidden(true)
+    }
+
+    @ViewBuilder
+    private var homeContent: some View {
+        ZStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
                     HomeHeaderBar(
@@ -65,6 +94,8 @@ struct HomeView: View {
                 .padding(.bottom, 120)
             }
 
+            OrbBackdropFade()
+
             VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
                 .contentShape(Circle())
                 .onTapGesture {
@@ -76,7 +107,6 @@ struct HomeView: View {
                 .padding(.bottom, 12)
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .navigationBarHidden(true)
         .sheet(isPresented: $showMenu) {
             MenuSheet { route in
                 showMenu = false

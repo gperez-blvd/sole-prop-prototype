@@ -26,6 +26,8 @@ final class SpeechRecognitionService: NSObject {
     private let audioEngine = AVAudioEngine()
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
+    private var onFinalCallback: ((String) -> Void)?
+    private var didFinalize = false
 
     func requestPermission() async -> Bool {
         let speechStatus = await withCheckedContinuation { continuation in
@@ -48,6 +50,8 @@ final class SpeechRecognitionService: NSObject {
         }
 
         transcript = ""
+        didFinalize = false
+        onFinalCallback = onFinal
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
         self.request = request
@@ -73,24 +77,49 @@ final class SpeechRecognitionService: NSObject {
             if let result {
                 self.transcript = result.bestTranscription.formattedString
                 if result.isFinal {
-                    onFinal(self.transcript)
-                    self.stopListening()
+                    self.finish()
                 }
             }
             if error != nil {
-                self.stopListening()
+                // Errors here are routinely just "recognition request was
+                // cancelled" once we've already finished — finish() is a
+                // no-op by then. When they arrive first, this still hands
+                // back whatever partial transcript was captured instead of
+                // dropping it.
+                self.finish()
             }
         }
     }
 
+    /// The orb's "tap to stop" action. On-device speech recognition only
+    /// calls the recognizer's own completion with `isFinal` after it
+    /// detects a pause — a deliberate manual stop needs to finalize
+    /// whatever's been transcribed so far itself, or everything the user
+    /// just said gets silently discarded.
     func stopListening() {
-        guard isListening else { return }
+        finish()
+    }
+
+    private func finish() {
+        guard isListening, !didFinalize else { return }
+        didFinalize = true
+        let finalText = transcript
+        let callback = onFinalCallback
+        teardownAudio()
+        let trimmed = finalText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty {
+            callback?(finalText)
+        }
+    }
+
+    private func teardownAudio() {
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         request?.endAudio()
         task?.cancel()
         task = nil
         request = nil
+        onFinalCallback = nil
         isListening = false
         audioLevel = 0
     }

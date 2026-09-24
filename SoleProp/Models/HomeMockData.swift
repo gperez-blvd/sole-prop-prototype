@@ -41,14 +41,16 @@ enum HomeMockData {
         return appointments.first { $0.startTime >= now } ?? appointments.first
     }
 
-    /// Whatever's still ahead today after `nextAppointment` — never an
-    /// already-passed one, even when `nextAppointment` itself had to fall
-    /// back to the day's first appointment because every real slot is
-    /// behind "now".
+    /// The rest of today's appointments — everything except whichever one
+    /// is already shown as `nextAppointment`, in either direction. Kept
+    /// deliberately not limited to "later than next" alone: when the next
+    /// appointment happens to be the day's last one, that filter emptied
+    /// out entirely and the daily overview under Next Appointment
+    /// disappeared, which is the one thing this section exists to avoid.
     static var remainingAppointments: [Appointment] {
         guard let next = nextAppointment else { return [] }
         return todaysAppointments
-            .filter { $0.id != next.id && $0.startTime > next.startTime }
+            .filter { $0.id != next.id }
             .sorted { $0.startTime < $1.startTime }
     }
 
@@ -258,5 +260,22 @@ enum HomeMockData {
                 elaboration: "Your lip filler is $650. The three closest comparable practices charge $725 to $800, and your reviews are stronger. Want to try $700 for new clients and see what happens to bookings?"
             ),
         ]
+    )
+
+    /// The morning car-mode Brief Cue opens Home with — shown once per app
+    /// launch, read aloud, then dismissed into the normal ranked Home
+    /// sections. Rows and spoken line both come from the DETAIL/CUE
+    /// prototype's own `d742` morning-drive screen.
+    static let dailyBrief = DailyBrief(
+        route: "CarPlay · I-65 South",
+        greeting: "Morning, \(ownerFirstName).",
+        rows: [
+            DailyBriefRow(label: "Appointments today", value: "7"),
+            DailyBriefRow(label: "Maya · first-time tox · referred by Dani", value: "11:00"),
+            DailyBriefRow(label: "Open for 90 minutes", value: "2:30"),
+            DailyBriefRow(label: "Rain after 3 · 4:15 may run late", value: "Watch"),
+            DailyBriefRow(label: "Yesterday's consult", value: "Follow-up sent", isHighlighted: true),
+        ],
+        spokenText: "Morning. Seven today. Your 11:00 is Maya, first-time tox, referred by Dani. Intake's done, nothing flagged. You've got 90 minutes open at 2:30. Rain after 3, so your 4:15 may run late. That's it."
     )
 }
