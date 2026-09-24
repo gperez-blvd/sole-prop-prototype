@@ -1,16 +1,26 @@
 import SwiftUI
 
-enum OnboardingStep: Int, CaseIterable {
+enum OnboardingStep: Equatable {
     case welcome
     case searching
     case found
     case clients
     case live
+    // Reached only from Home. Each returns to `.live`.
+    case cal
+    case migrate
+    case migrateConnect
+    case migrateExtract
+    case migrateDone
+    case book
+    case persona
 }
 
-/// Hosts the five Day 0 onboarding screens (Welcome → Searching → Found →
-/// Clients → Live), matching the "Boulevard Secret Service" prototype's
-/// onboarding act. `onFinished` fires once Jazz taps Continue on the Live screen.
+/// Hosts the Day 0 onboarding screens. Welcome → Searching → Found → Clients →
+/// Live is the one path she walks in order; Live is Home, and everything past
+/// it (calendar, bringing over old data, booking, customizing Cues) is a door
+/// she opens from there, never a corridor she's pushed into. `onFinished` fires
+/// once Jazz taps Continue on Home.
 struct OnboardingFlowView: View {
     var onFinished: () -> Void
 
@@ -24,15 +34,29 @@ struct OnboardingFlowView: View {
             Group {
                 switch step {
                 case .welcome:
-                    WelcomeView(state: state) { advance(to: .searching) }
+                    WelcomeView(state: state) { go(.searching) }
                 case .searching:
-                    SearchingView(state: state) { advance(to: .found) }
+                    SearchingView(state: state) { go(.found) }
                 case .found:
-                    FoundView(state: state) { advance(to: .clients) }
+                    FoundView(state: state) { go(.clients) }
                 case .clients:
-                    ClientsView(state: state) { advance(to: .live) }
+                    ClientsView(state: state) { go(.live) }
                 case .live:
-                    LiveView(state: state, onContinue: onFinished)
+                    LiveView(state: state, onOpen: go, onContinue: onFinished)
+                case .cal:
+                    CalendarConnectView(state: state) { go(.live) }
+                case .migrate:
+                    MigrateSourceView(state: state, onPicked: { go(.migrateConnect) }, onBack: { go(.live) })
+                case .migrateConnect:
+                    MigrateConnectView(state: state) { go(.migrateExtract) }
+                case .migrateExtract:
+                    MigrateExtractView(state: state) { go(.migrateDone) }
+                case .migrateDone:
+                    MigrateDoneView(state: state) { go(.live) }
+                case .book:
+                    BookAppointmentView(state: state, onOpenPersona: { go(.persona) }, onBack: { go(.live) })
+                case .persona:
+                    PersonaView(state: state) { go(.live) }
                 }
             }
             .transition(.asymmetric(
@@ -44,7 +68,7 @@ struct OnboardingFlowView: View {
         .animation(.easeInOut(duration: 0.3), value: step)
     }
 
-    private func advance(to next: OnboardingStep) {
+    private func go(_ next: OnboardingStep) {
         step = next
     }
 }

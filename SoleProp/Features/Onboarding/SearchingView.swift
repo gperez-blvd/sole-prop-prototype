@@ -28,7 +28,7 @@ struct SearchingView: View {
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
-            VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(sources.enumerated()), id: \.element.id) { index, source in
                     sourceRow(source, index: index)
                 }
@@ -62,6 +62,7 @@ struct SearchingView: View {
             }
             .foregroundStyle(isOn || isDone ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 10)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
