@@ -7,7 +7,7 @@ struct HomeView: View {
     @State private var selectedAppointment: Appointment?
     @State private var placeholderMessage: String?
     @State private var showTooltip = true
-    @State private var pendingProposal = HomeMockData.pendingThresholdProposal
+    @State private var currentMoment = HomeMockData.pendingCue.map { DetailMoment.cue($0) }
 
     private static let todayDateString: String = {
         let formatter = DateFormatter()
@@ -36,12 +36,25 @@ struct HomeView: View {
                         .foregroundStyle(BUITokens.Color.textStrong)
                 }
 
-                if let proposal = pendingProposal {
-                    ThresholdProposalCard(
-                        proposal: proposal,
-                        onAccept: { _ in withAnimation { pendingProposal = nil } },
-                        onDecline: { withAnimation { pendingProposal = nil } }
-                    )
+                if let moment = currentMoment {
+                    Group {
+                        switch moment {
+                        case .cue(let cue):
+                            CueCard(cue: cue) {
+                                withAnimation {
+                                    currentMoment = HomeMockData.pendingThresholdProposal.map { .proposal($0) }
+                                }
+                            }
+                            .id("cue")
+                        case .proposal(let proposal):
+                            ThresholdProposalCard(
+                                proposal: proposal,
+                                onAccept: { _ in withAnimation { currentMoment = nil } },
+                                onDecline: { withAnimation { currentMoment = nil } }
+                            )
+                            .id("proposal")
+                        }
+                    }
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -103,6 +116,13 @@ struct HomeView: View {
             Text(message)
         }
     }
+}
+
+/// The sequence of things DETAIL surfaces in one moment: the CUE first,
+/// then — because it's still learning — the PROPOSAL that follows from it.
+private enum DetailMoment {
+    case cue(Cue)
+    case proposal(Proposal)
 }
 
 private struct VoiceOrbTooltip: View {
