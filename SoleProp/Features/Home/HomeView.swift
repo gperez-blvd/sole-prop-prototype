@@ -91,6 +91,8 @@ struct HomeView: View {
                 .padding(.bottom, 120)
             }
 
+            OrbBackdropFade()
+
             VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
                 .contentShape(Circle())
                 .onTapGesture {

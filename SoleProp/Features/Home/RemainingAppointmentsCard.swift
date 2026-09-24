@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Today's appointments after the next one — a plain list, not a second
-/// schedule screen. "See full day" hands off to the real Schedule for
-/// anything more than that.
+/// Today's other appointments (everything but whichever one is shown as
+/// Next Appointment) — a plain list, not a second schedule screen. "See
+/// full day" hands off to the real Schedule for anything more than that.
 struct RemainingAppointmentsCard: View {
     var appointments: [Appointment]
     var onViewFullDay: () -> Void

@@ -41,14 +41,16 @@ enum HomeMockData {
         return appointments.first { $0.startTime >= now } ?? appointments.first
     }
 
-    /// Whatever's still ahead today after `nextAppointment` — never an
-    /// already-passed one, even when `nextAppointment` itself had to fall
-    /// back to the day's first appointment because every real slot is
-    /// behind "now".
+    /// The rest of today's appointments — everything except whichever one
+    /// is already shown as `nextAppointment`, in either direction. Kept
+    /// deliberately not limited to "later than next" alone: when the next
+    /// appointment happens to be the day's last one, that filter emptied
+    /// out entirely and the daily overview under Next Appointment
+    /// disappeared, which is the one thing this section exists to avoid.
     static var remainingAppointments: [Appointment] {
         guard let next = nextAppointment else { return [] }
         return todaysAppointments
-            .filter { $0.id != next.id && $0.startTime > next.startTime }
+            .filter { $0.id != next.id }
             .sorted { $0.startTime < $1.startTime }
     }
 
