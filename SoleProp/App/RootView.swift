@@ -11,8 +11,24 @@ struct RootView: View {
                     HomeView()
                         .navigationDestination(for: Route.self) { route in
                             switch route {
-                            case .home:
-                                HomeView()
+                            case .profile:
+                                PlaceholderScreen(title: "Profile / Settings")
+                            case .clients:
+                                PlaceholderScreen(title: "Clients")
+                            case .schedule:
+                                PlaceholderScreen(title: "Schedule")
+                            case .wallet:
+                                PlaceholderScreen(title: "Wallet")
+                            case .logs:
+                                PlaceholderScreen(title: "Logs")
+                            case .help:
+                                PlaceholderScreen(title: "Help")
+                            case .notifications:
+                                PlaceholderScreen(title: "Notifications")
+                            case .messages:
+                                PlaceholderScreen(title: "Messages")
+                            case .voiceConversation:
+                                VoiceConversationView()
                             }
                         }
                 }

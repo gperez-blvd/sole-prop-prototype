@@ -1,24 +1,134 @@
 import SwiftUI
 
 struct HomeView: View {
-    var body: some View {
-        VStack(spacing: Tokens.Spacing.md) {
-            Text("You're live.")
-                .font(Tokens.Typography.title)
-                .foregroundStyle(Tokens.Color.textPrimary)
+    @Environment(Router.self) private var router
 
-            Text("Month 1 screens land here next.")
-                .font(Tokens.Typography.body)
-                .foregroundStyle(Tokens.Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Tokens.Spacing.lg)
+    @State private var showMenu = false
+    @State private var selectedAppointment: Appointment?
+    @State private var placeholderMessage: String?
+    @State private var showTooltip = true
+
+    private static let todayDateString: String = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        return formatter.string(from: Date())
+    }()
+
+    var body: some View {
+        ZStack {
+            BUITokens.Color.background.ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 32) {
+                HomeHeaderBar(
+                    businessName: HomeMockData.businessName,
+                    onMenuTap: { showMenu = true },
+                    onMessagesTap: { router.push(.messages) },
+                    onNotificationsTap: { router.push(.notifications) }
+                )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Good morning \(HomeMockData.ownerFirstName).")
+                        .font(BUITokens.Typography.greeting)
+                        .foregroundStyle(BUITokens.Color.textPrimary)
+                    Text(Self.todayDateString)
+                        .font(.system(size: 10))
+                        .foregroundStyle(BUITokens.Color.textStrong)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Next appointment")
+                        .font(BUITokens.Typography.sectionLabel)
+                        .foregroundStyle(BUITokens.Color.textStrong)
+
+                    if let next = HomeMockData.nextAppointment {
+                        NextAppointmentCard(
+                            appointment: next,
+                            onTap: { selectedAppointment = next },
+                            onEdit: { placeholderMessage = "Edit — not designed yet." },
+                            onClientInfo: { placeholderMessage = "Client info — not designed yet." },
+                            onMessage: { placeholderMessage = "Message — not designed yet." }
+                        )
+                    }
+
+                    DayStripCard(slots: HomeMockData.dayStripSlots) {
+                        router.push(.schedule)
+                    }
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 28)
+            .padding(.top, 19)
+
+            VStack(spacing: 12) {
+                if showTooltip {
+                    VoiceOrbTooltip(text: "Tap to pull up conversation")
+                }
+                Button {
+                    showTooltip = false
+                    router.push(.voiceConversation)
+                } label: {
+                    VoiceOrb(size: 44)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.bottom, 28)
+            .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Tokens.Color.background)
-        .navigationTitle("Home")
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showMenu) {
+            MenuSheet { route in
+                showMenu = false
+                router.push(route)
+            }
+        }
+        .sheet(item: $selectedAppointment) { appointment in
+            AppointmentDetailSheet(appointment: appointment) {
+                selectedAppointment = nil
+            }
+        }
+        .alert("Not designed yet", isPresented: .constant(placeholderMessage != nil), presenting: placeholderMessage) { _ in
+            Button("OK") { placeholderMessage = nil }
+        } message: { message in
+            Text(message)
+        }
+    }
+}
+
+private struct VoiceOrbTooltip: View {
+    var text: String
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Text(text)
+                .font(BUITokens.Typography.tooltip)
+                .foregroundStyle(.white)
+                .padding(8)
+                .background(BUITokens.Color.contrastPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Triangle()
+                .fill(BUITokens.Color.contrastPrimary)
+                .frame(width: 12, height: 6)
+        }
+        .shadow(color: .black.opacity(0.22), radius: 24, x: 0, y: 16)
+    }
+}
+
+private struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.closeSubpath()
+        return path
     }
 }
 
 #Preview {
-    HomeView()
+    NavigationStack {
+        HomeView()
+    }
+    .environment(Router())
 }

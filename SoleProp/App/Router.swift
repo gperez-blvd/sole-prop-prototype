@@ -1,7 +1,15 @@
 import SwiftUI
 
 enum Route: Hashable {
-    case home
+    case profile
+    case clients
+    case schedule
+    case wallet
+    case logs
+    case help
+    case notifications
+    case messages
+    case voiceConversation
 }
 
 @Observable
