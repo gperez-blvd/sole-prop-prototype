@@ -1,161 +1,149 @@
 import SwiftUI
 
-private struct Follower: Identifiable {
-    let id = UUID()
-    let initials: String
-    let name: String
-    let background: Color
-    let foreground: Color
+private struct SourceRowInfo {
+    let source: ClientSource
+    let title: String
+    let subtitle: String
+    let later: String?
+    let count: Int
+    let doneLabel: String
 }
 
 struct ClientsView: View {
     var state: OnboardingState
     var onContinue: () -> Void
 
-    @State private var visibleAvatars = 0
+    @State private var importing: Set<ClientSource> = []
+    @State private var isRunning = false
 
-    private let swatches: [(Color, Color)] = [
-        (Color(hex: "#E4E4DE"), Color(hex: "#0A0A0A")),
-        (Color(hex: "#C8AB7C"), Color(hex: "#0A0A0A")),
-        (Color(hex: "#183E43"), Color(hex: "#F5F4F1")),
-        (Color(hex: "#0A0A0A"), Color(hex: "#F5F4F1")),
-        (Color(hex: "#D9BE8A"), Color(hex: "#0A0A0A")),
-        (Color(hex: "#8A6F3F"), Color(hex: "#F5F4F1")),
-        (Color(hex: "#5F5B53"), Color(hex: "#F5F4F1")),
+    private let rows: [SourceRowInfo] = [
+        SourceRowInfo(source: .instagram, title: "Import from Instagram followers", subtitle: "@jazzaesthetics · 2,000 followers", later: nil, count: 2_000, doneLabel: "2,000 imported"),
+        SourceRowInfo(source: .contacts, title: "Import from contact list", subtitle: "Phone contacts · 368", later: nil, count: 368, doneLabel: "368 imported"),
+        SourceRowInfo(source: .file, title: "Import from file on device", subtitle: "CSV, spreadsheet or export", later: "You can do this later too", count: 212, doneLabel: "212 imported · 9 merged"),
     ]
 
-    private let followerSeeds: [(String, String)] = [
-        ("DR", "Dani R."), ("MN", "Maya N."), ("PS", "Priya S."), ("TW", "Tasha W."),
-        ("LK", "Lena K."), ("MB", "Morgan B."), ("AJ", "Ava J."), ("RC", "Renee C."),
-        ("KM", "Kiara M."), ("JT", "Jess T."), ("NP", "Nina P."), ("SR", "Sofia R."),
-        ("BL", "Bree L."), ("CD", "Chloe D."), ("AG", "Alyssa G."), ("TH", "Tori H."),
-        ("CF", "Camille F."), ("JO", "Jade O."),
-    ]
-
-    private var followers: [Follower] {
-        followerSeeds.enumerated().map { index, seed in
-            let swatch = swatches[index % swatches.count]
-            return Follower(initials: seed.0, name: seed.1, background: swatch.0, foreground: swatch.1)
-        }
-    }
+    private var anySelected: Bool { !state.selectedClientSources.isEmpty }
+    private var doneImporting: Bool { state.clientsImportRun }
 
     var body: some View {
         OnboardingScreen(section: "Clients") {
-            Text("Your clients")
+            Text("Build your client list.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
-            Text("Your Instagram followers have been imported as your starting client list! Have more to add?")
+            Text("Pick where your clients live today. Boulevard imports them in the background and merges duplicates.")
                 .font(Tokens.Typography.bodyRegular)
                 .foregroundStyle(Tokens.Color.textSecondary)
 
-            instagramCard
-
-            dropZone
-
-            Text("Optional from here. You can be live without it.")
-                .font(.system(size: 12))
-                .foregroundStyle(Tokens.Color.textTertiary)
+            VStack(spacing: 0) {
+                ForEach(rows, id: \.source) { row in
+                    sourceRow(row)
+                }
+            }
 
             Group {
-                if state.clientsImported {
+                if doneImporting {
                     PillButton(title: "Continue", action: onContinue)
                 } else {
-                    PillButton(title: "Skip for now", style: .ghost, action: onContinue)
+                    VStack(spacing: 10) {
+                        PillButton(
+                            title: isRunning ? "Importing…" : "Import selected",
+                            isDisabled: !anySelected || isRunning
+                        ) {
+                            runImports()
+                        }
+                        PillButton(title: "Skip for now", style: .ghost, action: onContinue)
+                    }
                 }
             }
             .padding(.top, Tokens.Spacing.sm)
         }
-        .task {
-            for index in followers.indices {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                    visibleAvatars = index + 1
-                }
-                try? await Task.sleep(for: .milliseconds(55))
-            }
-        }
     }
 
-    private var instagramCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                TrackedLabel(text: "\(state.instagram) · followers")
-                Spacer()
-                TrackedLabel(text: "2,140 imported")
-            }
+    private func sourceRow(_ row: SourceRowInfo) -> some View {
+        let isSelected = state.selectedClientSources.contains(row.source)
+        let isImported = state.importedClientSources.contains(row.source)
+        let isImportingNow = importing.contains(row.source)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 8) {
-                ForEach(Array(followers.enumerated()), id: \.element.id) { index, follower in
-                    avatar(follower)
-                        .opacity(index < visibleAvatars ? 1 : 0)
-                        .scaleEffect(index < visibleAvatars ? 1 : 0.6)
-                }
-            }
-
-            HStack(spacing: 10) {
-                HStack(spacing: -8) {
-                    ForEach(followers.prefix(3)) { follower in
-                        avatar(follower, size: 26)
-                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                    }
-                }
-                Text("Dani, Maya, Priya and 2,137 others are in your client list.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Tokens.Color.textSecondary)
-            }
-        }
-        .padding(12)
-        .background(Color.white)
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Tokens.Color.hairline, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private func avatar(_ follower: Follower, size: CGFloat? = nil) -> some View {
-        Circle()
-            .fill(follower.background)
-            .overlay(
-                Text(follower.initials)
-                    .font(.system(size: size != nil ? 9 : 11, weight: .semibold))
-                    .foregroundStyle(follower.foreground)
-            )
-            .aspectRatio(1, contentMode: .fit)
-            .frame(width: size, height: size)
-    }
-
-    private var dropZone: some View {
-        Button {
-            guard !state.clientsImported else { return }
-            withAnimation(.easeOut(duration: 0.25)) {
-                state.clientsImported = true
+        return Button {
+            guard !doneImporting, !isRunning else { return }
+            if isSelected {
+                state.selectedClientSources.remove(row.source)
+            } else {
+                state.selectedClientSources.insert(row.source)
             }
         } label: {
-            VStack(spacing: 8) {
-                if state.clientsImported {
-                    Text("Jazz_clients.csv")
-                        .font(.system(size: 13.5, weight: .semibold))
-                    Text("212 clients imported · 9 duplicates merged")
-                        .font(.system(size: 13.5))
-                } else {
-                    Text("Upload a file from your device")
-                        .font(.system(size: 13.5, weight: .semibold))
-                    Text("CSV, spreadsheet, export, screenshots. We sort it out.")
-                        .font(.system(size: 13.5))
+            HStack(alignment: .top, spacing: 12) {
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(isSelected ? Tokens.Color.ink : Color.white)
+                    .frame(width: 22, height: 22)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7)
+                            .strokeBorder(isSelected ? Tokens.Color.ink : Color.black.opacity(0.35), lineWidth: 1.5)
+                    )
+                    .overlay {
+                        if isSelected {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Tokens.Color.fog)
+                        }
+                    }
+                    .padding(.top, 1)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(row.title)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Tokens.Color.textPrimary)
+                    Text(row.subtitle)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Tokens.Color.textSecondary)
+                    if let later = row.later, !isImported {
+                        Text(later)
+                            .font(.system(size: 11))
+                            .italic()
+                            .foregroundStyle(Tokens.Color.textTertiary)
+                    }
+                    if isImportingNow || isImported {
+                        HStack {
+                            TrackedLabel(
+                                text: isImported ? row.doneLabel : "Importing…",
+                                font: Tokens.Typography.labelSmall,
+                                color: isImported ? Color(hex: "#8A6F3F") : Tokens.Color.textSecondary
+                            )
+                            Spacer()
+                        }
+                        .padding(.top, 4)
+                    }
                 }
+                Spacer(minLength: 0)
             }
-            .foregroundStyle(Tokens.Color.textSecondary)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(
-                    Color.black.opacity(0.35),
-                    style: StrokeStyle(lineWidth: 1, dash: state.clientsImported ? [] : [5, 4])
-                )
-        )
+        .disabled(doneImporting || isRunning)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
+        }
+        .overlay(alignment: .bottom) {
+            if row.source == rows.last?.source {
+                Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
+            }
+        }
+    }
+
+    private func runImports() {
+        guard anySelected, !isRunning else { return }
+        isRunning = true
+        Task {
+            for row in rows where state.selectedClientSources.contains(row.source) {
+                importing.insert(row.source)
+                try? await Task.sleep(for: .milliseconds(700))
+                state.importedClientSources.insert(row.source)
+                importing.remove(row.source)
+            }
+            isRunning = false
+            state.clientsImportRun = true
+        }
     }
 }
 

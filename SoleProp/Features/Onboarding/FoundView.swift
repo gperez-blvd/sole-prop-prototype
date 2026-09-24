@@ -14,8 +14,7 @@ struct FoundView: View {
     @State private var visibleCount = 0
 
     private let facts = [
-        FoundFact(text: "Jazz Aesthetics · Medical aesthetics", source: "Instagram", isHighlighted: false),
-        FoundFact(text: "Logo, palette, brand voice", source: "Instagram", isHighlighted: false),
+        FoundFact(text: "273 posts · 2,000 followers · 5 highlights", source: "Instagram", isHighlighted: false),
         FoundFact(text: "Suite 204 · Nashville, TN", source: "Google", isHighlighted: false),
         FoundFact(text: "Tue to Sat · 9 to 6", source: "Google", isHighlighted: false),
         FoundFact(text: "11 services with prices and durations", source: "Linktree", isHighlighted: false),
@@ -29,6 +28,8 @@ struct FoundView: View {
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
+            brandCard
+
             VStack(spacing: 0) {
                 ForEach(Array(facts.enumerated()), id: \.element.id) { index, fact in
                     factRow(fact)
@@ -37,7 +38,9 @@ struct FoundView: View {
                 }
             }
 
-            microneedlingPrompt
+            Text("Anything to change? Tap a line. Otherwise you're set.")
+                .font(.system(size: 12.5))
+                .foregroundStyle(Tokens.Color.textTertiary)
 
             PillButton(title: "Looks right", action: onContinue)
                 .padding(.top, Tokens.Spacing.md)
@@ -50,6 +53,51 @@ struct FoundView: View {
                 try? await Task.sleep(for: .milliseconds(110))
             }
         }
+    }
+
+    private var brandCard: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(Tokens.Color.ink)
+                .frame(width: 52, height: 52)
+                .overlay(
+                    Text(initials)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Tokens.Color.fog)
+                )
+            VStack(alignment: .leading, spacing: 3) {
+                Text("\(state.firstName) Aesthetics")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Tokens.Color.textPrimary)
+                Text("Medical Spa · Aesthetic Injector · Music City, Nashville")
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(Tokens.Color.textSecondary)
+                HStack(spacing: 6) {
+                    ForEach(["#142D1D", "#F5F0E8", "#0A0A0A"], id: \.self) { hex in
+                        Circle()
+                            .fill(Color(hex: hex))
+                            .overlay(Circle().stroke(Color.black.opacity(0.15), lineWidth: 1))
+                            .frame(width: 12, height: 12)
+                    }
+                    TrackedLabel(text: "from \(state.instagram)", font: Tokens.Typography.labelSmall)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(Color.white)
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Tokens.Color.hairline, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var initials: String {
+        state.name
+            .split(separator: " ")
+            .prefix(2)
+            .compactMap { $0.first }
+            .map(String.init)
+            .joined()
+            .uppercased()
     }
 
     private func factRow(_ fact: FoundFact) -> some View {
@@ -65,23 +113,6 @@ struct FoundView: View {
         .overlay(alignment: .bottom) {
             Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
         }
-    }
-
-    private var microneedlingPrompt: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("One thing we couldn't find. Do you offer microneedling?")
-                .font(.system(size: 13.5, weight: .medium))
-                .foregroundStyle(Tokens.Color.textPrimary)
-            HStack(spacing: 8) {
-                ChoiceChip(title: "Yes", isSelected: state.microneedling == .yes) { state.microneedling = .yes }
-                ChoiceChip(title: "No", isSelected: state.microneedling == .no) { state.microneedling = .no }
-            }
-        }
-        .padding(14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(Tokens.Color.hairline, lineWidth: 1)
-        )
     }
 }
 
