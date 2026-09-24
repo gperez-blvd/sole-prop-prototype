@@ -7,6 +7,7 @@ import type {
   DayId,
   DetailId,
   FormId,
+  PaymentId,
   ProposalId,
 } from "../ids.js";
 
@@ -71,6 +72,8 @@ export interface CueRow {
   capabilityId?: CapabilityId;
   dayId: DayId;
   formId?: FormId;
+  /** Added in ADDENDUM_01.md. */
+  paymentId?: PaymentId;
 
   // has 0-many ACTION (it reports) -> Action.cueId (reverse).
 }

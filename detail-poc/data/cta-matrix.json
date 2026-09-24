@@ -21,6 +21,14 @@
     "FORM",
     "APPOINTMENT",
     "SERVICE",
+    "PRODUCT",
+    "PRODUCT USAGE RULE",
+    "PRODUCT USAGE",
+    "PRODUCT CREDIT",
+    "ORDER",
+    "ORDER LINE ITEM",
+    "PAYMENT",
+    "PAYOUT",
     "OPENING",
     "WAITLIST REQUEST",
     "MESSAGE",
@@ -1012,6 +1020,452 @@
     {
       "role": "CLIENT",
       "object": "SERVICE",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PRODUCT",
+      "ctas": [
+        {
+          "cta": "Add"
+        },
+        {
+          "cta": "Edit"
+        },
+        {
+          "cta": "Set retail price"
+        },
+        {
+          "cta": "Set unit cost"
+        },
+        {
+          "cta": "Adjust quantity"
+        },
+        {
+          "cta": "Receive stock"
+        },
+        {
+          "cta": "Sell at checkout"
+        },
+        {
+          "cta": "Deactivate"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PRODUCT",
+      "ctas": [
+        {
+          "cta": "Track depletion",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag low stock",
+          "authority": "*"
+        },
+        {
+          "cta": "Recommend at checkout",
+          "authority": "~"
+        },
+        {
+          "cta": "Queue a reorder",
+          "authority": "~"
+        },
+        {
+          "cta": "Change retail price",
+          "authority": "x"
+        },
+        {
+          "cta": "Place a purchase order",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PRODUCT",
+      "ctas": [
+        {
+          "cta": "Buy"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PRODUCT USAGE RULE",
+      "ctas": [
+        {
+          "cta": "Create"
+        },
+        {
+          "cta": "Set price per item"
+        },
+        {
+          "cta": "Set default quantity"
+        },
+        {
+          "cta": "Deactivate"
+        },
+        {
+          "cta": "Remove"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PRODUCT USAGE RULE",
+      "ctas": [
+        {
+          "cta": "Suggest a default from history",
+          "authority": "~"
+        },
+        {
+          "cta": "Change price per item",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PRODUCT USAGE RULE",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PRODUCT USAGE",
+      "ctas": [
+        {
+          "cta": "Record units used"
+        },
+        {
+          "cta": "Adjust units"
+        },
+        {
+          "cta": "Dictate"
+        },
+        {
+          "cta": "Redeem prepaid units"
+        },
+        {
+          "cta": "Correct after checkout"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PRODUCT USAGE",
+      "ctas": [
+        {
+          "cta": "Pre-fill from the default",
+          "authority": "*"
+        },
+        {
+          "cta": "Transcribe from her dictation",
+          "authority": "*"
+        },
+        {
+          "cta": "Deplete stock",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag a variance",
+          "authority": "*"
+        },
+        {
+          "cta": "Charge for units",
+          "authority": "x"
+        },
+        {
+          "cta": "Disclose unit counts to the client",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PRODUCT USAGE",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PRODUCT CREDIT",
+      "ctas": [
+        {
+          "cta": "Sell prepaid units"
+        },
+        {
+          "cta": "Apply a bulk discount"
+        },
+        {
+          "cta": "Redeem"
+        },
+        {
+          "cta": "Refund"
+        },
+        {
+          "cta": "Adjust the balance"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PRODUCT CREDIT",
+      "ctas": [
+        {
+          "cta": "Surface the balance before checkout",
+          "authority": "*"
+        },
+        {
+          "cta": "Remind her at checkout",
+          "authority": "*"
+        },
+        {
+          "cta": "Redeem without asking",
+          "authority": "x"
+        },
+        {
+          "cta": "Sell prepaid units",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PRODUCT CREDIT",
+      "ctas": [
+        {
+          "cta": "Buy prepaid units"
+        },
+        {
+          "cta": "Request a refund"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "ORDER",
+      "ctas": [
+        {
+          "cta": "Open"
+        },
+        {
+          "cta": "Add a line item"
+        },
+        {
+          "cta": "Apply a discount"
+        },
+        {
+          "cta": "Take payment"
+        },
+        {
+          "cta": "Close"
+        },
+        {
+          "cta": "Void"
+        },
+        {
+          "cta": "Refund"
+        },
+        {
+          "cta": "Reopen"
+        },
+        {
+          "cta": "Email a receipt"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "ORDER",
+      "ctas": [
+        {
+          "cta": "Open it at check-in",
+          "authority": "*"
+        },
+        {
+          "cta": "Pre-fill from the appointment",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag an unclosed order",
+          "authority": "*"
+        },
+        {
+          "cta": "Take a payment",
+          "authority": "x"
+        },
+        {
+          "cta": "Apply a discount",
+          "authority": "x"
+        },
+        {
+          "cta": "Close it",
+          "authority": "x"
+        },
+        {
+          "cta": "Void or refund",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "ORDER",
+      "ctas": [
+        {
+          "cta": "Pay"
+        },
+        {
+          "cta": "Tip"
+        },
+        {
+          "cta": "Request a receipt"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "ORDER LINE ITEM",
+      "ctas": [
+        {
+          "cta": "Add"
+        },
+        {
+          "cta": "Edit quantity"
+        },
+        {
+          "cta": "Adjust price"
+        },
+        {
+          "cta": "Discount"
+        },
+        {
+          "cta": "Remove"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "ORDER LINE ITEM",
+      "ctas": [
+        {
+          "cta": "Add from product usage",
+          "authority": "*"
+        },
+        {
+          "cta": "Adjust price",
+          "authority": "x"
+        },
+        {
+          "cta": "Discount",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "ORDER LINE ITEM",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PAYMENT",
+      "ctas": [
+        {
+          "cta": "Take"
+        },
+        {
+          "cta": "Split the tender"
+        },
+        {
+          "cta": "Retry"
+        },
+        {
+          "cta": "Refund"
+        },
+        {
+          "cta": "Void"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PAYMENT",
+      "ctas": [
+        {
+          "cta": "Flag a decline",
+          "authority": "*"
+        },
+        {
+          "cta": "Take a payment",
+          "authority": "x"
+        },
+        {
+          "cta": "Retry a payment",
+          "authority": "x"
+        },
+        {
+          "cta": "Refund",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PAYMENT",
+      "ctas": [
+        {
+          "cta": "Pay"
+        },
+        {
+          "cta": "Retry"
+        },
+        {
+          "cta": "Dispute"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PAYOUT",
+      "ctas": [
+        {
+          "cta": "Connect a bank account"
+        },
+        {
+          "cta": "Change the destination"
+        },
+        {
+          "cta": "Change the schedule"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PAYOUT",
+      "ctas": [
+        {
+          "cta": "Report the timing",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag a failure",
+          "authority": "*"
+        },
+        {
+          "cta": "Change the destination",
+          "authority": "x"
+        },
+        {
+          "cta": "Initiate",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PAYOUT",
       "ctas": []
     },
     {

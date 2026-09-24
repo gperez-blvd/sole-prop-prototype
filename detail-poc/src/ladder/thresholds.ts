@@ -107,6 +107,23 @@ export const THRESHOLD_DEFINITIONS: ThresholdDefinition[] = [
     },
     matches: (s) => s.domain === "external" && s.source === "weather" && !/rain|storm/i.test(s.payload),
   },
+  {
+    // Added in ADDENDUM_01.md: "Payout of $2,420.00 initiated" is silence,
+    // same family as the payment-succeeded threshold above.
+    data: {
+      ruleStatement: "Routine payout initiated: no mention.",
+      observedBehavior: "Every scheduled payout has gone unremarked; only a failure would interrupt.",
+      type: "speaking_window",
+      boundaryValue: "n/a",
+      permittedAction: "stay_silent",
+      mechanics: "inferred_silently",
+      evidenceCount: 40,
+      confidence: "high",
+      learnedDate: new Date(2026, 1, 15),
+      lastConfirmed: new Date(2026, 8, 20),
+    },
+    matches: (s) => s.domain === "payments" && /payout/i.test(s.payload) && !/failed/i.test(s.payload),
+  },
 ];
 
 /**

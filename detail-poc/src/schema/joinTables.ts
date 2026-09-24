@@ -10,12 +10,14 @@ import type {
   BriefingId,
   CampaignId,
   CapabilityId,
+  ChartEntryId,
   ClientId,
   CueDecisionId,
   DayId,
   OpeningId,
   OperatorId,
   PatternId,
+  ProductId,
   ProposalId,
   ReviewId,
   SegmentId,
@@ -155,4 +157,16 @@ export interface ProposalFulfillsWaitlistRequestRow {
 export interface ServiceGoverningThresholdRow {
   serviceId: ServiceId;
   thresholdId: ThresholdId;
+}
+
+/**
+ * CHART ENTRY "has 0-many PRODUCT (recorded by lot)" — one-directional,
+ * no reverse slot on PRODUCT. Deliberately carries no lot/expiry fields:
+ * PRODUCT doesn't track expiry (△ Expiry, not tracked by Boulevard —
+ * ADDENDUM_01.md), and lot/expiry for what was actually injected stays on
+ * CHART ENTRY's own free-text "Products & Lots" field, as specified.
+ */
+export interface ChartEntryProductRow {
+  chartEntryId: ChartEntryId;
+  productId: ProductId;
 }

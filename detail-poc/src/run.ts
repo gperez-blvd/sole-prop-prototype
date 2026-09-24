@@ -29,7 +29,7 @@ if (ladderResult.totalSignals < 350 || ladderResult.totalSignals > 450) {
   console.error(`\n⚠ signal count ${ladderResult.totalSignals} is outside the ~400 target band.`);
   process.exitCode = 1;
 }
-if (ladderResult.cuesProduced < 3 || ladderResult.cuesProduced > 8) {
-  console.error(`\n⚠ cue count ${ladderResult.cuesProduced} is outside the "about 5" target band.`);
+if (ladderResult.cuesProduced < 3 || ladderResult.cuesProduced > 9) {
+  console.error(`\n⚠ cue count ${ladderResult.cuesProduced} is outside the "about 5-7" target band.`);
   process.exitCode = 1;
 }

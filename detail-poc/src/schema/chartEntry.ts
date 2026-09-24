@@ -44,4 +44,8 @@ export interface ChartEntryRow {
   serviceId?: ServiceId;
   /** Self-referential — "has 0-1 CHART ENTRY (it amends)". */
   amendsEntryId?: ChartEntryId;
+
+  // Added in ADDENDUM_01.md, both resolved elsewhere, not stored here:
+  //   - has 0-many PRODUCT USAGE (it documents) -> ProductUsage.chartEntryId (reverse)
+  //   - has 0-many PRODUCT (recorded by lot)     -> join table chart_entry_products
 }

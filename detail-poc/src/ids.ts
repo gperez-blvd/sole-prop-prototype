@@ -45,6 +45,14 @@ export type MessageId = Brand<string, "MessageId">;
 export type CampaignId = Brand<string, "CampaignId">;
 export type SegmentId = Brand<string, "SegmentId">;
 export type ReviewId = Brand<string, "ReviewId">;
+export type ProductId = Brand<string, "ProductId">;
+export type ProductUsageRuleId = Brand<string, "ProductUsageRuleId">;
+export type ProductUsageId = Brand<string, "ProductUsageId">;
+export type ProductCreditId = Brand<string, "ProductCreditId">;
+export type OrderId = Brand<string, "OrderId">;
+export type OrderLineItemId = Brand<string, "OrderLineItemId">;
+export type PaymentId = Brand<string, "PaymentId">;
+export type PayoutId = Brand<string, "PayoutId">;
 
 export const makeId = {
   operator: () => nextId("operator") as OperatorId,
@@ -73,6 +81,14 @@ export const makeId = {
   campaign: () => nextId("campaign") as CampaignId,
   segment: () => nextId("segment") as SegmentId,
   review: () => nextId("review") as ReviewId,
+  product: () => nextId("product") as ProductId,
+  productUsageRule: () => nextId("product_usage_rule") as ProductUsageRuleId,
+  productUsage: () => nextId("product_usage") as ProductUsageId,
+  productCredit: () => nextId("product_credit") as ProductCreditId,
+  order: () => nextId("order") as OrderId,
+  orderLineItem: () => nextId("order_line_item") as OrderLineItemId,
+  payment: () => nextId("payment") as PaymentId,
+  payout: () => nextId("payout") as PayoutId,
 };
 
 /** Reset the id counter. Used only so test files get stable, readable ids. */

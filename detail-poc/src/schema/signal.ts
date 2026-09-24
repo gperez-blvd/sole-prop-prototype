@@ -5,6 +5,8 @@ import type {
   CueDecisionId,
   DayId,
   FormId,
+  PaymentId,
+  ProductId,
   SignalId,
 } from "../ids.js";
 
@@ -62,6 +64,10 @@ export interface SignalRow {
   appointmentId?: AppointmentId;
   dayId: DayId;
   formId?: FormId;
+  /** Added in ADDENDUM_01.md. */
+  productId?: ProductId;
+  /** Added in ADDENDUM_01.md. */
+  paymentId?: PaymentId;
   /** Owning side of "has 0-1 CUE DECISION (resolved by)". Set by the ladder. */
   cueDecisionId?: CueDecisionId;
 
