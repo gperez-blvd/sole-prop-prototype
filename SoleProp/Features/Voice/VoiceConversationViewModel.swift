@@ -9,6 +9,9 @@ enum ConversationInputMode {
 final class VoiceConversationViewModel {
     var messages: [ConversationMessage] = []
     var inputMode: ConversationInputMode = .voice
+    /// Whether the orb is switched on. While true, Cue keeps re-arming the
+    /// mic after every reply — no re-tap needed between prompts. The user
+    /// turns it off the same way they turned it on: tapping the orb.
     var isListening = false
     var audioLevel: Double { speech.audioLevel }
     var errorMessage: String?
@@ -29,48 +32,81 @@ final class VoiceConversationViewModel {
     private let player = AudioPlaybackService()
     private let assistant = MockAssistantEngine()
 
+    /// True from the moment the orb is switched on until it's switched
+    /// off — spans any number of listen → reply → re-listen cycles.
+    private var isEnabled = false
+    /// A monotonically increasing token so a stale cycle (from before the
+    /// orb was switched off) can't re-arm the mic after the fact.
+    private var sessionToken = 0
+
+    /// The orb's tap action — switches continuous listening on if it's
+    /// off, or off if it's on. Long-pressing the orb instead opens the
+    /// full transcript (`VoiceConversationView`), which shares this same
+    /// instance.
+    func toggleListening() {
+        isEnabled ? stopListening() : startListening()
+    }
+
     func startListening() {
+        guard !isEnabled else { return }
+        isEnabled = true
+        sessionToken += 1
+        listenCycle(token: sessionToken)
+    }
+
+    func stopListening() {
+        isEnabled = false
+        sessionToken += 1
+        speech.stopListening()
+        isListening = false
+    }
+
+    private func listenCycle(token: Int) {
+        guard isEnabled, token == sessionToken else { return }
         Task {
             let granted = await speech.requestPermission()
+            guard token == sessionToken else { return }
             guard granted else {
                 errorMessage = "Microphone and speech recognition access are needed for voice mode."
+                stopListening()
                 return
             }
             do {
                 isListening = true
                 try speech.startListening { [weak self] finalTranscript in
-                    self?.isListening = false
-                    self?.handleUserUtterance(finalTranscript)
+                    guard let self, token == self.sessionToken else { return }
+                    self.isListening = false
+                    let trimmed = finalTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty else {
+                        // Silence timeout with nothing said — just keep
+                        // listening rather than treating it as a command.
+                        self.listenCycle(token: token)
+                        return
+                    }
+                    Task {
+                        await self.handleUserUtterance(finalTranscript)
+                        self.listenCycle(token: token)
+                    }
                 }
             } catch {
+                guard token == self.sessionToken else { return }
                 isListening = false
                 errorMessage = error.localizedDescription
+                stopListening()
             }
         }
     }
 
-    func stopListening() {
-        speech.stopListening()
-        isListening = false
-    }
-
-    /// The Home orb's tap action — start listening if idle, stop if already
-    /// listening. Long-pressing the orb instead opens the full transcript
-    /// (`VoiceConversationView`), which shares this same instance.
-    func toggleListening() {
-        isListening ? stopListening() : startListening()
-    }
-
     func submitText(_ text: String) {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        handleUserUtterance(text)
+        Task { await handleUserUtterance(text) }
     }
 
-    private func handleUserUtterance(_ text: String) {
+    private func handleUserUtterance(_ text: String) async {
         messages.append(ConversationMessage(role: .user, text: text))
         let reply = assistant.respond(to: text)
         messages.append(ConversationMessage(role: .assistant, text: reply))
-        speak(reply)
+        await speak(reply)
 
         let lower = text.lowercased()
         if lower.contains("checkout") || lower.contains("check out") {
@@ -88,11 +124,19 @@ final class VoiceConversationViewModel {
     /// as any other Cue reply.
     func announceDailyBrief(_ brief: DailyBrief) {
         messages.append(ConversationMessage(role: .assistant, text: brief.spokenText))
-        do {
-            try player.play(resource: "daily-brief", withExtension: "mp3")
-        } catch {
-            errorMessage = error.localizedDescription
+        Task {
+            do {
+                try await player.play(resource: "daily-brief", withExtension: "mp3")
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
+    }
+
+    /// Cuts off the daily brief's voiceover — called when "Okay" is
+    /// tapped before it finishes playing on its own.
+    func skipDailyBriefAudio() {
+        player.stop()
     }
 
     /// Called when the operator taps a growth idea on `QuarterlyBriefSheet`
@@ -100,21 +144,19 @@ final class VoiceConversationViewModel {
     /// same as any other reply.
     func elaborate(on idea: GrowthIdea) {
         messages.append(ConversationMessage(role: .assistant, text: idea.elaboration))
-        speak(idea.elaboration)
+        Task { await speak(idea.elaboration) }
     }
 
-    private func speak(_ text: String) {
+    private func speak(_ text: String) async {
         guard ElevenLabsConfig.isConfigured else {
             messages.append(ConversationMessage(role: .system, text: "Voice reply not spoken — ElevenLabs API key isn't configured yet."))
             return
         }
-        Task {
-            do {
-                let audio = try await tts.synthesize(text: text)
-                try player.play(audio)
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+        do {
+            let audio = try await tts.synthesize(text: text)
+            try await player.play(audio)
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 }

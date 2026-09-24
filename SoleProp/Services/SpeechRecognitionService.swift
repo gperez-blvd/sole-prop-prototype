@@ -106,10 +106,10 @@ final class SpeechRecognitionService: NSObject {
         let finalText = transcript
         let callback = onFinalCallback
         teardownAudio()
-        let trimmed = finalText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmed.isEmpty {
-            callback?(finalText)
-        }
+        // Always report back, even an empty transcript (silence timeout) —
+        // continuous listening needs to know a session ended either way so
+        // it can restart the mic instead of going silent forever.
+        callback?(finalText)
     }
 
     private func teardownAudio() {

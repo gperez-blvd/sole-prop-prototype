@@ -5,6 +5,10 @@ options:
     iOS: "17.0"
   createIntermediateGroups: true
 
+configFiles:
+  Debug: Secrets.xcconfig
+  Release: Secrets.xcconfig
+
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -33,17 +37,15 @@ targets:
 
 schemes:
   SoleProp:
-    # The whole generated .xcodeproj (this scheme included) is gitignored
-    # (*.xcodeproj), so nothing here is ever committed regardless of this
-    # empty placeholder. Fill in ELEVENLABS_API_KEY yourself via Xcode:
-    # Product > Scheme > Edit Scheme > Run > Arguments > Environment
-    # Variables — never paste a real key into this file, and note that
-    # re-running `xcodegen generate` resets the value back to empty, so
-    # you'll need to re-enter it after any regen.
+    # The real key lives in Secrets.xcconfig (gitignored, not this file —
+    # see Secrets.xcconfig.example for setup). It's loaded as a build
+    # setting via `configFiles` above, and this just forwards that build
+    # setting into the process environment at launch, so it survives every
+    # `xcodegen generate` instead of resetting to empty.
     build:
       targets:
         SoleProp: all
     run:
       config: Debug
       environmentVariables:
-        ELEVENLABS_API_KEY: ""
+        ELEVENLABS_API_KEY: "$(ELEVENLABS_API_KEY)"

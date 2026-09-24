@@ -43,6 +43,7 @@ struct HomeView: View {
 
             if showDailyBrief {
                 DailyBriefView(brief: HomeMockData.dailyBrief) {
+                    voiceAssistant.skipDailyBriefAudio()
                     withAnimation(.easeOut(duration: 0.5)) {
                         showDailyBrief = false
                     }
