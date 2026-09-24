@@ -259,4 +259,21 @@ enum HomeMockData {
             ),
         ]
     )
+
+    /// The morning car-mode Brief Cue opens Home with — shown once per app
+    /// launch, read aloud, then dismissed into the normal ranked Home
+    /// sections. Rows and spoken line both come from the DETAIL/CUE
+    /// prototype's own `d742` morning-drive screen.
+    static let dailyBrief = DailyBrief(
+        route: "CarPlay · I-65 South",
+        greeting: "Morning, \(ownerFirstName).",
+        rows: [
+            DailyBriefRow(label: "Appointments today", value: "7"),
+            DailyBriefRow(label: "Maya · first-time tox · referred by Dani", value: "11:00"),
+            DailyBriefRow(label: "Open for 90 minutes", value: "2:30"),
+            DailyBriefRow(label: "Rain after 3 · 4:15 may run late", value: "Watch"),
+            DailyBriefRow(label: "Yesterday's consult", value: "Follow-up sent", isHighlighted: true),
+        ],
+        spokenText: "Morning. Seven today. Your 11:00 is Maya, first-time tox, referred by Dani. Intake's done, nothing flagged. You've got 90 minutes open at 2:30. Rain after 3, so your 4:15 may run late. That's it."
+    )
 }
