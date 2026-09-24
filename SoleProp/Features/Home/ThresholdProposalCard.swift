@@ -12,24 +12,27 @@ struct ThresholdProposalCard: View {
     @State private var confirmedOption: ThresholdOption?
     @State private var showReasoning = false
 
+    /// Dark and contrasting, deliberately distinct from CueCard's white —
+    /// this is DETAIL asking for something (a threshold, a capability), not
+    /// just reporting what it already did.
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let confirmedOption {
                 Text("Got it — I'll flag it at \(confirmedOption.label) late.")
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.fog)
             } else {
                 if let context = proposal.context {
                     Text(context)
                         .font(Tokens.Typography.labelSmall)
-                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .foregroundStyle(Tokens.Color.ochre)
                         .textCase(.uppercase)
                         .kerning(1.2)
                 }
 
                 Text(proposal.spokenFraming)
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.fog)
 
                 HStack(spacing: 8) {
                     ForEach(proposal.options) { option in
@@ -42,29 +45,29 @@ struct ThresholdProposalCard: View {
                         withAnimation { showReasoning.toggle() }
                     }
                     .font(Tokens.Typography.caption)
-                    .foregroundStyle(Tokens.Color.textSecondary)
+                    .foregroundStyle(Tokens.Color.silt)
 
                     Spacer()
 
                     Button("Not now", action: onDecline)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .foregroundStyle(Tokens.Color.silt.opacity(0.7))
                 }
 
                 if showReasoning {
                     Text(proposal.finding)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textSecondary)
+                        .foregroundStyle(Tokens.Color.silt)
                         .transition(.opacity)
                 }
             }
         }
         .padding(16)
-        .background(Tokens.Color.white)
+        .background(Tokens.Color.ink)
         .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Tokens.Color.hairline)
+                .strokeBorder(Color.white.opacity(0.12))
         )
     }
 
@@ -74,11 +77,11 @@ struct ThresholdProposalCard: View {
         } label: {
             Text(option.label)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Tokens.Color.textPrimary)
+                .foregroundStyle(Tokens.Color.fog)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .overlay(
-                    Capsule().strokeBorder(Tokens.Color.ochre.opacity(0.55))
+                    Capsule().strokeBorder(Tokens.Color.ochre.opacity(0.7))
                 )
         }
         .buttonStyle(.plain)

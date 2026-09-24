@@ -1,14 +1,11 @@
 import SwiftUI
 
 /// DETAIL speaking a CUE — one thing it noticed — plus the ACTION it
-/// already took in response. Advances on its own after a beat, or
-/// immediately if she taps through, into whatever comes next (e.g. a
-/// threshold proposal following from this same moment).
+/// already took in response. Stays until she dismisses it herself, by
+/// "Got it" or a swipe — never on its own.
 struct CueCard: View {
     var cue: Cue
     var onAcknowledge: () -> Void
-
-    @State private var acknowledged = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -39,7 +36,7 @@ struct CueCard: View {
 
             HStack {
                 Spacer()
-                Button("Got it", action: acknowledge)
+                Button("Got it", action: onAcknowledge)
                     .font(Tokens.Typography.caption)
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
@@ -51,16 +48,6 @@ struct CueCard: View {
             RoundedRectangle(cornerRadius: Tokens.Radius.card)
                 .strokeBorder(Tokens.Color.hairline)
         )
-        .task {
-            try? await Task.sleep(nanoseconds: 2_200_000_000)
-            acknowledge()
-        }
-    }
-
-    private func acknowledge() {
-        guard !acknowledged else { return }
-        acknowledged = true
-        onAcknowledge()
     }
 }
 
