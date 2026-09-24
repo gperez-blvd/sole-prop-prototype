@@ -45,11 +45,20 @@ enum HomeMockData {
     /// Coarse booked/open slots across the day, for the Home screen's day strip.
     static let dayStripSlots = [false, true, true, true, false, true, false, true, false, true]
 
+    /// The CUE that kicks off this moment — DETAIL noticed a client message
+    /// and flagged it, plus the ACTION it already took in response. Shown
+    /// first; the threshold proposal below follows from it.
+    static let pendingCue: Cue? = Cue(
+        spokenText: "Priya S. is running 10 minutes late.",
+        action: DetailAction(description: "Let her know you're running a few minutes behind too.")
+    )
+
     /// A threshold-tuning proposal DETAIL is still learning toward — surfaced
-    /// on Home while confidence stays low, gone once she answers it once.
+    /// right after the cue above, gone once she answers it once.
     static let pendingThresholdProposal: Proposal? = Proposal(
-        spokenFraming: "Want me to flag it when someone's running 10 minutes late, or wait until 20?",
-        finding: "You've had a few late arrivals this month and I haven't said anything — I'm not sure yet how much notice you want.",
+        context: "Priya S. — running late",
+        spokenFraming: "Since I flagged that — want me to tell you next time someone's 10 minutes late, or wait until 20?",
+        finding: "This is the first time this has come up, so I don't know yet how much notice you want.",
         options: [
             ThresholdOption(boundaryValue: 10, label: "10 min"),
             ThresholdOption(boundaryValue: 20, label: "20 min"),
@@ -59,7 +68,7 @@ enum HomeMockData {
             boundaryValue: 15,
             unit: "minutes",
             confidence: .low,
-            evidenceCount: 3
+            evidenceCount: 1
         )
     )
 }

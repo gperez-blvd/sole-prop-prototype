@@ -13,6 +13,9 @@ struct ThresholdOption: Identifiable, Hashable {
 /// boundary, so it asks rather than infers silently.
 struct Proposal: Identifiable, Hashable {
     let id = UUID()
+    /// Ties this back to the CUE that raised it, e.g. "Priya S. — running
+    /// late" — so the proposal reads as a follow-up, not a cold question.
+    var context: String?
     var spokenFraming: String
     var finding: String
     var options: [ThresholdOption]
