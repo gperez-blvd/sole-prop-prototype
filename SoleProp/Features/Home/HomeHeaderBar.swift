@@ -11,14 +11,16 @@ struct HomeHeaderBar: View {
             Button(action: onMenuTap) {
                 Image(systemName: "line.3.horizontal")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .frame(width: 36, height: 36)
             }
             .buttonStyle(.plain)
 
             Text(businessName)
-                .font(BUITokens.Typography.headerTitle)
-                .foregroundStyle(BUITokens.Color.textPrimary)
+                .font(Tokens.Typography.label)
+                .foregroundStyle(Tokens.Color.textPrimary)
+                .textCase(.uppercase)
+                .kerning(1.2)
                 .frame(maxWidth: .infinity)
 
             HStack(spacing: 4) {

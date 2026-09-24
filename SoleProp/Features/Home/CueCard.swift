@@ -13,31 +13,36 @@ struct CueCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(cue.spokenText)
-                .font(BUITokens.Typography.cardTitle)
-                .foregroundStyle(BUITokens.Color.textPrimary)
+                .font(Tokens.Typography.body)
+                .foregroundStyle(Tokens.Color.textPrimary)
 
             if let action = cue.action {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("WHAT I DID")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(BUITokens.Color.disabled)
+                    Text("What I did")
+                        .font(Tokens.Typography.labelSmall)
+                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .textCase(.uppercase)
+                        .kerning(1.2)
                     Text(action.description)
-                        .font(.system(size: 13))
-                        .foregroundStyle(BUITokens.Color.textStrong)
+                        .font(Tokens.Typography.caption)
+                        .foregroundStyle(Tokens.Color.textSecondary)
                 }
             }
 
             HStack {
                 Spacer()
                 Button("Got it", action: acknowledge)
-                    .font(.system(size: 12))
-                    .foregroundStyle(BUITokens.Color.textStrong)
+                    .font(Tokens.Typography.caption)
+                    .foregroundStyle(Tokens.Color.textSecondary)
             }
         }
         .padding(16)
-        .background(BUITokens.Color.background)
-        .clipShape(RoundedRectangle(cornerRadius: BUITokens.Radius.card))
-        .shadow(color: BUITokens.Shadow.medium, radius: BUITokens.Shadow.mediumRadius, x: 0, y: BUITokens.Shadow.mediumY)
+        .background(Tokens.Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                .strokeBorder(Tokens.Color.hairline)
+        )
         .task {
             try? await Task.sleep(nanoseconds: 2_200_000_000)
             acknowledge()
@@ -54,5 +59,5 @@ struct CueCard: View {
 #Preview {
     CueCard(cue: HomeMockData.pendingCue!, onAcknowledge: {})
         .padding(28)
-        .background(BUITokens.Color.background)
+        .background(Tokens.Color.background)
 }

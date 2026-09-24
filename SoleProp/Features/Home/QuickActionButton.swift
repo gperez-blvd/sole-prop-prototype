@@ -13,13 +13,12 @@ struct QuickActionButton: View {
                 Text(title)
                     .font(.system(size: 14, weight: .medium))
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Tokens.Color.paper)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
-        .background(BUITokens.Color.contrastPrimary)
+        .background(Tokens.Color.onyx)
         .clipShape(Capsule())
-        .shadow(color: BUITokens.Shadow.medium, radius: 20, x: 0, y: 6)
     }
 }

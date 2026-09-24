@@ -15,17 +15,17 @@ struct NextAppointmentCard: View {
                     HStack(spacing: 8) {
                         InitialsAvatar(name: appointment.clientName, size: 24)
                         Text(appointment.clientName)
-                            .font(BUITokens.Typography.cardTitle)
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .font(Tokens.Typography.body)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                     }
                     HStack(spacing: 8) {
                         Image(systemName: "calendar")
                             .font(.system(size: 15))
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                             .frame(width: 24, height: 24)
                         Text("\(appointment.service) - \(appointment.startTime.formatted(date: .omitted, time: .shortened))")
-                            .font(BUITokens.Typography.cardTitle)
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .font(Tokens.Typography.body)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -40,14 +40,17 @@ struct NextAppointmentCard: View {
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .frame(width: 36, height: 36)
             }
         }
         .padding(16)
-        .background(BUITokens.Color.background)
-        .clipShape(RoundedRectangle(cornerRadius: BUITokens.Radius.card))
-        .shadow(color: BUITokens.Shadow.medium, radius: BUITokens.Shadow.mediumRadius, x: 0, y: BUITokens.Shadow.mediumY)
+        .background(Tokens.Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                .strokeBorder(Tokens.Color.hairline)
+        )
     }
 }
 
@@ -63,12 +66,12 @@ struct InitialsAvatar: View {
 
     var body: some View {
         Circle()
-            .fill(BUITokens.Color.disabled.opacity(0.4))
+            .fill(Tokens.Color.silt)
             .frame(width: size, height: size)
             .overlay(
                 Text(initial)
                     .font(.system(size: size * 0.5, weight: .semibold))
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.textPrimary)
             )
     }
 }

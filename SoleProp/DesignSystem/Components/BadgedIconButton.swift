@@ -12,16 +12,16 @@ struct BadgedIconButton: View {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: systemImage)
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .frame(width: 36, height: 36)
 
                 if count > 0 {
                     Text(count > 9 ? "9+" : "\(count)")
                         .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Tokens.Color.onyx)
                         .padding(.horizontal, count > 9 ? 4 : 0)
                         .frame(minWidth: 16, minHeight: 16)
-                        .background(Circle().fill(Color.red))
+                        .background(Circle().fill(Tokens.Color.ochre))
                         .offset(x: 4, y: -4)
                 }
             }
