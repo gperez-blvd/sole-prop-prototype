@@ -19,6 +19,13 @@ export const INVENTED_TO_MAKE_IT_RUN: string[] = [
   "campaign_recipients join table — not in the map, but without a record of who a campaign actually reached (vs. who merely matched the segment), 'Reachable is always the consented subset' can't be enforced or tested.",
   "segment_members as a static snapshot — the map describes SEGMENT membership as criteria-based and auto-updating; live criteria evaluation is out of scope for this POC, so membership is seeded once and not recalculated.",
   "WaitlistRequest.requestDisplayId — kept alongside the infrastructure `id` because the map's own core_content field 'Request ID' (e.g. BLVD-WL-0312) is a human-facing identifier distinct from a storage key.",
+
+  // --- ADDENDUM_01.md: products and checkout ---
+  "chart_entry_products join table — CHART ENTRY has 0-many PRODUCT (recorded by lot) declared one-directionally, with deliberately no lot/expiry fields of its own (PRODUCT doesn't track expiry; lot/expiry for what was injected stays on CHART ENTRY's free-text field, as specified).",
+  "DistributiveOmit<T,K> utility type — TypeScript's Omit does not distribute over ORDER LINE ITEM's discriminated union (it collapses to the fields common to every `kind`), so createOrder()'s line-item parameter needed a hand-written distributive version to keep the discriminant's per-kind fields (serviceId/productId/feeDescription) type-checked at all.",
+  "placePurchaseOrder() and initiatePayout() always refuse, regardless of actor — cta-matrix.json gives no role a legitimate CTA for either yet (purchase ordering and payout initiation aren't modeled as anyone's action), so there's no 'operator path' to gate against; flagged rather than inventing an OPERATOR capability the map doesn't grant.",
+  "ProductUsage.amountCharged is recorded but NOT folded into Maya's order total — the addendum says usage amounts are 'folded into the service price,' but doesn't specify the arithmetic, and reconciling it would have meant deviating from the flat per-service order totals the day's $3,180 depends on. Recorded as data for the variance PATTERN; not wired into checkout math.",
+  "ProductCredit.unitsRemaining set directly below unitsPurchased (8 of 20) to represent prior redemption history, rather than backfilling individual historical PRODUCT USAGE rows for redemptions that happened before this seeded day.",
 ];
 
 export function printHandBackReport(store: RelationalStore, dayId: DayId, ladder: LadderRunResult): void {

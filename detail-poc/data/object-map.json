@@ -70,6 +70,11 @@
           "cardinality": "has 0-many",
           "object": "CHART ENTRY",
           "nature": "authored"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER",
+          "nature": "closed"
         }
       ]
     },
@@ -189,6 +194,21 @@
           "cardinality": "has 0-many",
           "object": "WAITLIST REQUEST",
           "nature": "outstanding"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT",
+          "nature": "stocked"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER",
+          "nature": "rung up"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PAYOUT",
+          "nature": "received"
         }
       ]
     },
@@ -572,6 +592,16 @@
           "cardinality": "has 0-1",
           "object": "FORM",
           "nature": "it's about"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PRODUCT",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PAYMENT",
+          "nature": "it's about"
         }
       ]
     },
@@ -727,6 +757,11 @@
           "cardinality": "has 0-1",
           "object": "FORM",
           "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PAYMENT",
+          "nature": "it concerns"
         }
       ]
     },
@@ -765,7 +800,7 @@
         },
         {
           "name": "Collected",
-          "example": "$3,180"
+          "example": "$3,180 — derived from closed ORDERS"
         },
         {
           "name": "vs. Weekday Average",
@@ -856,6 +891,16 @@
           "cardinality": "has 0-many",
           "object": "PATTERN",
           "nature": "it evidences"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER",
+          "nature": "rung up"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PAYOUT",
+          "nature": "initiated"
         }
       ]
     },
@@ -1330,6 +1375,21 @@
           "cardinality": "has 1",
           "object": "CHART",
           "nature": "hers"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT CREDIT",
+          "nature": "prepaid units"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER",
+          "nature": "paid"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PAYMENT",
+          "nature": "made"
         }
       ]
     },
@@ -1489,6 +1549,16 @@
           "cardinality": "has 0-1",
           "object": "CHART ENTRY",
           "nature": "it amends"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE",
+          "nature": "it documents"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT",
+          "nature": "recorded by lot"
         }
       ]
     },
@@ -1699,6 +1769,21 @@
           "cardinality": "has 1",
           "object": "CHART",
           "nature": "being documented"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE",
+          "nature": "consumed during it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "ORDER",
+          "nature": "that settles it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER LINE ITEM",
+          "nature": "billing it"
         }
       ]
     },
@@ -1803,6 +1888,562 @@
           "cardinality": "has 0-many",
           "object": "FORM",
           "nature": "consents for it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE RULE",
+          "nature": "its usage config"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE",
+          "nature": "consumed performing it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER LINE ITEM",
+          "nature": "sold as"
+        }
+      ]
+    },
+    {
+      "name": "PRODUCT",
+      "core_content": [
+        {
+          "name": "Product Name",
+          "example": "Botox 100u vial · Vitamin C serum"
+        },
+        {
+          "name": "Description",
+          "example": "<optional>"
+        },
+        {
+          "name": "Brand",
+          "example": "Allergan · SkinCeuticals"
+        },
+        {
+          "name": "Photo",
+          "example": "<retail shelf image>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "SKU / UPC",
+          "example": "12-digit barcode"
+        },
+        {
+          "name": "Category",
+          "example": "Retail / back bar — only “Retail” appears at checkout"
+        },
+        {
+          "name": "Sellable as Retail?",
+          "example": "yes"
+        },
+        {
+          "name": "Usable in a Service?",
+          "example": "yes — independent of retail"
+        },
+        {
+          "name": "Retail Price",
+          "example": "$96"
+        },
+        {
+          "name": "Default Unit Cost",
+          "example": "$4.10 · FIFO on depletion"
+        },
+        {
+          "name": "Taxable?",
+          "example": "yes"
+        },
+        {
+          "name": "Supplier",
+          "example": "<optional>"
+        },
+        {
+          "name": "Size / Color",
+          "example": "100u · 30ml"
+        },
+        {
+          "name": "Quantity on Hand",
+          "example": "2 vials"
+        },
+        {
+          "name": "Reorder Point",
+          "example": "3"
+        },
+        {
+          "name": "Active at Location?",
+          "example": "off by default on create"
+        },
+        {
+          "name": "△ Expiry",
+          "example": "NOT tracked by Boulevard today — see handoff note"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "stocked by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE RULE",
+          "nature": "configured for services"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE",
+          "nature": "consumed in appointments"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT CREDIT",
+          "nature": "pre-sold as units"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CHART ENTRY",
+          "nature": "recording lot & dose"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "it generated"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "promoting it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ORDER LINE ITEM",
+          "nature": "sold as"
+        }
+      ]
+    },
+    {
+      "name": "PRODUCT USAGE RULE",
+      "core_content": [
+        {
+          "name": "Rule Label",
+          "example": "Lip filler → Juvederm Ultra"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Price Per Item",
+          "example": "$13 per unit"
+        },
+        {
+          "name": "Default Quantity",
+          "example": "2 syringes — drives the self-booking display price"
+        },
+        {
+          "name": "Active?",
+          "example": "yes"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "SERVICE",
+          "nature": "it configures"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "PRODUCT",
+          "nature": "it consumes"
+        }
+      ]
+    },
+    {
+      "name": "PRODUCT USAGE",
+      "core_content": [
+        {
+          "name": "Usage Record ID",
+          "example": "BLVD-PU-8841"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Quantity Expected",
+          "example": "20 units — set at booking, editable"
+        },
+        {
+          "name": "Quantity Used",
+          "example": "24 units — actual"
+        },
+        {
+          "name": "Price Per Item Applied",
+          "example": "$13"
+        },
+        {
+          "name": "Amount Charged",
+          "example": "$312 — folded into the service price"
+        },
+        {
+          "name": "Prepaid Units Redeemed",
+          "example": "12"
+        },
+        {
+          "name": "Recorded At",
+          "example": "Sept 23, 11:48 AM"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "APPOINTMENT",
+          "nature": "consumed during"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "PRODUCT",
+          "nature": "consumed"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "performed"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CHART ENTRY",
+          "nature": "documented in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PRODUCT CREDIT",
+          "nature": "redeemed against"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "ORDER LINE ITEM",
+          "nature": "billed as"
+        }
+      ]
+    },
+    {
+      "name": "PRODUCT CREDIT",
+      "core_content": [
+        {
+          "name": "Credit Label",
+          "example": "20 prepaid tox units"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Units Purchased",
+          "example": "20"
+        },
+        {
+          "name": "Units Remaining",
+          "example": "8"
+        },
+        {
+          "name": "Purchased At",
+          "example": "Jun 14, at checkout"
+        },
+        {
+          "name": "Discount Applied",
+          "example": "10% bulk rate"
+        },
+        {
+          "name": "Amount Paid",
+          "example": "$234"
+        },
+        {
+          "name": "Status",
+          "example": "active / depleted / refunded"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "CLIENT",
+          "nature": "who bought it"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "PRODUCT",
+          "nature": "it's for"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PRODUCT USAGE",
+          "nature": "redeemed against it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "ORDER LINE ITEM",
+          "nature": "bought as"
+        }
+      ]
+    },
+    {
+      "name": "ORDER",
+      "core_content": [
+        {
+          "name": "Order Number",
+          "example": "BLVD-O-9912"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Status",
+          "example": "open / closed / voided / refunded / partially refunded"
+        },
+        {
+          "name": "Subtotal",
+          "example": "$650"
+        },
+        {
+          "name": "Discounts",
+          "example": "—"
+        },
+        {
+          "name": "Tax",
+          "example": "$0 — services untaxed in TN"
+        },
+        {
+          "name": "Gratuity",
+          "example": "$0"
+        },
+        {
+          "name": "Total",
+          "example": "$650"
+        },
+        {
+          "name": "Opened At",
+          "example": "Sept 23, 1:42 PM · at check-in"
+        },
+        {
+          "name": "Closed At",
+          "example": "Sept 23, 2:31 PM"
+        },
+        {
+          "name": "Line Count",
+          "example": "2"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "rung up at"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "who paid — 0 for a retail walk-in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it settles"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "OPERATOR",
+          "nature": "who closed it"
+        },
+        {
+          "cardinality": "has 1-many",
+          "object": "ORDER LINE ITEM",
+          "nature": "on it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PAYMENT",
+          "nature": "tendered against it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "DAY",
+          "nature": "rung up on"
+        }
+      ]
+    },
+    {
+      "name": "ORDER LINE ITEM",
+      "core_content": [
+        {
+          "name": "Line Label",
+          "example": "Lip filler · 2 syringes"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Kind",
+          "example": "service / retail product / prepaid units / fee — discriminated union"
+        },
+        {
+          "name": "Quantity",
+          "example": "2"
+        },
+        {
+          "name": "Unit Price at Sale",
+          "example": "$325 — snapshot, not a live lookup"
+        },
+        {
+          "name": "Line Discount",
+          "example": "—"
+        },
+        {
+          "name": "Line Total",
+          "example": "$650"
+        },
+        {
+          "name": "Commission Basis",
+          "example": "total after product usage is folded in"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "ORDER",
+          "nature": "it's on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "sold"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PRODUCT",
+          "nature": "sold"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PRODUCT USAGE",
+          "nature": "it bills"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PRODUCT CREDIT",
+          "nature": "bought as"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it bills"
+        }
+      ]
+    },
+    {
+      "name": "PAYMENT",
+      "core_content": [
+        {
+          "name": "Payment Reference",
+          "example": "ch_3Q7f…"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Method",
+          "example": "card / cash / prepaid credit / gift card"
+        },
+        {
+          "name": "Amount",
+          "example": "$650"
+        },
+        {
+          "name": "Card Last Four",
+          "example": "6411"
+        },
+        {
+          "name": "Status",
+          "example": "pending / succeeded / declined / refunded"
+        },
+        {
+          "name": "Processed At",
+          "example": "Sept 23, 2:31 PM"
+        },
+        {
+          "name": "Decline Reason",
+          "example": "—"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "ORDER",
+          "nature": "it settles"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "who paid"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PAYOUT",
+          "nature": "settled in"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "it generated"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE",
+          "nature": "it prompted"
+        }
+      ]
+    },
+    {
+      "name": "PAYOUT",
+      "core_content": [
+        {
+          "name": "Payout Reference",
+          "example": "po_1M4k…"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Amount",
+          "example": "$2,420"
+        },
+        {
+          "name": "Initiated At",
+          "example": "Sept 23, 2:10 PM"
+        },
+        {
+          "name": "Expected Arrival",
+          "example": "Thursday"
+        },
+        {
+          "name": "Destination",
+          "example": "bank •••• 2208"
+        },
+        {
+          "name": "Status",
+          "example": "initiated / in transit / paid / failed"
+        },
+        {
+          "name": "Payment Count",
+          "example": "7"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "paid out to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PAYMENT",
+          "nature": "settled in it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "DAY",
+          "nature": "initiated on"
         }
       ]
     },
@@ -2143,6 +2784,11 @@
           "cardinality": "has 0-1",
           "object": "DAY",
           "nature": "sent on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PRODUCT",
+          "nature": "it promotes"
         }
       ]
     },

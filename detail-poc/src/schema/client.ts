@@ -58,4 +58,9 @@ export interface ClientRow {
   //   - has 0-many OPENING (offered to her)   -> join table opening_offers
   //   - has 0-many WAITLIST REQUEST (she's made) -> WaitlistRequest.clientId (reverse)
   //   - has 1 CHART (hers)                    -> Chart.clientId (reverse, unique)
+  //
+  // Added in ADDENDUM_01.md, all reverse:
+  //   - has 0-many PRODUCT CREDIT (prepaid units) -> ProductCredit.clientId
+  //   - has 0-many ORDER (paid)                    -> Order.clientId
+  //   - has 0-many PAYMENT (made)                  -> Payment.clientId
 }

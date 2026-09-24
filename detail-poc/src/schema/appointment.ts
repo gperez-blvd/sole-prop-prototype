@@ -58,4 +58,10 @@ export interface AppointmentRow {
   //   - has 0-1 WAITLIST REQUEST (it came from) -> WaitlistRequest.becameAppointmentId
   //   - has 0-many FORM (required)              -> Form.appointmentId
   //   - has 0-many CHART ENTRY (documenting it) -> ChartEntry.appointmentId
+  //
+  // Added in ADDENDUM_01.md, all reverse — Order/OrderLineItem/ProductUsage
+  // each own their own pointer back to this row:
+  //   - has 0-many PRODUCT USAGE (consumed during it) -> ProductUsage.appointmentId
+  //   - has 0-1 ORDER (that settles it)                -> Order.appointmentId
+  //   - has 0-many ORDER LINE ITEM (billing it)         -> OrderLineItem.appointmentId
 }

@@ -204,6 +204,7 @@ function finishEscalation(
     requiresDecision: boolean;
     clientId?: import("../ids.js").ClientId;
     appointmentId?: import("../ids.js").AppointmentId;
+    paymentId?: import("../ids.js").PaymentId;
   },
 ): void {
   const decision = store.createCueDecision(
@@ -239,6 +240,7 @@ function finishEscalation(
     dayId: seed.dayTueId,
     ...(opts.clientId !== undefined ? { clientId: opts.clientId } : {}),
     ...(opts.appointmentId !== undefined ? { appointmentId: opts.appointmentId } : {}),
+    ...(opts.paymentId !== undefined ? { paymentId: opts.paymentId } : {}),
   });
   result.cuesProduced += 1;
 
@@ -337,5 +339,70 @@ const CLUSTER_SCRIPTS: Record<string, ClusterScript> = {
       clientId: seed.clientIds.renee,
       appointmentId: seed.appointmentIds.renee,
     });
+  },
+
+  // --- ADDENDUM_01.md: products and checkout ---
+
+  "payment-declined": (store, seed, signals, _thresholds, result) => {
+    // DETAIL's only legitimate PAYMENT CTA is "Flag a decline" (silent
+    // authority) — this cue IS that flag. The actual retry is
+    // OPERATOR-attributed, done already in seed.ts.
+    const declinedPayment = store.payments.findOne(
+      (p) => p.orderId === seed.orderIds.tasha && p.status === "declined",
+    );
+    finishEscalation(store, seed, signals, result, {
+      reasoning: "Tasha's card was declined while she's still here — the only payment event that interrupts.",
+      timingDecision: "speak_now",
+      spokenText: "Tasha's card was declined. I'll have her try again.",
+      type: "interstitial",
+      intent: "inform",
+      requiresDecision: false,
+      clientId: seed.clientIds.tasha,
+      appointmentId: seed.appointmentIds.tasha,
+      ...(declinedPayment ? { paymentId: declinedPayment.id } : {}),
+    });
+  },
+
+  "order-unclosed": (store, seed, signals, _thresholds, result) => {
+    finishEscalation(store, seed, signals, result, {
+      reasoning: "Same shape as an unsigned chart entry — worth a line in the debrief, not a live interruption.",
+      timingDecision: "hold_for_debrief",
+      spokenText: "One order's still open from today — Lena's laser.",
+      type: "interstitial",
+      intent: "inform",
+      requiresDecision: false,
+      clientId: seed.clientIds.lena,
+      appointmentId: seed.appointmentIds.lena,
+    });
+  },
+
+  /**
+   * Deliberately produces NO cue. Material (below reorder point, covers
+   * a real appointment risk) but correctly silent today — "the cue waits
+   * for Friday because a threshold says so." This is the case the
+   * handoff warns about in reverse: proof that "matters" and "gets
+   * spoken now" are different steps, even for something we script by
+   * hand rather than leave to the generic classifier.
+   */
+  "low-stock-neurotoxin": (store, seed, signals, _thresholds, result) => {
+    const signal = signals[0]!;
+    store.createCueDecision(
+      {
+        reasoning:
+          "Neurotoxin covers Thursday's appointments; reorder isn't due until Friday. Nothing to say today.",
+        ladderStop: 4,
+        outcome: "deferred",
+        timingDecision: "hold_for_debrief",
+        suppressedAlongside: [],
+        decidedAt: signal.timestamp,
+        detailId: seed.detailId,
+      },
+      [signal.id],
+      [],
+    );
+    result.cueDecisionsCreated += 1;
+    store.signals.update(signal.id, { materiality: true, autoActionable: false, disposition: "deferred" });
+    result.dispositionCounts.deferred += 1;
+    result.ladderStopCounts[4] += 1;
   },
 };

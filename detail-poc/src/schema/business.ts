@@ -29,6 +29,7 @@ export interface BusinessRow {
   // BUSINESS is the root of the graph — it has no outgoing FK of its own.
   // Everything else (has 1-many OPERATOR, has 0-many SERVICE/CLIENT/APPOINTMENT/
   // SIGNAL/DAY/CAMPAIGN/SEGMENT/PATTERN/REVIEW/OPENING/MESSAGE/WAITLIST REQUEST,
-  // and — △ unratified — CAPABILITY) is resolved by reverse lookup on those
-  // tables' businessId, via RelationalStore.
+  // and — △ unratified — CAPABILITY, plus — added in ADDENDUM_01.md —
+  // PRODUCT/ORDER/PAYOUT) is resolved by reverse lookup on those tables'
+  // businessId, via RelationalStore.
 }

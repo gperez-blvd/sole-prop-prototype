@@ -4,6 +4,7 @@ import type {
   DayId,
   DetailId,
   OpeningId,
+  ProductId,
   ProposalId,
   SegmentId,
   ServiceId,
@@ -55,6 +56,8 @@ export interface CampaignRow {
   openingId?: OpeningId;
   serviceId?: ServiceId;
   dayId?: DayId;
+  /** Added in ADDENDUM_01.md — "it promotes". */
+  productId?: ProductId;
   /**
    * INFRASTRUCTURE ADDITION: realizes "DETAIL has 0-many CAMPAIGN
    * (drafted)" — the map only gives Campaign an "Authored By" string, no

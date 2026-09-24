@@ -1,16 +1,20 @@
 /**
- * The fifteen `x`-marked CTAs on DETAIL's row in cta-matrix.json. Per the
- * handoff: "These aren't unbuilt features; they're standing commitments.
- * Enforce them so no code path can reach them."
+ * The thirty-three `x`-marked CTAs on DETAIL's row in cta-matrix.json —
+ * fifteen from the original handoff, eighteen more from ADDENDUM_01.md
+ * (products and checkout). Per the handoff: "These aren't unbuilt
+ * features; they're standing commitments. Enforce them so no code path
+ * can reach them."
  *
  * Design: every RelationalStore mutator that could touch one of these
  * takes an `actor: Actor` parameter. The guard functions below live
  * *inside* those mutators (see RelationalStore.ts) — not bolted on beside
  * them — so there is no second, ungated way to reach the same effect.
- * Two of the fifteen (clinical-flag suppression, clinical detail aloud)
- * are checked unconditionally, regardless of actor, because the map
- * itself says so ("Every other cue type is threshold-governed; this one
- * is not").
+ * Three rules (clinical-flag suppression, clinical detail aloud, and the
+ * unit-count disclosure added in the addendum) are checked unconditionally
+ * or structurally, regardless of actor, because the map itself says so
+ * ("Every other cue type is threshold-governed; this one is not") or
+ * because the schema simply gives client-facing tables no field to leak
+ * unit counts into in the first place.
  */
 import type { CueRow } from "../schema/index.js";
 
@@ -47,6 +51,26 @@ export const HARD_RULES: HardRule[] = [
   { id: "no_sign_chart_entry_on_her_behalf", ctaObject: "CHART ENTRY", cta: "Sign on her behalf", description: "DETAIL cannot sign a chart entry on the operator's behalf." },
   { id: "no_waive_required_form", ctaObject: "FORM", cta: "Waive a required form", description: "DETAIL cannot waive a required form." },
   { id: "no_answer_form_for_client", ctaObject: "FORM", cta: "Answer for the client", description: "DETAIL cannot answer a form on the client's behalf." },
+
+  // --- ADDENDUM_01.md: products and checkout (18 more) ---
+  { id: "no_change_retail_price", ctaObject: "PRODUCT", cta: "Change retail price", description: "DETAIL cannot write PRODUCT.Retail Price." },
+  { id: "no_place_purchase_order", ctaObject: "PRODUCT", cta: "Place a purchase order", description: "DETAIL cannot place a purchase order." },
+  { id: "no_change_price_per_item", ctaObject: "PRODUCT USAGE RULE", cta: "Change price per item", description: "DETAIL cannot write PRODUCT USAGE RULE.Price Per Item — pricing is hers." },
+  { id: "no_charge_for_units", ctaObject: "PRODUCT USAGE", cta: "Charge for units", description: "DETAIL cannot charge for product units used." },
+  { id: "no_disclose_unit_counts", ctaObject: "PRODUCT USAGE", cta: "Disclose unit counts to the client", description: "DETAIL cannot disclose unit counts to the client — she sees the total charged, never the units used." },
+  { id: "no_redeem_credit_without_asking", ctaObject: "PRODUCT CREDIT", cta: "Redeem without asking", description: "DETAIL cannot redeem prepaid units without asking first." },
+  { id: "no_sell_prepaid_units", ctaObject: "PRODUCT CREDIT", cta: "Sell prepaid units", description: "DETAIL cannot sell prepaid units." },
+  { id: "no_take_payment_order", ctaObject: "ORDER", cta: "Take a payment", description: "DETAIL cannot take a payment against an order." },
+  { id: "no_apply_discount_order", ctaObject: "ORDER", cta: "Apply a discount", description: "DETAIL cannot apply a discount to an order." },
+  { id: "no_close_order", ctaObject: "ORDER", cta: "Close it", description: "DETAIL cannot close an order." },
+  { id: "no_void_or_refund_order", ctaObject: "ORDER", cta: "Void or refund", description: "DETAIL cannot void or refund an order." },
+  { id: "no_adjust_price_line_item", ctaObject: "ORDER LINE ITEM", cta: "Adjust price", description: "DETAIL cannot adjust an order line item's price." },
+  { id: "no_discount_line_item", ctaObject: "ORDER LINE ITEM", cta: "Discount", description: "DETAIL cannot discount an order line item." },
+  { id: "no_take_payment", ctaObject: "PAYMENT", cta: "Take a payment", description: "DETAIL cannot take a payment." },
+  { id: "no_retry_payment", ctaObject: "PAYMENT", cta: "Retry a payment", description: "DETAIL cannot retry a payment." },
+  { id: "no_refund_payment", ctaObject: "PAYMENT", cta: "Refund", description: "DETAIL cannot refund a payment." },
+  { id: "no_change_payout_destination", ctaObject: "PAYOUT", cta: "Change the destination", description: "DETAIL cannot change the payout destination." },
+  { id: "no_initiate_payout", ctaObject: "PAYOUT", cta: "Initiate", description: "DETAIL cannot initiate a payout." },
 ];
 
 function assertActorIsNotDetail(ruleId: string, description: string, actor: Actor): void {
@@ -119,6 +143,94 @@ export function assertCanWaiveForm(actor: Actor): void {
 
 export function assertCanAnswerFormForClient(actor: Actor): void {
   assertActorIsNotDetail("no_answer_form_for_client", "DETAIL attempted to answer a form for the client", actor);
+}
+
+// --- ADDENDUM_01.md: products and checkout ---
+
+export function assertCanChangeRetailPrice(actor: Actor): void {
+  assertActorIsNotDetail("no_change_retail_price", "DETAIL attempted to write PRODUCT.Retail Price", actor);
+}
+
+/** No role in the CTA matrix has a legitimate "place a purchase order" CTA yet — always refused. */
+export function assertCanPlacePurchaseOrder(actor: Actor): void {
+  assertActorIsNotDetail("no_place_purchase_order", "DETAIL attempted to place a purchase order", actor);
+}
+
+export function assertCanChangePricePerItem(actor: Actor): void {
+  assertActorIsNotDetail("no_change_price_per_item", "DETAIL attempted to write PRODUCT USAGE RULE.Price Per Item", actor);
+}
+
+export function assertCanChargeForUnits(actor: Actor): void {
+  assertActorIsNotDetail("no_charge_for_units", "DETAIL attempted to charge for product units used", actor);
+}
+
+/**
+ * Belt-and-suspenders: this is also enforced structurally by the schema
+ * itself — ORDER, ORDER LINE ITEM and PAYMENT (the only client-facing
+ * checkout surfaces) have no unit-count field at all to leak. Unit counts
+ * live only on PRODUCT USAGE and CHART ENTRY, neither of which the client
+ * ever sees. This guard exists so the rule is directly testable even
+ * without constructing that whole surface.
+ */
+export function assertCanDiscloseUnitCounts(actor: Actor): void {
+  assertActorIsNotDetail(
+    "no_disclose_unit_counts",
+    "DETAIL attempted to disclose unit counts to the client — she sees the total charged, never the units used",
+    actor,
+  );
+}
+
+export function assertCanRedeemCreditWithoutAsking(actor: Actor): void {
+  assertActorIsNotDetail("no_redeem_credit_without_asking", "DETAIL attempted to redeem prepaid units without asking first", actor);
+}
+
+export function assertCanSellPrepaidUnits(actor: Actor): void {
+  assertActorIsNotDetail("no_sell_prepaid_units", "DETAIL attempted to sell prepaid units", actor);
+}
+
+export function assertCanTakePaymentOnOrder(actor: Actor): void {
+  assertActorIsNotDetail("no_take_payment_order", "DETAIL attempted to take a payment against an order", actor);
+}
+
+export function assertCanApplyOrderDiscount(actor: Actor): void {
+  assertActorIsNotDetail("no_apply_discount_order", "DETAIL attempted to apply a discount to an order", actor);
+}
+
+export function assertCanCloseOrder(actor: Actor): void {
+  assertActorIsNotDetail("no_close_order", "DETAIL attempted to close an order", actor);
+}
+
+export function assertCanVoidOrRefundOrder(actor: Actor): void {
+  assertActorIsNotDetail("no_void_or_refund_order", "DETAIL attempted to void or refund an order", actor);
+}
+
+export function assertCanAdjustLineItemPrice(actor: Actor): void {
+  assertActorIsNotDetail("no_adjust_price_line_item", "DETAIL attempted to adjust an order line item's price", actor);
+}
+
+export function assertCanDiscountLineItem(actor: Actor): void {
+  assertActorIsNotDetail("no_discount_line_item", "DETAIL attempted to discount an order line item", actor);
+}
+
+export function assertCanTakePayment(actor: Actor): void {
+  assertActorIsNotDetail("no_take_payment", "DETAIL attempted to take a payment", actor);
+}
+
+export function assertCanRetryPayment(actor: Actor): void {
+  assertActorIsNotDetail("no_retry_payment", "DETAIL attempted to retry a payment", actor);
+}
+
+export function assertCanRefundPayment(actor: Actor): void {
+  assertActorIsNotDetail("no_refund_payment", "DETAIL attempted to refund a payment", actor);
+}
+
+export function assertCanChangePayoutDestination(actor: Actor): void {
+  assertActorIsNotDetail("no_change_payout_destination", "DETAIL attempted to change the payout destination", actor);
+}
+
+/** No role in the CTA matrix has a legitimate "initiate a payout" CTA yet — payouts are system-scheduled. */
+export function assertCanInitiatePayout(actor: Actor): void {
+  assertActorIsNotDetail("no_initiate_payout", "DETAIL attempted to initiate a payout", actor);
 }
 
 /**

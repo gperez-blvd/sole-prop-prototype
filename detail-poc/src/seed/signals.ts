@@ -23,13 +23,20 @@ function randomTueTimestamp(rng: () => number): Date {
 }
 
 /**
- * Builds the ~400 SIGNAL rows for Tuesday: five curated, narratively-tied
+ * Builds the ~400 SIGNAL rows for Tuesday: eight curated, narratively-tied
  * escalation clusters (tagged `[[ESCALATE:tag]]` so the ladder can find
- * them and route them to a cue regardless of the generic classifier), plus
- * ~394 filler signals spread across the plausible sources, constructed so
- * the generic classifier resolves them silently (materially uneventful,
- * or handled autonomously via a threshold) — never accidentally landing
- * on "material, unhandled, uncurated", which would be an unscripted cue.
+ * them and route them to a cue — or, for one of them, deliberately NOT to
+ * a cue — regardless of the generic classifier), plus filler signals
+ * spread across the plausible sources, constructed so the generic
+ * classifier resolves them silently (materially uneventful, or handled
+ * autonomously via a threshold) — never accidentally landing on
+ * "material, unhandled, uncurated", which would be an unscripted cue.
+ *
+ * Five clusters are from the original handoff (clinical-dani,
+ * cascade-tasha, opening-priya, review-2star, weather-renee). Three are
+ * from ADDENDUM_01.md: payment-declined and order-unclosed both produce a
+ * CUE; low-stock-neurotoxin deliberately does not — "the cue waits for
+ * Friday because a threshold says so."
  */
 export function generateSignals(store: RelationalStore, seed: SeedResult): SignalGenResult {
   const rng = makeRng(918);
@@ -123,6 +130,51 @@ export function generateSignals(store: RelationalStore, seed: SeedResult): Signa
     },
   ]);
 
+  // --- ADDENDUM_01.md: products and checkout ---
+
+  // 6. Payment declined while the client is still in the room — "the only
+  //    payment event that should ever interrupt."
+  const declinedPayment = store.payments.findOne(
+    (p) => p.orderId === seed.orderIds.tasha && p.status === "declined",
+  );
+  curated("payment-declined", [
+    {
+      payload: "payment: Tasha's card declined at checkout",
+      timestamp: new Date(2026, 8, 23, 14, 15),
+      source: "payment",
+      domain: "payments",
+      clientId: clientIds.tasha,
+      appointmentId: appointmentIds.tasha,
+      ...(declinedPayment ? { paymentId: declinedPayment.id } : {}),
+    },
+  ]);
+
+  // 7. Lena's order is still open at end of day — same shape as an
+  //    unsigned chart entry; belongs in the debrief.
+  curated("order-unclosed", [
+    {
+      payload: "order: Lena's laser order still open at day's end",
+      timestamp: new Date(2026, 8, 23, 17, 45),
+      source: "derived",
+      domain: "payments",
+      clientId: clientIds.lena,
+      appointmentId: appointmentIds.lena,
+    },
+  ]);
+
+  // 8. Low stock on the neurotoxin vial — material, correctly NOT spoken
+  //    today. "The cue waits for Friday because a threshold says so."
+  //    Scripted in ladder.ts to resolve to `deferred` with no CUE.
+  curated("low-stock-neurotoxin", [
+    {
+      payload: "stock: neurotoxin vials at 2, reorder point 3 — covers Thursday's tox appointments",
+      timestamp: new Date(2026, 8, 23, 9, 30),
+      source: "stock",
+      domain: "inventory",
+      productId: seed.products.vial,
+    },
+  ]);
+
   const curatedCount = clusters.reduce((sum, c) => sum + c.signalIds.length, 0);
 
   // --- filler: ~394 routine signals, all resolvable without a cue ---
@@ -165,17 +217,40 @@ export function generateSignals(store: RelationalStore, seed: SeedResult): Signa
         domain: "scheduling",
         clientId: pick(rng, allClientIds),
       };
-    } else if (roll < 0.68) {
-      // Stock/inventory note — auto-handled (threshold: handle).
+    } else if (roll < 0.63) {
+      // Stock/inventory note — auto-handled (threshold: handle). (The
+      // neurotoxin vial's OWN low-stock event is curated separately above
+      // — deliberately worded differently so it isn't swept in here.)
       row = {
         payload: pick(rng, [
-          "stock: neurotoxin vials below reorder point",
           "stock: numbing cream running low",
           "stock: gauze restocked",
+          "stock: cotton rounds running low",
+          "stock: retail serum restocked, 14 on hand",
         ]),
         timestamp: randomTueTimestamp(rng),
         source: "stock",
         domain: "inventory",
+      };
+    } else if (roll < 0.66) {
+      // Routine product usage on a non-critical service — a minor
+      // variance, genuinely uneventful (immaterial: no threshold matches,
+      // no deviation keyword — the ladder never even evaluates it).
+      row = {
+        payload: "derived: product usage within normal range for this service",
+        timestamp: randomTueTimestamp(rng),
+        source: "derived",
+        domain: "inventory",
+        clientId: pick(rng, allClientIds),
+      };
+    } else if (roll < 0.68) {
+      // Routine payout initiated — stays silent (threshold: stay_silent),
+      // same family as the payment-succeeded threshold above.
+      row = {
+        payload: `payout: $${randomInt(rng, 800, 2600)} initiated, arriving in 1-2 business days`,
+        timestamp: randomTueTimestamp(rng),
+        source: "api",
+        domain: "payments",
       };
     } else if (roll < 0.78) {
       // Routine, clear/mild weather — stays silent.

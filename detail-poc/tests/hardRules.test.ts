@@ -153,7 +153,102 @@ function minimalStore() {
     businessId: business.id,
     segmentId: segment.id,
   });
-  return { store, business, operator, detail, client, chart, service, day, appointment, chartEntry, form, campaign };
+
+  // --- ADDENDUM_01.md fixtures ---
+  const product = store.createProduct({
+    productName: "Test vial",
+    category: "back_bar",
+    sellableAsRetail: false,
+    usableInService: true,
+    defaultUnitCost: 400,
+    taxable: false,
+    quantityOnHand: 5,
+    reorderPoint: 2,
+    activeAtLocation: true,
+    businessId: business.id,
+  });
+  const productUsageRule = store.createProductUsageRule({
+    ruleLabel: "Test service -> test vial",
+    pricePerItem: 1300,
+    defaultQuantity: 20,
+    active: true,
+    serviceId: service.id,
+    productId: product.id,
+  });
+  const productUsage = store.createProductUsage({
+    usageRecordDisplayId: "BLVD-PU-0001",
+    quantityExpected: 20,
+    quantityUsed: 20,
+    pricePerItemApplied: 1300,
+    amountCharged: 26000,
+    prepaidUnitsRedeemed: 0,
+    recordedAt: new Date(),
+    appointmentId: appointment.id,
+    productId: product.id,
+  });
+  const productCredit = store.createProductCredit({
+    creditLabel: "Test prepaid units",
+    unitsPurchased: 10,
+    unitsRemaining: 10,
+    purchasedAt: new Date(),
+    amountPaid: 10000,
+    status: "active",
+    clientId: client.id,
+    productId: product.id,
+  });
+  const order = store.createOrder(
+    {
+      orderNumber: "BLVD-O-0001",
+      status: "open",
+      subtotal: 18000,
+      discounts: 0,
+      tax: 0,
+      gratuity: 0,
+      total: 18000,
+      openedAt: new Date(),
+      businessId: business.id,
+      clientId: client.id,
+      appointmentId: appointment.id,
+      dayId: day.id,
+    },
+    [
+      {
+        kind: "service",
+        lineLabel: "Test service",
+        quantity: 1,
+        unitPriceAtSale: 18000,
+        lineDiscount: 0,
+        lineTotal: 18000,
+        commissionBasis: "n/a",
+        serviceId: service.id,
+      },
+    ],
+  );
+  const lineItem = store.orderLineItems.findOne((li) => li.orderId === order.id)!;
+  const payment = store.createPayment({
+    paymentReference: "ch_test",
+    method: "card",
+    amount: 18000,
+    status: "pending",
+    processedAt: new Date(),
+    orderId: order.id,
+    clientId: client.id,
+  });
+  const payout = store.createPayout({
+    payoutReference: "po_test",
+    amount: 100000,
+    initiatedAt: new Date(),
+    expectedArrival: "Thursday",
+    destination: "bank •••• 0000",
+    status: "initiated",
+    paymentCount: 1,
+    businessId: business.id,
+  });
+
+  return {
+    store, business, operator, detail, client, chart, service, day, appointment, chartEntry, form, campaign,
+    product, productUsageRule, productUsage, productCredit, order, lineItem, payment, payout,
+  };
 }
 
 test("no_charge_appointment: DETAIL cannot charge an appointment", () => {
@@ -330,4 +425,121 @@ test("no_answer_form_for_client: DETAIL cannot answer a form on the client's beh
     HardRuleViolationError,
   );
   assert.doesNotThrow(() => store.recordFormResponses(form.id, { q1: "yes" }, "client"));
+});
+
+// --- ADDENDUM_01.md: products and checkout (18 more) ---
+
+test("no_change_retail_price: DETAIL cannot write PRODUCT.Retail Price", () => {
+  const { store, product } = minimalStore();
+  assert.throws(() => store.setProductRetailPrice(product.id, 1, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.setProductRetailPrice(product.id, 9600, "operator"));
+});
+
+test("no_place_purchase_order: DETAIL cannot place a purchase order", () => {
+  const { store, product } = minimalStore();
+  assert.throws(() => store.placePurchaseOrder(product.id, "detail"), HardRuleViolationError);
+});
+
+test("no_change_price_per_item: DETAIL cannot write PRODUCT USAGE RULE.Price Per Item", () => {
+  const { store, productUsageRule } = minimalStore();
+  assert.throws(
+    () => store.setProductUsageRulePricePerItem(productUsageRule.id, 1, "detail"),
+    HardRuleViolationError,
+  );
+  assert.doesNotThrow(() => store.setProductUsageRulePricePerItem(productUsageRule.id, 1400, "operator"));
+});
+
+test("no_charge_for_units: DETAIL cannot charge for product units used", () => {
+  const { store, productUsage } = minimalStore();
+  assert.throws(() => store.chargeForProductUsage(productUsage.id, "detail"), HardRuleViolationError);
+});
+
+test("no_disclose_unit_counts: DETAIL cannot disclose unit counts to the client", () => {
+  const { store, productUsage } = minimalStore();
+  assert.throws(() => store.discloseUnitCountsToClient(productUsage.id, "detail"), HardRuleViolationError);
+});
+
+test("no_redeem_credit_without_asking: DETAIL cannot redeem prepaid units without asking", () => {
+  const { store, productCredit } = minimalStore();
+  assert.throws(
+    () => store.redeemProductCredit(productCredit.id, 1, "detail"),
+    HardRuleViolationError,
+  );
+  assert.doesNotThrow(() => store.redeemProductCredit(productCredit.id, 1, "operator"));
+});
+
+test("no_sell_prepaid_units: DETAIL cannot sell prepaid units", () => {
+  const { store, client, product } = minimalStore();
+  assert.throws(() => store.sellPrepaidUnits(client.id, product.id, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.sellPrepaidUnits(client.id, product.id, "operator"));
+});
+
+test("no_take_payment_order: DETAIL cannot take a payment against an order", () => {
+  const { store, order } = minimalStore();
+  assert.throws(() => store.takePaymentOnOrder(order.id, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.takePaymentOnOrder(order.id, "operator"));
+});
+
+test("no_apply_discount_order: DETAIL cannot apply a discount to an order", () => {
+  const { store, order } = minimalStore();
+  assert.throws(() => store.applyOrderDiscount(order.id, 500, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.applyOrderDiscount(order.id, 500, "operator"));
+});
+
+test("no_close_order: DETAIL cannot close an order", () => {
+  const { store, order, operator } = minimalStore();
+  assert.throws(() => store.closeOrder(order.id, operator.id, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.closeOrder(order.id, operator.id, "operator"));
+});
+
+test("no_void_or_refund_order: DETAIL cannot void or refund an order", () => {
+  const { store, order } = minimalStore();
+  assert.throws(() => store.voidOrRefundOrder(order.id, "voided", "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.voidOrRefundOrder(order.id, "voided", "operator"));
+});
+
+test("no_adjust_price_line_item: DETAIL cannot adjust an order line item's price", () => {
+  const { store, lineItem } = minimalStore();
+  assert.throws(
+    () => store.adjustOrderLineItemPrice(lineItem.id, 100, "detail"),
+    HardRuleViolationError,
+  );
+  assert.doesNotThrow(() => store.adjustOrderLineItemPrice(lineItem.id, 100, "operator"));
+});
+
+test("no_discount_line_item: DETAIL cannot discount an order line item", () => {
+  const { store, lineItem } = minimalStore();
+  assert.throws(() => store.discountOrderLineItem(lineItem.id, 100, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.discountOrderLineItem(lineItem.id, 100, "operator"));
+});
+
+test("no_take_payment: DETAIL cannot take a payment", () => {
+  const { store, order } = minimalStore();
+  assert.throws(() => store.takePayment(order.id, "detail"), HardRuleViolationError);
+});
+
+test("no_retry_payment: DETAIL cannot retry a payment", () => {
+  const { store, payment } = minimalStore();
+  assert.throws(() => store.retryPayment(payment.id, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.retryPayment(payment.id, "operator"));
+});
+
+test("no_refund_payment: DETAIL cannot refund a payment", () => {
+  const { store, payment } = minimalStore();
+  assert.throws(() => store.refundPayment(payment.id, "detail"), HardRuleViolationError);
+  assert.doesNotThrow(() => store.refundPayment(payment.id, "operator"));
+});
+
+test("no_change_payout_destination: DETAIL cannot change the payout destination", () => {
+  const { store, payout } = minimalStore();
+  assert.throws(
+    () => store.changePayoutDestination(payout.id, "bank •••• 1111", "detail"),
+    HardRuleViolationError,
+  );
+  assert.doesNotThrow(() => store.changePayoutDestination(payout.id, "bank •••• 1111", "operator"));
+});
+
+test("no_initiate_payout: DETAIL cannot initiate a payout", () => {
+  const { store, business } = minimalStore();
+  assert.throws(() => store.initiatePayout(business.id, "detail"), HardRuleViolationError);
 });

@@ -13,6 +13,10 @@ export type DayStatus = "upcoming" | "in_progress" | "complete";
  * from nested rows by RelationalStore.dayStats(). Only genuinely
  * independent inputs (weekday, status, weather, the △ day note) live on
  * the row itself.
+ *
+ * ADDENDUM_01.md gives `Collected` a real source: "derived from closed
+ * ORDERS." dayStats() now sums OrderRow.total across this day's closed
+ * orders instead of guessing from appointment price/deposit.
  */
 export interface DayRow {
   /** INFRASTRUCTURE: primary key. */
@@ -36,5 +40,6 @@ export interface DayRow {
   // Reverse, not stored here (all computed via RelationalStore):
   //   BRIEFING, APPOINTMENT, OPENING, CUE, ACTION, SIGNAL, REVIEW, CAMPAIGN
   //   each carry a dayId back to this row; PATTERN evidence is a join
-  //   table (day_pattern_evidence).
+  //   table (day_pattern_evidence). Added in ADDENDUM_01.md: ORDER and
+  //   PAYOUT also carry an (optional) dayId back to this row.
 }

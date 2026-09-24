@@ -16,8 +16,16 @@ import {
   type MessageId,
   type OpeningId,
   type OperatorId,
+  type OrderId,
+  type OrderLineItemId,
   type PatternId,
+  type PaymentId,
+  type PayoutId,
   type PersonaId,
+  type ProductCreditId,
+  type ProductId,
+  type ProductUsageId,
+  type ProductUsageRuleId,
   type ProposalId,
   type ReviewId,
   type SegmentId,
@@ -40,6 +48,7 @@ import type {
   CampaignRecipientRow,
   CampaignRow,
   CapabilityRow,
+  ChartEntryProductRow,
   ChartEntryRow,
   ChartRow,
   ClientRow,
@@ -56,8 +65,16 @@ import type {
   OpeningWaitlistMatchRow,
   OperatorQualifiedServiceRow,
   OperatorRow,
+  OrderLineItemRow,
+  OrderRow,
   PatternRow,
+  PaymentRow,
+  PayoutRow,
   PersonaRow,
+  ProductCreditRow,
+  ProductRow,
+  ProductUsageRow,
+  ProductUsageRuleRow,
   ProposalRow,
   ReviewRow,
   SegmentMemberRow,
@@ -71,17 +88,35 @@ import type {
 } from "../schema/index.js";
 import { Table } from "./Table.js";
 import {
+  assertCanAdjustLineItemPrice,
   assertCanAnswerFormForClient,
+  assertCanApplyOrderDiscount,
   assertCanCancelAppointment,
   assertCanChangeOwnVoice,
+  assertCanChangePayoutDestination,
+  assertCanChangePricePerItem,
+  assertCanChangeRetailPrice,
   assertCanChargeAppointment,
   assertCanChargeClientFee,
+  assertCanChargeForUnits,
+  assertCanCloseOrder,
+  assertCanDiscloseUnitCounts,
   assertCanDiscountCampaignToFillGap,
+  assertCanDiscountLineItem,
   assertCanExpandOwnAutonomy,
+  assertCanInitiatePayout,
   assertCanOfferDiscount,
+  assertCanPlacePurchaseOrder,
+  assertCanRedeemCreditWithoutAsking,
+  assertCanRefundPayment,
+  assertCanRetryPayment,
+  assertCanSellPrepaidUnits,
   assertCanSetServicePrice,
   assertCanShareChartWithThirdParty,
   assertCanSignChartEntry,
+  assertCanTakePayment,
+  assertCanTakePaymentOnOrder,
+  assertCanVoidOrRefundOrder,
   assertCanWaiveForm,
   assertConsentForCampaignSend,
   assertCueNotSuppressedIfClinicalOverride,
@@ -93,6 +128,15 @@ import { TIGHTENED_CARDINALITIES } from "./relationships.js";
 function requireFk<Id extends string>(exists: boolean, table: string, id: Id): void {
   if (!exists) throw new Error(`Referential integrity: ${table} has no row "${id}"`);
 }
+
+/**
+ * `Omit<Union, K>` does NOT distribute over a discriminated union — it
+ * collapses `keyof Union` to the keys common to every branch first, so
+ * `Omit<OrderLineItemRow, "id" | "orderId">` silently loses every
+ * `kind`-specific field (serviceId, productId, feeDescription...). This
+ * distributes Omit over each branch first, preserving the discriminant.
+ */
+type DistributiveOmit<T, K extends keyof any> = T extends unknown ? Omit<T, K> : never;
 
 export class RelationalStore {
   readonly operators = new Table<OperatorId, OperatorRow>("operator");
@@ -121,6 +165,15 @@ export class RelationalStore {
   readonly campaigns = new Table<CampaignId, CampaignRow>("campaign");
   readonly segments = new Table<SegmentId, SegmentRow>("segment");
   readonly reviews = new Table<ReviewId, ReviewRow>("review");
+  // Added in ADDENDUM_01.md (products and checkout):
+  readonly products = new Table<ProductId, ProductRow>("product");
+  readonly productUsageRules = new Table<ProductUsageRuleId, ProductUsageRuleRow>("product_usage_rule");
+  readonly productUsages = new Table<ProductUsageId, ProductUsageRow>("product_usage");
+  readonly productCredits = new Table<ProductCreditId, ProductCreditRow>("product_credit");
+  readonly orders = new Table<OrderId, OrderRow>("order");
+  readonly orderLineItems = new Table<OrderLineItemId, OrderLineItemRow>("order_line_item");
+  readonly payments = new Table<PaymentId, PaymentRow>("payment");
+  readonly payouts = new Table<PayoutId, PayoutRow>("payout");
 
   // Join tables — plain arrays; composite-keyed, so a Table<> (single id) doesn't fit.
   readonly operatorQualifiedServices: OperatorQualifiedServiceRow[] = [];
@@ -142,6 +195,7 @@ export class RelationalStore {
   readonly proposalAffectedClients: import("../schema/index.js").ProposalAffectedClientRow[] = [];
   readonly proposalFulfillsWaitlistRequests: import("../schema/index.js").ProposalFulfillsWaitlistRequestRow[] = [];
   readonly serviceGoverningThresholds: ServiceGoverningThresholdRow[] = [];
+  readonly chartEntryProducts: ChartEntryProductRow[] = [];
 
   // ---------------------------------------------------------------------
   // Creation — each checks the FKs it declares before inserting.
@@ -316,6 +370,69 @@ export class RelationalStore {
   }
 
   // ---------------------------------------------------------------------
+  // Products and checkout — added in ADDENDUM_01.md.
+  // ---------------------------------------------------------------------
+
+  createProduct(data: Omit<ProductRow, "id">): ProductRow {
+    requireFk(this.businesses.has(data.businessId), "business", data.businessId);
+    return this.products.insert({ id: makeId.product(), ...data });
+  }
+
+  /** CHART ENTRY "has 0-many PRODUCT (recorded by lot)" — one-directional join. */
+  recordProductInChartEntry(chartEntryId: ChartEntryId, productId: ProductId): void {
+    requireFk(this.chartEntries.has(chartEntryId), "chart_entry", chartEntryId);
+    requireFk(this.products.has(productId), "product", productId);
+    this.chartEntryProducts.push({ chartEntryId, productId });
+  }
+
+  /** PRODUCT USAGE RULE is itself the SERVICE × PRODUCT junction — no separate join table. */
+  createProductUsageRule(data: Omit<ProductUsageRuleRow, "id">): ProductUsageRuleRow {
+    requireFk(this.services.has(data.serviceId), "service", data.serviceId);
+    requireFk(this.products.has(data.productId), "product", data.productId);
+    return this.productUsageRules.insert({ id: makeId.productUsageRule(), ...data });
+  }
+
+  createProductUsage(data: Omit<ProductUsageRow, "id">): ProductUsageRow {
+    requireFk(this.appointments.has(data.appointmentId), "appointment", data.appointmentId);
+    requireFk(this.products.has(data.productId), "product", data.productId);
+    return this.productUsages.insert({ id: makeId.productUsage(), ...data });
+  }
+
+  createProductCredit(data: Omit<ProductCreditRow, "id">): ProductCreditRow {
+    requireFk(this.clients.has(data.clientId), "client", data.clientId);
+    requireFk(this.products.has(data.productId), "product", data.productId);
+    return this.productCredits.insert({ id: makeId.productCredit(), ...data });
+  }
+
+  /**
+   * ORDER "has 1-many ORDER LINE ITEM (on it)" — enforced non-empty here,
+   * same pattern as APPOINTMENT × SERVICE. Line items are supplied
+   * pre-built (their discriminated `kind` decided by the caller) and get
+   * their `orderId` stamped on here.
+   */
+  createOrder(data: Omit<OrderRow, "id">, lineItems: DistributiveOmit<OrderLineItemRow, "id" | "orderId">[]): OrderRow {
+    if (lineItems.length === 0) {
+      throw new Error("ORDER has 1-many ORDER LINE ITEM — at least one line item is required");
+    }
+    requireFk(this.businesses.has(data.businessId), "business", data.businessId);
+    const order = this.orders.insert({ id: makeId.order(), ...data });
+    for (const lineItem of lineItems) {
+      this.orderLineItems.insert({ id: makeId.orderLineItem(), orderId: order.id, ...lineItem } as OrderLineItemRow);
+    }
+    return order;
+  }
+
+  createPayment(data: Omit<PaymentRow, "id">): PaymentRow {
+    requireFk(this.orders.has(data.orderId), "order", data.orderId);
+    return this.payments.insert({ id: makeId.payment(), ...data });
+  }
+
+  createPayout(data: Omit<PayoutRow, "id">): PayoutRow {
+    requireFk(this.businesses.has(data.businessId), "business", data.businessId);
+    return this.payouts.insert({ id: makeId.payout(), ...data });
+  }
+
+  // ---------------------------------------------------------------------
   // Signals, cue decisions, cues, actions — the ladder's working set.
   // ---------------------------------------------------------------------
 
@@ -464,6 +581,101 @@ export class RelationalStore {
     return this.forms.update(id, { responses, status: "complete", completedAt: new Date() });
   }
 
+  // --- ADDENDUM_01.md: products and checkout ---
+
+  setProductRetailPrice(id: ProductId, retailPrice: number, actor: Actor): ProductRow {
+    assertCanChangeRetailPrice(actor);
+    return this.products.update(id, { retailPrice });
+  }
+
+  /** No CTA for this exists on any role yet — always refused. */
+  placePurchaseOrder(_productId: ProductId, actor: Actor): void {
+    assertCanPlacePurchaseOrder(actor);
+  }
+
+  setProductUsageRulePricePerItem(id: ProductUsageRuleId, pricePerItem: number, actor: Actor): ProductUsageRuleRow {
+    assertCanChangePricePerItem(actor);
+    return this.productUsageRules.update(id, { pricePerItem });
+  }
+
+  chargeForProductUsage(_productUsageId: ProductUsageId, actor: Actor): void {
+    assertCanChargeForUnits(actor);
+  }
+
+  /**
+   * See hardRules.assertCanDiscloseUnitCounts: also enforced structurally
+   * by the schema (no client-facing table carries a unit-count field).
+   * This guard makes the rule directly testable.
+   */
+  discloseUnitCountsToClient(_productUsageId: ProductUsageId, actor: Actor): void {
+    assertCanDiscloseUnitCounts(actor);
+  }
+
+  redeemProductCredit(id: ProductCreditId, units: number, actor: Actor): ProductCreditRow {
+    assertCanRedeemCreditWithoutAsking(actor);
+    const credit = this.productCredits.getOrThrow(id);
+    return this.productCredits.update(id, { unitsRemaining: credit.unitsRemaining - units });
+  }
+
+  sellPrepaidUnits(_clientId: ClientId, _productId: ProductId, actor: Actor): void {
+    assertCanSellPrepaidUnits(actor);
+  }
+
+  takePaymentOnOrder(id: OrderId, actor: Actor): OrderRow {
+    assertCanTakePaymentOnOrder(actor);
+    return this.orders.getOrThrow(id);
+  }
+
+  applyOrderDiscount(id: OrderId, discount: number, actor: Actor): OrderRow {
+    assertCanApplyOrderDiscount(actor);
+    return this.orders.update(id, { discounts: discount });
+  }
+
+  closeOrder(id: OrderId, closedByOperatorId: OperatorId, actor: Actor): OrderRow {
+    assertCanCloseOrder(actor);
+    requireFk(this.operators.has(closedByOperatorId), "operator", closedByOperatorId);
+    return this.orders.update(id, { status: "closed", closedAt: new Date(), closedByOperatorId });
+  }
+
+  voidOrRefundOrder(id: OrderId, status: "voided" | "refunded" | "partially_refunded", actor: Actor): OrderRow {
+    assertCanVoidOrRefundOrder(actor);
+    return this.orders.update(id, { status });
+  }
+
+  adjustOrderLineItemPrice(id: OrderLineItemId, unitPriceAtSale: number, actor: Actor): OrderLineItemRow {
+    assertCanAdjustLineItemPrice(actor);
+    return this.orderLineItems.update(id, { unitPriceAtSale });
+  }
+
+  discountOrderLineItem(id: OrderLineItemId, lineDiscount: number, actor: Actor): OrderLineItemRow {
+    assertCanDiscountLineItem(actor);
+    return this.orderLineItems.update(id, { lineDiscount });
+  }
+
+  takePayment(_orderId: OrderId, actor: Actor): void {
+    assertCanTakePayment(actor);
+  }
+
+  retryPayment(id: PaymentId, actor: Actor): PaymentRow {
+    assertCanRetryPayment(actor);
+    return this.payments.update(id, { status: "succeeded" });
+  }
+
+  refundPayment(id: PaymentId, actor: Actor): PaymentRow {
+    assertCanRefundPayment(actor);
+    return this.payments.update(id, { status: "refunded" });
+  }
+
+  changePayoutDestination(id: PayoutId, destination: string, actor: Actor): PayoutRow {
+    assertCanChangePayoutDestination(actor);
+    return this.payouts.update(id, { destination });
+  }
+
+  /** No CTA for this exists on any role yet — payouts are system-scheduled. Always refused. */
+  initiatePayout(_businessId: BusinessId, actor: Actor): void {
+    assertCanInitiatePayout(actor);
+  }
+
   // ---------------------------------------------------------------------
   // Derived rollups — computed, never stored, per the handoff's
   // "Derived vs. stored" note.
@@ -474,13 +686,18 @@ export class RelationalStore {
     const signals = this.signals.find((s) => s.dayId === dayId);
     const cues = this.cues.find((c) => c.dayId === dayId);
     const actions = this.actions.find((a) => a.dayId === dayId);
-    const collectedCents = appointments
-      .filter((a) => a.status === "completed" && a.depositTaken)
-      .reduce((sum, a) => sum + a.price, 0);
+    // ADDENDUM_01.md: "Collected — derived from closed ORDERS." Not from
+    // appointment price/deposit anymore — an order can discount, tax, tip,
+    // or partially refund, none of which the appointment row knows about.
+    const collectedCents = this.orders
+      .find((o) => o.dayId === dayId && o.status === "closed")
+      .reduce((sum, o) => sum + o.total, 0);
+    const unclosedOrders = this.orders.find((o) => o.dayId === dayId && o.status === "open").length;
     return {
       appointmentCount: appointments.length,
       clientsSeen: new Set(appointments.filter((a) => a.status === "completed").map((a) => a.clientId)).size,
       collected: collectedCents,
+      unclosedOrders,
       rebookedInRoom: 0,
       utilization:
         appointments.length === 0

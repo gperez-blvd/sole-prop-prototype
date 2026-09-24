@@ -7,6 +7,10 @@ import type {
   DetailId,
   FormId,
   OperatorId,
+  OrderId,
+  PayoutId,
+  ProductCreditId,
+  ProductId,
   ServiceId,
 } from "../ids.js";
 import { RelationalStore } from "../store/RelationalStore.js";
@@ -44,6 +48,20 @@ export interface SeedResult {
   chartIds: Record<string, ChartId>;
   appointmentIds: Record<"morgan" | "ava" | "maya" | "dani" | "tasha" | "lena" | "renee" | "priya", AppointmentId>;
   formIds: { mayaConsent: FormId; daniIntake: FormId };
+  products: { vial: ProductId; serum: ProductId };
+  productCreditId: ProductCreditId;
+  orderIds: {
+    morgan: OrderId;
+    ava: OrderId;
+    maya: OrderId;
+    dani: OrderId;
+    tasha: OrderId;
+    lena: OrderId;
+    retail: OrderId;
+    prepaid: OrderId;
+    fee: OrderId;
+  };
+  payoutId: PayoutId;
 }
 
 function makeClientData(rng: () => number, fullName: string, index: number) {
@@ -654,7 +672,7 @@ export function seed(): SeedResult {
     operatorId: operator.id,
   });
 
-  store.createChartEntry({
+  const mayaChartEntry = store.createChartEntry({
     whatWasDone: "20 units, glabella and crow's feet.",
     observations: "Mild erythema, no bruising at 10 min.",
     photoUrls: [],
@@ -671,7 +689,7 @@ export function seed(): SeedResult {
     appointmentId: apptMaya.id,
     serviceId: services.neurotoxin,
   });
-  store.createChartEntry({
+  const daniChartEntry = store.createChartEntry({
     whatWasDone: "20 units, glabella. Confirmed anticoagulant use before injecting.",
     observations: "No excess bruising observed.",
     photoUrls: [],
@@ -704,6 +722,434 @@ export function seed(): SeedResult {
     serviceId: services.facial,
   });
 
+  // --- ADDENDUM_01.md: products and checkout ---
+
+  const vial = store.createProduct({
+    productName: "Botox 100u vial",
+    brand: "Allergan",
+    skuOrUpc: "300234598217",
+    category: "back_bar",
+    sellableAsRetail: false,
+    usableInService: true,
+    defaultUnitCost: 410, // $4.10, FIFO
+    taxable: false,
+    sizeOrColor: "100u",
+    quantityOnHand: 2,
+    reorderPoint: 3,
+    activeAtLocation: true,
+    businessId: business.id,
+  });
+  const serum = store.createProduct({
+    productName: "Vitamin C serum",
+    brand: "SkinCeuticals",
+    skuOrUpc: "800012345671",
+    category: "retail",
+    sellableAsRetail: true,
+    usableInService: false,
+    retailPrice: 9600,
+    defaultUnitCost: 4200,
+    taxable: true,
+    sizeOrColor: "30ml",
+    quantityOnHand: 14,
+    reorderPoint: 4,
+    activeAtLocation: true,
+    businessId: business.id,
+  });
+  store.recordProductInChartEntry(mayaChartEntry.id, vial.id);
+  store.recordProductInChartEntry(daniChartEntry.id, vial.id);
+
+  // Usage-based pricing is Premier/Enterprise only — a CAPABILITY, not a
+  // given. Seeded active so the usage path runs; the gate is real.
+  const usageBasedPricing = store.createCapability({
+    businessId: business.id,
+    name: "Usage-based pricing",
+    whatItUnlocks: '"I can bill by what you actually used, not just the flat price."',
+    status: "active",
+    type: "policy",
+    effort: "n/a — plan gate",
+    estimatedValue: "accurate product cost recovery",
+  });
+
+  store.createProductUsageRule({
+    ruleLabel: "Neurotoxin → Botox 100u vial",
+    pricePerItem: 1300, // $13/unit
+    defaultQuantity: 20,
+    active: true,
+    serviceId: services.neurotoxin,
+    productId: vial.id,
+  });
+
+  // Maya's units: expected vs. used differ — the variance path runs.
+  store.createProductUsage({
+    usageRecordDisplayId: "BLVD-PU-8841",
+    quantityExpected: 20,
+    quantityUsed: 24,
+    pricePerItemApplied: 1300,
+    // NOTE (INVENTED SIMPLIFICATION): per the addendum, this amount is
+    // "folded into the service price" rather than itemized separately —
+    // Maya's order line item below stays a flat $650 rather than
+    // reconciling to 24 × $13. Flagged in the hand-back report.
+    amountCharged: 31200,
+    prepaidUnitsRedeemed: 0,
+    recordedAt: new Date(2026, 8, 23, 11, 30),
+    appointmentId: apptMaya.id,
+    productId: vial.id,
+    serviceId: services.neurotoxin,
+    chartEntryId: mayaChartEntry.id,
+  });
+
+  // Renee pre-buys prepaid tox units at a bulk rate — a liability on her
+  // wallet, redeemed against future appointments (some redeemed already,
+  // represented here as a lower `unitsRemaining` than `unitsPurchased`
+  // rather than by backfilling individual historical PRODUCT USAGE rows).
+  const productCredit = store.createProductCredit({
+    creditLabel: "20 prepaid tox units",
+    unitsPurchased: 20,
+    unitsRemaining: 8,
+    purchasedAt: new Date(2026, 8, 23, 11, 20),
+    discountApplied: "10% bulk rate",
+    amountPaid: 23400,
+    status: "active",
+    clientId: renee.id,
+    productId: vial.id,
+  });
+
+  // --- closed orders for all seven appointments' checkouts, plus a
+  //     retail walk-in, a prepaid-units purchase, and a fee — summing to
+  //     exactly $3,180.00 collected. Lena's stays OPEN (unclosed at
+  //     day's end); Renee's appointment hasn't happened yet, so it has
+  //     no order at all.
+  function closedServiceOrder(
+    orderNumber: string,
+    clientId: ClientId,
+    appointmentId: AppointmentId,
+    serviceId: ServiceId,
+    price: number,
+    openedAt: Date,
+    closedAt: Date,
+  ): OrderId {
+    const order = store.createOrder(
+      {
+        orderNumber,
+        status: "closed",
+        subtotal: price,
+        discounts: 0,
+        tax: 0,
+        gratuity: 0,
+        total: price,
+        openedAt,
+        closedAt,
+        businessId: business.id,
+        clientId,
+        appointmentId,
+        closedByOperatorId: operator.id,
+        dayId: dayTue.id,
+      },
+      [
+        {
+          kind: "service",
+          lineLabel: `${orderNumber} · service`,
+          quantity: 1,
+          unitPriceAtSale: price,
+          lineDiscount: 0,
+          lineTotal: price,
+          commissionBasis: "total after product usage folded in",
+          appointmentId,
+          serviceId,
+        },
+      ],
+    );
+    store.createPayment({
+      paymentReference: `ch_${orderNumber}`,
+      method: "card",
+      amount: price,
+      cardLastFour: "6411",
+      status: "succeeded",
+      processedAt: closedAt,
+      orderId: order.id,
+      clientId,
+    });
+    return order.id;
+  }
+
+  const orderMorgan = closedServiceOrder(
+    "BLVD-O-9001", morgan.id, apptMorgan.id, services.facial, 18000,
+    new Date(2026, 8, 23, 9, 0), new Date(2026, 8, 23, 9, 58),
+  );
+  const orderAva = closedServiceOrder(
+    "BLVD-O-9002", ava.id, apptAva.id, services.peel, 22000,
+    new Date(2026, 8, 23, 10, 0), new Date(2026, 8, 23, 10, 40),
+  );
+  const orderMaya = closedServiceOrder(
+    "BLVD-O-9003", maya.id, apptMaya.id, services.neurotoxin, 65000,
+    new Date(2026, 8, 23, 11, 0), new Date(2026, 8, 23, 11, 55),
+  );
+  const orderDani = closedServiceOrder(
+    "BLVD-O-9004", dani.id, apptDani.id, services.neurotoxin, 65000,
+    new Date(2026, 8, 23, 12, 30), new Date(2026, 8, 23, 13, 15),
+  );
+
+  // Tasha's checkout: declined once, then a successful retry.
+  const orderTasha = store.createOrder(
+    {
+      orderNumber: "BLVD-O-9005",
+      status: "closed",
+      subtotal: 65000,
+      discounts: 0,
+      tax: 0,
+      gratuity: 0,
+      total: 65000,
+      openedAt: new Date(2026, 8, 23, 13, 42),
+      closedAt: new Date(2026, 8, 23, 14, 20),
+      businessId: business.id,
+      clientId: tasha.id,
+      appointmentId: apptTasha.id,
+      closedByOperatorId: operator.id,
+      dayId: dayTue.id,
+    },
+    [
+      {
+        kind: "service",
+        lineLabel: "BLVD-O-9005 · service",
+        quantity: 1,
+        unitPriceAtSale: 65000,
+        lineDiscount: 0,
+        lineTotal: 65000,
+        commissionBasis: "total after product usage folded in",
+        appointmentId: apptTasha.id,
+        serviceId: services.neurotoxin,
+      },
+    ],
+  );
+  const tashaDeclinedPayment = store.createPayment({
+    paymentReference: "ch_BLVD-O-9005_1",
+    method: "card",
+    amount: 65000,
+    cardLastFour: "4242",
+    status: "declined",
+    processedAt: new Date(2026, 8, 23, 14, 15),
+    declineReason: "insufficient_funds",
+    orderId: orderTasha.id,
+    clientId: tasha.id,
+  });
+  // The legitimate retry path: OPERATOR-attributed, not DETAIL's — see
+  // hardRules.assertCanRetryPayment.
+  store.retryPayment(tashaDeclinedPayment.id, "operator");
+  store.createPayment({
+    paymentReference: "ch_BLVD-O-9005_2",
+    method: "card",
+    amount: 65000,
+    cardLastFour: "6411",
+    status: "succeeded",
+    processedAt: new Date(2026, 8, 23, 14, 20),
+    orderId: orderTasha.id,
+    clientId: tasha.id,
+  });
+
+  // Lena's checkout: stays OPEN through end of day — the "unclosed order" cue.
+  const orderLena = store.createOrder(
+    {
+      orderNumber: "BLVD-O-9006",
+      status: "open",
+      subtotal: 45000,
+      discounts: 0,
+      tax: 0,
+      gratuity: 0,
+      total: 45000,
+      openedAt: new Date(2026, 8, 23, 14, 40),
+      businessId: business.id,
+      clientId: lena.id,
+      appointmentId: apptLena.id,
+      dayId: dayTue.id,
+    },
+    [
+      {
+        kind: "service",
+        lineLabel: "BLVD-O-9006 · service",
+        quantity: 1,
+        unitPriceAtSale: 45000,
+        lineDiscount: 0,
+        lineTotal: 45000,
+        commissionBasis: "total after product usage folded in",
+        appointmentId: apptLena.id,
+        serviceId: services.laser,
+      },
+    ],
+  );
+
+  // A retail-only walk-in — no client record, per the map's own "0 for a
+  // retail walk-in" example.
+  const orderRetail = store.createOrder(
+    {
+      orderNumber: "BLVD-O-9007",
+      status: "closed",
+      subtotal: 9600,
+      discounts: 0,
+      tax: 0,
+      gratuity: 0,
+      total: 9600,
+      openedAt: new Date(2026, 8, 23, 11, 10),
+      closedAt: new Date(2026, 8, 23, 11, 15),
+      businessId: business.id,
+      closedByOperatorId: operator.id,
+      dayId: dayTue.id,
+    },
+    [
+      {
+        kind: "retail_product",
+        lineLabel: "Vitamin C serum",
+        quantity: 1,
+        unitPriceAtSale: 9600,
+        lineDiscount: 0,
+        lineTotal: 9600,
+        commissionBasis: "retail — no commission",
+        productId: serum.id,
+      },
+    ],
+  );
+  store.createPayment({
+    paymentReference: "ch_BLVD-O-9007",
+    method: "cash",
+    amount: 9600,
+    status: "succeeded",
+    processedAt: new Date(2026, 8, 23, 11, 15),
+    orderId: orderRetail.id,
+  });
+
+  // Renee's prepaid-units purchase — this order IS the ProductCredit's
+  // purchase event.
+  const orderPrepaid = store.createOrder(
+    {
+      orderNumber: "BLVD-O-9008",
+      status: "closed",
+      subtotal: 26000,
+      discounts: 2600,
+      tax: 0,
+      gratuity: 0,
+      total: 23400,
+      openedAt: new Date(2026, 8, 23, 11, 18),
+      closedAt: new Date(2026, 8, 23, 11, 22),
+      businessId: business.id,
+      clientId: renee.id,
+      closedByOperatorId: operator.id,
+      dayId: dayTue.id,
+    },
+    [
+      {
+        kind: "prepaid_units",
+        lineLabel: "20 prepaid tox units",
+        quantity: 20,
+        unitPriceAtSale: 1300,
+        lineDiscount: 2600,
+        lineTotal: 23400,
+        commissionBasis: "prepaid — commission on redemption, not purchase",
+        productId: vial.id,
+      },
+    ],
+  );
+  const prepaidLineItem = store.orderLineItems.findOne((li) => li.orderId === orderPrepaid.id)!;
+  store.productCredits.update(productCredit.id, { orderLineItemId: prepaidLineItem.id });
+  store.createPayment({
+    paymentReference: "ch_BLVD-O-9008",
+    method: "card",
+    amount: 23400,
+    cardLastFour: "6411",
+    status: "succeeded",
+    processedAt: new Date(2026, 8, 23, 11, 22),
+    orderId: orderPrepaid.id,
+    clientId: renee.id,
+  });
+
+  // A missed-appointment fee, charged by the OPERATOR (never DETAIL — see
+  // hardRules.assertCanChargeClientFee) to a different client.
+  const feeClientId = others[1]!;
+  const orderFee = store.createOrder(
+    {
+      orderNumber: "BLVD-O-9009",
+      status: "closed",
+      subtotal: 50000,
+      discounts: 0,
+      tax: 0,
+      gratuity: 0,
+      total: 50000,
+      openedAt: new Date(2026, 8, 23, 15, 30),
+      closedAt: new Date(2026, 8, 23, 15, 32),
+      businessId: business.id,
+      clientId: feeClientId,
+      closedByOperatorId: operator.id,
+      dayId: dayTue.id,
+    },
+    [
+      {
+        kind: "fee",
+        lineLabel: "Missed-appointment fee",
+        quantity: 1,
+        unitPriceAtSale: 50000,
+        lineDiscount: 0,
+        lineTotal: 50000,
+        commissionBasis: "fee — no commission",
+        feeDescription: "Missed-appointment fee",
+      },
+    ],
+  );
+  store.createPayment({
+    paymentReference: "ch_BLVD-O-9009",
+    method: "card",
+    amount: 50000,
+    cardLastFour: "0192",
+    status: "succeeded",
+    processedAt: new Date(2026, 8, 23, 15, 32),
+    orderId: orderFee.id,
+    clientId: feeClientId,
+  });
+
+  const payout = store.createPayout({
+    payoutReference: "po_1M4kTue",
+    amount: 242000,
+    initiatedAt: new Date(2026, 8, 23, 14, 10),
+    expectedArrival: "Thursday",
+    destination: "bank •••• 2208",
+    status: "initiated",
+    paymentCount: 7,
+    businessId: business.id,
+    dayId: dayTue.id,
+  });
+
+  // Usage-variance and cost-drift material — background depth, not
+  // wired into today's ladder (the addendum lists these as new PATTERN/
+  // PROPOSAL material, distinct from the day's signal-driven escalations).
+  const usageVariancePattern = store.createPattern({
+    observation: "You average 24 units on glabella; this one was 40.",
+    valueImplication: "Consistent over-delivery on tox — worth a pricing look.",
+    unit: "service",
+    evidenceCount: 6,
+    confidence: "medium",
+    firstObserved: new Date(2026, 7, 1),
+    lastConfirmed: new Date(2026, 8, 23),
+    direction: "strengthening",
+    estimatedValue: 0,
+    status: "watching",
+    businessId: business.id,
+    detailId: detail.id,
+    serviceId: services.neurotoxin,
+  });
+  store.createProposal({
+    finding: "Botox unit cost is up 12% since spring; retail-adjacent pricing hasn't moved.",
+    theMath: "2,400 units/month × $0.49 extra ≈ $1,176/month in margin drift",
+    recommendedAction: "Review neurotoxin pricing against current unit cost.",
+    spokenFraming: "Your product cost crept up — want me to model a price test?",
+    type: "growth_opportunity",
+    estimatedValue: 14000,
+    confidence: "medium",
+    status: "pending",
+    rollbackAvailable: true,
+    surfacedAt: new Date(2026, 8, 23, 8, 6),
+    detailId: detail.id,
+    serviceId: services.neurotoxin,
+    patternId: usageVariancePattern.id,
+  });
+  void usageBasedPricing;
+
   return {
     store,
     businessId: business.id,
@@ -725,5 +1171,19 @@ export function seed(): SeedResult {
       priya: apptPriya.id,
     },
     formIds: { mayaConsent: mayaConsentForm.id, daniIntake: daniIntakeForm.id },
+    products: { vial: vial.id, serum: serum.id },
+    productCreditId: productCredit.id,
+    orderIds: {
+      morgan: orderMorgan,
+      ava: orderAva,
+      maya: orderMaya,
+      dani: orderDani,
+      tasha: orderTasha.id,
+      lena: orderLena.id,
+      retail: orderRetail.id,
+      prepaid: orderPrepaid.id,
+      fee: orderFee.id,
+    },
+    payoutId: payout.id,
   };
 }

@@ -33,4 +33,5 @@ export interface OperatorRow {
   //                                            edge in the map; invented traversal.
   //   - has 0-many DAY (worked)             -> Day.operatorId (reverse)
   //   - has 0-many CHART ENTRY (authored)   -> ChartEntry.operatorId (reverse)
+  //   - has 0-many ORDER (closed)           -> Order.closedByOperatorId (reverse, added in ADDENDUM_01.md)
 }

@@ -3,47 +3,49 @@
 A typed, relational, in-memory data layer plus a runnable simulation for
 DETAIL — Boulevard's voice-first operator assistant. No database, no UI
 framework, no auth. Built from the OOUX artifacts in [`data/`](data/)
-(`object-map.json` — 26 objects, source of truth for the schema;
-`cta-matrix.json` — 265 CTAs across 3 roles, source of truth for
+(`object-map.json` — 34 objects, source of truth for the schema;
+`cta-matrix.json` — 355 CTAs across 3 roles, source of truth for
 permissions; `object-map.html` / `cta-matrix.html` / `object-map.mmd` —
 human-readable renderings, reference only; `build_cta_matrix.py` —
 re-renders the CTA matrix from its JSON) per the original handoff prompt
-in [`data/HANDOFF.md`](data/HANDOFF.md).
+in [`data/HANDOFF.md`](data/HANDOFF.md) and its follow-up in
+[`data/ADDENDUM_01.md`](data/ADDENDUM_01.md) (products and checkout — 8
+more objects, 90 more CTAs, 18 more `never`-by-design rules).
 
 ## Run it
 
 ```bash
 npm install
 npm run sim        # seeds one day, runs the ladder, prints the hand-back report
-npm test           # the 15 hard-rule tests (one per `x`-marked DETAIL CTA)
+npm test           # the 33 hard-rule tests (one per `x`-marked DETAIL CTA)
 npm run typecheck  # tsc --noEmit, strict
 ```
 
 `npm run sim` seeds Tuesday, September 23 — Jazz Bennett at Jazz
-Aesthetics, seven appointments, 212 clients on file — generates ~400
-SIGNAL rows, runs every one through the five-step ladder, and prints:
-signal count in, CUE DECISION and CUE counts out, the disposition
-breakdown, the three required hand-back lists (△ unratified items,
-stubbed dependency rules, things invented to make it run), and the 15
-hard rules.
+Aesthetics, seven appointments, 212 clients on file, checkout orders
+summing to exactly $3,180.00 collected — generates ~400 SIGNAL rows, runs
+every one through the five-step ladder, and prints: signal count in, CUE
+DECISION and CUE counts out, the disposition breakdown, the three
+required hand-back lists (△ unratified items, stubbed dependency rules,
+things invented to make it run), and the 33 hard rules.
 
 ## Layout
 
 ```
 src/
   ids.ts                 branded id types, one per table
-  schema/                one file per object (26) + join tables — the "typed table per object"
+  schema/                one file per object (34) + join tables — the "typed table per object"
   store/
     Table.ts              generic in-memory table (insert/get/update/find/delete)
     relationships.ts       relationship registry, derived FROM data/object-map.json directly
-    hardRules.ts            the 15 `x`-marked DETAIL CTAs, made structurally unreachable
-    RelationalStore.ts       composes all 26 tables + joins; FK integrity; guarded mutators; derived rollups
+    hardRules.ts            the 33 `x`-marked DETAIL CTAs, made structurally unreachable
+    RelationalStore.ts       composes all 34 tables + joins; FK integrity; guarded mutators; derived rollups
   ladder/
     thresholds.ts           THRESHOLD row data + the matcher that decides which signals they govern
     ladder.ts                the five-step ladder itself
   seed/
-    seed.ts                  the day's fixtures (business, operator, clients, appointments, ...)
-    signals.ts                the ~400 SIGNAL rows: 5 curated escalation clusters + filler
+    seed.ts                  the day's fixtures (business, operator, clients, appointments, orders, ...)
+    signals.ts                the ~400 SIGNAL rows: 8 curated escalation clusters + filler
     rng.ts                    deterministic PRNG so a run is reproducible
   report.ts                formats the hand-back report
   run.ts                   entry point
@@ -84,18 +86,23 @@ directly from `object-map.json` rather than a hand-maintained copy.
 
 **The hard rules are enforced inside the only mutators that could reach
 them**, not bolted on beside them — see `hardRules.ts` and
-`RelationalStore.ts`'s guarded mutators. Two of the fifteen (clinical
-suppression, clinical detail read aloud) are checked unconditionally,
-regardless of actor, because the map says clinical cues are not
-threshold-governed like everything else.
+`RelationalStore.ts`'s guarded mutators. Two (clinical suppression,
+clinical detail read aloud) are checked unconditionally, regardless of
+actor, because the map says clinical cues are not threshold-governed
+like everything else. Two more, added in the addendum, have no legitimate
+actor path modeled at all yet (`placePurchaseOrder`, `initiatePayout`) —
+no role in the CTA matrix has that CTA — so they refuse unconditionally
+too, rather than inventing a capability the map doesn't grant.
 
 **The ladder's cue count is controlled by construction, not luck.**
-Five narratively-scripted escalation clusters (tagged in their payload)
+Eight narratively-scripted escalation clusters (tagged in their payload)
 and the structural clinical-flag path are the only ways a SIGNAL can
-produce a CUE. Every other signal — however "material" — resolves to
-`handled_silently`, `suppressed`, or `deferred`. This is what keeps
-"~400 in, ~5 out" true on every run rather than approximately true on
-this one.
+produce a CUE — and one of the eight (`low-stock-neurotoxin`) is scripted
+specifically to produce *no* cue, proving "matters" and "gets spoken now"
+are different steps even when hand-authored. Every other signal —
+however "material" — resolves to `handled_silently`, `suppressed`, or
+`deferred`. This is what keeps "~400 in, ~7 out" true on every run rather
+than approximately true on this one.
 
 ## The three required lists
 
