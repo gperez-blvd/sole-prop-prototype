@@ -17,7 +17,7 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            BUITokens.Color.background.ignoresSafeArea()
+            Tokens.Color.background.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 32) {
                 HomeHeaderBar(
@@ -29,11 +29,13 @@ struct HomeView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Good morning \(HomeMockData.ownerFirstName).")
-                        .font(BUITokens.Typography.greeting)
-                        .foregroundStyle(BUITokens.Color.textPrimary)
+                        .font(Tokens.Typography.largeTitle)
+                        .foregroundStyle(Tokens.Color.textPrimary)
                     Text(Self.todayDateString)
-                        .font(.system(size: 10))
-                        .foregroundStyle(BUITokens.Color.textStrong)
+                        .font(Tokens.Typography.labelSmall)
+                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .textCase(.uppercase)
+                        .kerning(1.2)
                 }
 
                 if let proposal = pendingProposal {
@@ -47,8 +49,10 @@ struct HomeView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Next appointment")
-                        .font(BUITokens.Typography.sectionLabel)
-                        .foregroundStyle(BUITokens.Color.textStrong)
+                        .font(Tokens.Typography.label)
+                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .textCase(.uppercase)
+                        .kerning(1.4)
 
                     if let next = HomeMockData.nextAppointment {
                         NextAppointmentCard(
@@ -111,14 +115,14 @@ private struct VoiceOrbTooltip: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(text)
-                .font(BUITokens.Typography.tooltip)
-                .foregroundStyle(.white)
+                .font(Tokens.Typography.bodyRegular)
+                .foregroundStyle(Tokens.Color.paper)
                 .padding(8)
-                .background(BUITokens.Color.contrastPrimary)
+                .background(Tokens.Color.onyx)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Triangle()
-                .fill(BUITokens.Color.contrastPrimary)
+                .fill(Tokens.Color.onyx)
                 .frame(width: 12, height: 6)
         }
         .shadow(color: .black.opacity(0.22), radius: 24, x: 0, y: 16)

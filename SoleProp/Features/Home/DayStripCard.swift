@@ -15,13 +15,13 @@ struct DayStripCard: View {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Today")
-                        .font(BUITokens.Typography.cardTitle)
-                        .foregroundStyle(BUITokens.Color.textPrimary)
+                        .font(Tokens.Typography.body)
+                        .foregroundStyle(Tokens.Color.textPrimary)
 
                     HStack(spacing: 5) {
                         ForEach(Array(slots.enumerated()), id: \.offset) { _, booked in
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(booked ? BUITokens.Color.bluegreen : BUITokens.Color.disabled)
+                                .fill(booked ? Tokens.Color.ochre : Tokens.Color.silt)
                                 .frame(width: 20, height: 20)
                         }
                     }
@@ -30,14 +30,17 @@ struct DayStripCard: View {
 
                 Image(systemName: "arrow.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .frame(width: 28, height: 28)
             }
             .padding(16)
         }
         .buttonStyle(.plain)
-        .background(BUITokens.Color.background)
-        .clipShape(RoundedRectangle(cornerRadius: BUITokens.Radius.card))
-        .shadow(color: BUITokens.Shadow.medium, radius: BUITokens.Shadow.mediumRadius, x: 0, y: BUITokens.Shadow.mediumY)
+        .background(Tokens.Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                .strokeBorder(Tokens.Color.hairline)
+        )
     }
 }
