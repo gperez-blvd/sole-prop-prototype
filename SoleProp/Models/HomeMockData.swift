@@ -15,16 +15,28 @@ enum HomeMockData {
         }
 
         return [
-            Appointment(clientName: "Maya N.", service: "Neurotoxin", startTime: time(11), durationMinutes: 30, isFirstTime: true, note: "Referred by Dani. Nervous about bruising."),
-            Appointment(clientName: "Priya S.", service: "Lip filler", startTime: time(12), durationMinutes: 45, isFirstTime: false, note: nil),
-            Appointment(clientName: "Tasha W.", service: "HydraFacial", startTime: time(14), durationMinutes: 50, isFirstTime: false, note: nil),
-            Appointment(clientName: "Dani R.", service: "Neurotoxin", startTime: time(16, 15), durationMinutes: 30, isFirstTime: false, note: "Running behind — rain expected."),
+            Appointment(clientName: "Maya N.", service: "Neurotoxin", startTime: time(11), durationMinutes: 30, isFirstTime: true, note: "Referred by Dani. Nervous about bruising.", price: 325),
+            Appointment(clientName: "Priya S.", service: "Lip filler", startTime: time(12), durationMinutes: 45, isFirstTime: false, note: nil, price: 650),
+            Appointment(clientName: "Tasha W.", service: "HydraFacial", startTime: time(14), durationMinutes: 50, isFirstTime: false, note: nil, price: 199),
+            Appointment(clientName: "Dani R.", service: "Neurotoxin", startTime: time(16, 15), durationMinutes: 30, isFirstTime: false, note: "Running behind — rain expected.", price: 325),
         ]
     }()
 
     static var nextAppointment: Appointment? {
         let now = Date()
         return todaysAppointments.first { $0.startTime >= now } ?? todaysAppointments.first
+    }
+
+    /// Finds the appointment whose client is named in `text` (e.g. "check out
+    /// Tasha"); falls back to `nextAppointment` when no name is mentioned —
+    /// used by Cue for checkout and similar by-name requests.
+    static func appointment(matching text: String) -> Appointment? {
+        let lower = text.lowercased()
+        let named = todaysAppointments.first { appointment in
+            let firstName = appointment.clientName.split(separator: " ").first.map(String.init) ?? appointment.clientName
+            return lower.contains(firstName.lowercased())
+        }
+        return named ?? nextAppointment
     }
 
     static let unreadNotificationCount = 2

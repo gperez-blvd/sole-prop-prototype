@@ -11,6 +11,10 @@ struct MockAssistantEngine {
             return nextClientAnswer()
         }
 
+        if text.contains("checkout") || text.contains("check out") {
+            return checkoutAnswer(for: text)
+        }
+
         if text.contains("how many") && text.contains("appointment") {
             return "You have \(HomeMockData.todaysAppointments.count) appointments today."
         }
@@ -48,6 +52,14 @@ struct MockAssistantEngine {
         let time = next.startTime.formatted(date: .omitted, time: .shortened)
         let countdown = timeUntil(next.startTime)
         return "Your next client is \(next.clientName) at \(time) for \(next.service) — \(countdown)."
+    }
+
+    private func checkoutAnswer(for text: String) -> String {
+        guard let appointment = HomeMockData.appointment(matching: text) else {
+            return "No one to check out right now."
+        }
+        let price = appointment.price.formatted(.currency(code: "USD"))
+        return "Pulling up checkout for \(appointment.clientName) — \(appointment.service), \(price)."
     }
 
     /// "in 45 minutes", "in 1 hour, 20 minutes", "starting now", "running late — started 10 minutes ago".

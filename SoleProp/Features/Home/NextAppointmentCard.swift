@@ -6,6 +6,7 @@ struct NextAppointmentCard: View {
     var onEdit: () -> Void
     var onClientInfo: () -> Void
     var onMessage: () -> Void
+    var onCheckout: () -> Void
 
     var body: some View {
         HStack(spacing: 10) {
@@ -35,6 +36,7 @@ struct NextAppointmentCard: View {
                 Button("Edit", action: onEdit)
                 Button("Client info", action: onClientInfo)
                 Button("Message", action: onMessage)
+                Button("Checkout", action: onCheckout)
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.system(size: 16, weight: .semibold))

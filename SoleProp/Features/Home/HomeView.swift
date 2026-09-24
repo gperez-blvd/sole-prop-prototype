@@ -6,6 +6,7 @@ struct HomeView: View {
 
     @State private var showMenu = false
     @State private var selectedAppointment: Appointment?
+    @State private var checkoutAppointment: Appointment?
     @State private var placeholderMessage: String?
     @State private var pendingProposal = HomeMockData.pendingThresholdProposal
 
@@ -56,7 +57,8 @@ struct HomeView: View {
                             onTap: { selectedAppointment = next },
                             onEdit: { placeholderMessage = "Edit — not designed yet." },
                             onClientInfo: { placeholderMessage = "Client info — not designed yet." },
-                            onMessage: { placeholderMessage = "Message — not designed yet." }
+                            onMessage: { placeholderMessage = "Message — not designed yet." },
+                            onCheckout: { checkoutAppointment = next }
                         )
                     }
 
@@ -103,6 +105,16 @@ struct HomeView: View {
             AppointmentDetailSheet(appointment: appointment) {
                 selectedAppointment = nil
             }
+        }
+        .sheet(item: $checkoutAppointment) { appointment in
+            CheckoutSheet(appointment: appointment) {
+                checkoutAppointment = nil
+            }
+        }
+        .onChange(of: voiceAssistant.pendingCheckout) { _, newValue in
+            guard let newValue else { return }
+            checkoutAppointment = newValue
+            voiceAssistant.pendingCheckout = nil
         }
         .alert("Not designed yet", isPresented: .constant(placeholderMessage != nil), presenting: placeholderMessage) { _ in
             Button("OK") { placeholderMessage = nil }
