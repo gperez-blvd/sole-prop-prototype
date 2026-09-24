@@ -140,7 +140,12 @@ Each of these means the principle is slipping:
 
 ## Where truth lives
 
-- `object-map.json` — the 34 objects. Source of truth for structure.
+- **`OBJECTS.md` — read this first.** The Object Guide: every object, what it *is*, what it's
+  for, what it's called in her words, where it appears nested, its attributes, its relationships
+  and its actions. Start here when you need to understand a concept. Generated — never edit it;
+  run `python3 build_object_guide.py`.
+- `object-map.json` — the 34 objects. Source of truth for structure, definitions, and each
+  object's `surface` class (subject / ambient / pull-only).
 - `cta-matrix.json` — 355 CTAs across three roles. Source of truth for who may do what. The 33
   entries marked `x` in the DETAIL row are standing commitments: unreachable by any code path,
   with a test each.
