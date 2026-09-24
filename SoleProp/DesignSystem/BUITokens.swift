@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Tokens pulled from the actual Figma (Boulevard's BUI design system) —
-/// white background, black text, DM Sans, rounded shadowed cards. This is a
-/// deliberately different visual language from `Tokens` (the onyx/ochre
-/// onboarding artifact's style): onboarding is its own marketing-style
-/// moment, Home and everything past it follows BUI. Using system fonts as a
+/// Legacy tokens pulled from the actual Figma (Boulevard's BUI design
+/// system) — white background, black text, DM Sans, rounded shadowed
+/// cards. `Tokens` (the onyx/ochre onboarding artifact's style) is now the
+/// app's design system; screens still on `BUITokens` haven't been migrated
+/// yet. Don't build new screens against this. Using system fonts as a
 /// stand-in for DM Sans until it's bundled.
 enum BUITokens {
     enum Color {

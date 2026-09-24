@@ -1,9 +1,13 @@
 import SwiftUI
 
-// Palette and type pulled from the "Boulevard Secret Service" (DETAIL) prototype
-// artifact — onyx/ochre/fog/silt palette, Instrument Sans body + IBM Plex Mono
-// for uppercase/tracked labels. Using system fonts as a stand-in for those two
-// (not bundled yet) — swap in the real font files once we're locking visuals.
+// The app's design system — see CLAUDE.md's "Where truth lives". Palette and
+// type pulled from the "Boulevard Secret Service" (DETAIL) prototype artifact
+// — onyx/ochre/fog/silt palette, Instrument Sans body + IBM Plex Mono for
+// uppercase/tracked labels. Swift mirror of detail-poc/src/design/tokens.ts;
+// keep the two in sync. `BUITokens` is legacy — migrate screens off it as
+// they're touched, don't build new ones against it. Using system fonts as a
+// stand-in for Instrument Sans/IBM Plex Mono (not bundled yet) — swap in the
+// real font files once we're locking visuals.
 enum Tokens {
     enum Color {
         static let onyx = SwiftUI.Color(hex: "#000000")
