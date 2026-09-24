@@ -60,7 +60,16 @@ struct HomeView: View {
             .padding(.horizontal, 28)
             .padding(.top, 19)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 16) {
+                HStack(spacing: 12) {
+                    QuickActionButton(title: "Book", systemImage: "calendar.badge.plus") {
+                        placeholderMessage = "Book — not designed yet."
+                    }
+                    QuickActionButton(title: "Sale", systemImage: "tag") {
+                        placeholderMessage = "Sale — not designed yet."
+                    }
+                }
+
                 if showTooltip {
                     VoiceOrbTooltip(text: "Tap to pull up conversation")
                 }
