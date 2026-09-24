@@ -1,13 +1,29 @@
 import SwiftUI
 
+private enum AppPhase: Equatable {
+    case auth
+    case onboarding
+    case home
+}
+
 struct RootView: View {
     @State private var router = Router()
     @State private var voiceAssistant = VoiceConversationViewModel()
-    @State private var onboardingComplete = false
+    @State private var phase: AppPhase = .auth
 
     var body: some View {
         Group {
-            if onboardingComplete {
+            switch phase {
+            case .auth:
+                AuthFlowView(
+                    onCreateAccount: { phase = .onboarding },
+                    onLogIn: { phase = .home }
+                )
+            case .onboarding:
+                OnboardingFlowView {
+                    phase = .home
+                }
+            case .home:
                 NavigationStack(path: $router.path) {
                     HomeView()
                         .navigationDestination(for: Route.self) { route in
@@ -35,10 +51,6 @@ struct RootView: View {
                 }
                 .environment(router)
                 .environment(voiceAssistant)
-            } else {
-                OnboardingFlowView {
-                    onboardingComplete = true
-                }
             }
         }
     }
