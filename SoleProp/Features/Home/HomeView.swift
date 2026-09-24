@@ -8,6 +8,12 @@ struct HomeView: View {
     @State private var placeholderMessage: String?
     @State private var showTooltip = true
 
+    private static let todayDateString: String = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        return formatter.string(from: Date())
+    }()
+
     var body: some View {
         ZStack {
             BUITokens.Color.background.ignoresSafeArea()
@@ -20,9 +26,14 @@ struct HomeView: View {
                     onNotificationsTap: { router.push(.notifications) }
                 )
 
-                Text("Good morning \(HomeMockData.ownerFirstName).")
-                    .font(BUITokens.Typography.greeting)
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Good morning \(HomeMockData.ownerFirstName).")
+                        .font(BUITokens.Typography.greeting)
+                        .foregroundStyle(BUITokens.Color.textPrimary)
+                    Text(Self.todayDateString)
+                        .font(.system(size: 10))
+                        .foregroundStyle(BUITokens.Color.textStrong)
+                }
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Next appointment")
@@ -57,11 +68,11 @@ struct HomeView: View {
                     showTooltip = false
                     router.push(.voiceConversation)
                 } label: {
-                    VoiceOrb(size: 100)
+                    VoiceOrb(size: 44)
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.bottom, 90)
+            .padding(.bottom, 28)
             .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .navigationBarHidden(true)

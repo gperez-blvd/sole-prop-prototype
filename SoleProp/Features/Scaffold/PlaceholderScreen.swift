@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// Empty scaffold for a navigation destination that doesn't have a design yet.
-/// Relies on `NavigationStack`'s own automatic back button — no custom chrome.
+/// Uses a plain back-arrow icon (no text) instead of the system back button.
 struct PlaceholderScreen: View {
+    @Environment(Router.self) private var router
     var title: String
 
     var body: some View {
@@ -14,6 +15,7 @@ struct PlaceholderScreen: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .backIconButton { router.pop() }
     }
 }
 
@@ -21,4 +23,5 @@ struct PlaceholderScreen: View {
     NavigationStack {
         PlaceholderScreen(title: "Clients")
     }
+    .environment(Router())
 }

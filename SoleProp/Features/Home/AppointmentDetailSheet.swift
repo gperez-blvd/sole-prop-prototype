@@ -45,7 +45,11 @@ struct AppointmentDetailSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Close", action: onClose)
+                    Button(action: onClose) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(BUITokens.Color.textPrimary)
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct VoiceConversationView: View {
+    @Environment(Router.self) private var router
     @State private var viewModel = VoiceConversationViewModel()
     @State private var draftText = ""
     @FocusState private var textFieldFocused: Bool
@@ -57,6 +58,7 @@ struct VoiceConversationView: View {
         .background(BUITokens.Color.background)
         .navigationTitle("Assistant")
         .navigationBarTitleDisplayMode(.inline)
+        .backIconButton { router.pop() }
         .alert("Voice assistant", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
             Button("OK") { viewModel.errorMessage = nil }
         } message: { message in
@@ -95,4 +97,5 @@ struct VoiceConversationView: View {
     NavigationStack {
         VoiceConversationView()
     }
+    .environment(Router())
 }
