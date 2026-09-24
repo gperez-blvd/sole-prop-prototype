@@ -2,11 +2,13 @@ import SwiftUI
 
 struct VoiceConversationView: View {
     @Environment(Router.self) private var router
-    @State private var viewModel = VoiceConversationViewModel()
+    @Environment(VoiceConversationViewModel.self) private var viewModel
     @State private var draftText = ""
     @FocusState private var textFieldFocused: Bool
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
@@ -35,7 +37,7 @@ struct VoiceConversationView: View {
 
                 if viewModel.inputMode == .voice {
                     Button {
-                        viewModel.isListening ? viewModel.stopListening() : viewModel.startListening()
+                        viewModel.toggleListening()
                     } label: {
                         VoiceOrb(size: 72, level: viewModel.audioLevel)
                     }
@@ -98,4 +100,5 @@ struct VoiceConversationView: View {
         VoiceConversationView()
     }
     .environment(Router())
+    .environment(VoiceConversationViewModel())
 }

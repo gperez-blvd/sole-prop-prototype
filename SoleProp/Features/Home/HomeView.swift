@@ -2,11 +2,11 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(Router.self) private var router
+    @Environment(VoiceConversationViewModel.self) private var voiceAssistant
 
     @State private var showMenu = false
     @State private var selectedAppointment: Appointment?
     @State private var placeholderMessage: String?
-    @State private var showTooltip = true
 
     private static let todayDateString: String = {
         let formatter = DateFormatter()
@@ -70,16 +70,14 @@ struct HomeView: View {
                     }
                 }
 
-                if showTooltip {
-                    VoiceOrbTooltip(text: "Tap to pull up conversation")
-                }
-                Button {
-                    showTooltip = false
-                    router.push(.voiceConversation)
-                } label: {
-                    VoiceOrb(size: 44)
-                }
-                .buttonStyle(.plain)
+                VoiceOrb(size: 53, level: voiceAssistant.isListening ? voiceAssistant.audioLevel : 0)
+                    .contentShape(Circle())
+                    .onTapGesture {
+                        voiceAssistant.toggleListening()
+                    }
+                    .onLongPressGesture(minimumDuration: 0.4) {
+                        router.push(.voiceConversation)
+                    }
             }
             .padding(.bottom, 28)
             .frame(maxHeight: .infinity, alignment: .bottom)
@@ -101,37 +99,11 @@ struct HomeView: View {
         } message: { message in
             Text(message)
         }
-    }
-}
-
-private struct VoiceOrbTooltip: View {
-    var text: String
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text(text)
-                .font(BUITokens.Typography.tooltip)
-                .foregroundStyle(.white)
-                .padding(8)
-                .background(BUITokens.Color.contrastPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            Triangle()
-                .fill(BUITokens.Color.contrastPrimary)
-                .frame(width: 12, height: 6)
+        .alert("Voice assistant", isPresented: .constant(voiceAssistant.errorMessage != nil), presenting: voiceAssistant.errorMessage) { _ in
+            Button("OK") { voiceAssistant.errorMessage = nil }
+        } message: { message in
+            Text(message)
         }
-        .shadow(color: .black.opacity(0.22), radius: 24, x: 0, y: 16)
-    }
-}
-
-private struct Triangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.closeSubpath()
-        return path
     }
 }
 
@@ -140,4 +112,5 @@ private struct Triangle: Shape {
         HomeView()
     }
     .environment(Router())
+    .environment(VoiceConversationViewModel())
 }
