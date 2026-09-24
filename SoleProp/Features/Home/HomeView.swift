@@ -104,6 +104,12 @@ struct HomeView: View {
                     .font(Tokens.Typography.bodyRegular)
                     .foregroundStyle(Tokens.Color.textPrimary)
                     .multilineTextAlignment(.center)
+                    // Glanceable, not a transcript — the full reply is
+                    // always there in the chat stream itself. Outside of
+                    // it (Home), this is a one-line confirmation, not a
+                    // reason to reflow a multi-sentence reply.
+                    .lineLimit(2)
+                    .truncationMode(.tail)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(Tokens.Color.white, in: Capsule())
@@ -195,8 +201,8 @@ struct HomeView: View {
     /// fixed tier relative to that. On a thin day (few appointments) the
     /// pending decision, the booking link and the capability note outrank
     /// appointments on their own; on a full day appointments retake the
-    /// lead and the quieter, lower-tier sections (openings, handled) round
-    /// out the bottom. No section is ever chosen or ordered by stage.
+    /// lead and the quieter, lower-tier sections (openings) round out the
+    /// bottom. No section is ever chosen or ordered by stage.
     private var rankedSections: [HomeSection] {
         var weights: [(HomeSection, Int)] = []
 
@@ -219,9 +225,6 @@ struct HomeView: View {
         }
         if !HomeMockData.openings.isEmpty {
             weights.append((.openings, 15))
-        }
-        if HomeMockData.handledCount > 0 {
-            weights.append((.handled, 5))
         }
 
         return weights
@@ -246,8 +249,6 @@ struct HomeView: View {
             OpeningsCard(openings: HomeMockData.openings) { _ in
                 placeholderMessage = "Fill — not designed yet."
             }
-        case .handled:
-            HandledSummaryCard(count: HomeMockData.handledCount, examples: HomeMockData.handledExamples)
         }
     }
 
@@ -302,7 +303,6 @@ private enum HomeSection: Identifiable {
     case bookingLink
     case capabilityNote
     case openings
-    case handled
 
     var id: Self { self }
 }
