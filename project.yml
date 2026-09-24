@@ -30,3 +30,20 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: co.blvd.soleprop.app
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  SoleProp:
+    # The whole generated .xcodeproj (this scheme included) is gitignored
+    # (*.xcodeproj), so nothing here is ever committed regardless of this
+    # empty placeholder. Fill in ELEVENLABS_API_KEY yourself via Xcode:
+    # Product > Scheme > Edit Scheme > Run > Arguments > Environment
+    # Variables — never paste a real key into this file, and note that
+    # re-running `xcodegen generate` resets the value back to empty, so
+    # you'll need to re-enter it after any regen.
+    build:
+      targets:
+        SoleProp: all
+    run:
+      config: Debug
+      environmentVariables:
+        ELEVENLABS_API_KEY: ""
