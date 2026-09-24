@@ -18,19 +18,19 @@ struct CueCard: View {
                 }
                 Text(cue.spokenText)
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.fog)
             }
 
             if let action = cue.action {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("What I did")
                         .font(Tokens.Typography.labelSmall)
-                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .foregroundStyle(Tokens.Color.ochre)
                         .textCase(.uppercase)
                         .kerning(1.2)
                     Text(action.description)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textSecondary)
+                        .foregroundStyle(Tokens.Color.silt)
                 }
             }
 
@@ -38,15 +38,15 @@ struct CueCard: View {
                 Spacer()
                 Button("Got it", action: onAcknowledge)
                     .font(Tokens.Typography.caption)
-                    .foregroundStyle(Tokens.Color.textSecondary)
+                    .foregroundStyle(Tokens.Color.silt)
             }
         }
         .padding(16)
-        .background(Tokens.Color.white)
+        .background(Tokens.Color.ink)
         .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Tokens.Color.hairline)
+                .strokeBorder(Color.white.opacity(0.12))
         )
     }
 }

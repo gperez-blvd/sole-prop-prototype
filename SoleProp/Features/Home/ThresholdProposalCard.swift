@@ -12,9 +12,6 @@ struct ThresholdProposalCard: View {
     @State private var confirmedOption: ThresholdOption?
     @State private var showReasoning = false
 
-    /// Dark and contrasting, deliberately distinct from CueCard's white —
-    /// this is DETAIL asking for something (a threshold, a capability), not
-    /// just reporting what it already did.
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let confirmedOption {
