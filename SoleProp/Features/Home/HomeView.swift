@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var showMenu = false
     @State private var selectedAppointment: Appointment?
     @State private var checkoutAppointment: Appointment?
+    @State private var checkoutRecommendation: RecommendedItem?
     @State private var placeholderMessage: String?
     @State private var pendingProposal = HomeMockData.pendingThresholdProposal
 
@@ -58,7 +59,10 @@ struct HomeView: View {
                             onEdit: { placeholderMessage = "Edit — not designed yet." },
                             onClientInfo: { placeholderMessage = "Client info — not designed yet." },
                             onMessage: { placeholderMessage = "Message — not designed yet." },
-                            onCheckout: { checkoutAppointment = next }
+                            onCheckout: {
+                                checkoutRecommendation = nil
+                                checkoutAppointment = next
+                            }
                         )
                     }
 
@@ -82,7 +86,7 @@ struct HomeView: View {
                     }
                 }
 
-                VoiceOrb(size: 53, level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
+                VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
                     .contentShape(Circle())
                     .onTapGesture {
                         voiceAssistant.toggleListening()
@@ -107,14 +111,17 @@ struct HomeView: View {
             }
         }
         .sheet(item: $checkoutAppointment) { appointment in
-            CheckoutSheet(appointment: appointment) {
+            CheckoutSheet(appointment: appointment, recommendation: checkoutRecommendation) {
                 checkoutAppointment = nil
+                checkoutRecommendation = nil
             }
         }
         .onChange(of: voiceAssistant.pendingCheckout) { _, newValue in
             guard let newValue else { return }
+            checkoutRecommendation = voiceAssistant.pendingCheckoutRecommendation
             checkoutAppointment = newValue
             voiceAssistant.pendingCheckout = nil
+            voiceAssistant.pendingCheckoutRecommendation = nil
         }
         .alert("Not designed yet", isPresented: .constant(placeholderMessage != nil), presenting: placeholderMessage) { _ in
             Button("OK") { placeholderMessage = nil }

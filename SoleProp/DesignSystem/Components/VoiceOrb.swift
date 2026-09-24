@@ -14,7 +14,12 @@ import SwiftUI
 /// static images. `level` (0...1, live mic amplitude) adds extra energy
 /// once active.
 struct VoiceOrb: View {
-    var size: CGFloat = 53
+    /// The one size used everywhere this appears — Home's entry point and
+    /// the full conversation screen both use this so the button reads as
+    /// the same control throughout the app, not a smaller stand-in.
+    static let standardSize: CGFloat = 72
+
+    var size: CGFloat = VoiceOrb.standardSize
     var level: Double = 0
     var isActive: Bool = false
 
@@ -91,6 +96,11 @@ struct VoiceOrb: View {
                 }
             }
         }
+        // Always-on slow rotation, independent of `progress` — at idle this
+        // just sweeps the idle ring's gradient around a perfect circle (no
+        // shape change), so the button never reads as a dead, frozen image;
+        // once active it layers on top of each strand's own tilt/wobble.
+        .rotationEffect(.degrees(time * (180 / .pi) * 0.06))
         .compositingGroup()
         .onAppear {
             progress = isActive ? 1 : 0

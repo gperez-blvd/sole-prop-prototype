@@ -16,6 +16,9 @@ final class VoiceConversationViewModel {
     /// Set whenever Cue detects a checkout request; `HomeView` watches this
     /// and presents `CheckoutSheet`, then clears it back to nil.
     var pendingCheckout: Appointment?
+    /// Set alongside `pendingCheckout` when Cue's checkout scenario includes
+    /// a proactive product suggestion (see `HomeMockData.checkoutRecommendation`).
+    var pendingCheckoutRecommendation: RecommendedItem?
 
     private let speech = SpeechRecognitionService()
     private let tts = ElevenLabsTTSService()
@@ -67,7 +70,9 @@ final class VoiceConversationViewModel {
 
         let lower = text.lowercased()
         if lower.contains("checkout") || lower.contains("check out") {
-            pendingCheckout = HomeMockData.appointment(matching: text)
+            let appointment = HomeMockData.appointment(matching: text)
+            pendingCheckout = appointment
+            pendingCheckoutRecommendation = appointment.flatMap(HomeMockData.checkoutRecommendation(for:))
         }
     }
 

@@ -39,6 +39,15 @@ enum HomeMockData {
         return named ?? nextAppointment
     }
 
+    /// The "Checkout Tasha" demo scenario: Cue proactively adds a product
+    /// it says the client mentioned wanting, flagged for review rather than
+    /// silently included. Single source of truth for both the checkout
+    /// trigger and Cue's spoken reply, so they never drift apart.
+    static func checkoutRecommendation(for appointment: Appointment) -> RecommendedItem? {
+        guard appointment.clientName.contains("Tasha") else { return nil }
+        return RecommendedItem(name: "Vitamin C Serum", price: 68, reason: "Tasha mentioned wanting serum")
+    }
+
     static let unreadNotificationCount = 2
     static let unreadMessageCount = 3
 

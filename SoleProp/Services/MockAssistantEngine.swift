@@ -58,6 +58,9 @@ struct MockAssistantEngine {
         guard let appointment = HomeMockData.appointment(matching: text) else {
             return "No one to check out right now."
         }
+        if let recommendation = HomeMockData.checkoutRecommendation(for: appointment) {
+            return "\(recommendation.reason) and I added it to the checkout for you to review."
+        }
         let price = appointment.price.formatted(.currency(code: "USD"))
         return "Pulling up checkout for \(appointment.clientName) — \(appointment.service), \(price)."
     }

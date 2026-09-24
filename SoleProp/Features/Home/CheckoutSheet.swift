@@ -4,14 +4,24 @@ import SwiftUI
 /// close button, reachable from the appointment card's "..." menu or by
 /// asking Cue to check a client out. No payment design exists yet, so the
 /// "Charge" action is a placeholder.
+///
+/// `recommendation`, when present, is a product Cue proactively added
+/// (the "Checkout Tasha" demo scenario) — flagged with a "Suggested by
+/// Cue" tag and included in the total by default, but removable.
 struct CheckoutSheet: View {
     var appointment: Appointment
+    var recommendation: RecommendedItem?
     var onClose: () -> Void
 
     @State private var placeholderMessage: String?
+    @State private var recommendationIncluded = true
 
-    private var priceText: String {
-        appointment.price.formatted(.currency(code: "USD"))
+    private var total: Decimal {
+        appointment.price + (recommendationIncluded ? (recommendation?.price ?? 0) : 0)
+    }
+
+    private func currency(_ value: Decimal) -> String {
+        value.formatted(.currency(code: "USD"))
     }
 
     var body: some View {
@@ -27,8 +37,11 @@ struct CheckoutSheet: View {
                     }
 
                     VStack(spacing: 0) {
-                        lineItem(label: appointment.service, value: priceText)
-                        lineItem(label: "Total", value: priceText, emphasized: true)
+                        lineItem(label: appointment.service, value: currency(appointment.price))
+                        if let recommendation {
+                            recommendationRow(recommendation)
+                        }
+                        lineItem(label: "Total", value: currency(total), emphasized: true)
                     }
                     .padding(16)
                     .background(Color.white)
@@ -44,7 +57,7 @@ struct CheckoutSheet: View {
                     Button {
                         placeholderMessage = "Payment processing — not designed yet."
                     } label: {
-                        Text("Charge \(priceText)")
+                        Text("Charge \(currency(total))")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -87,8 +100,50 @@ struct CheckoutSheet: View {
             }
         }
     }
+
+    private func recommendationRow(_ recommendation: RecommendedItem) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(BUITokens.Color.bluegreen)
+                        Text("Suggested by Cue")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(BUITokens.Color.bluegreen)
+                    }
+                    Text(recommendation.name)
+                        .font(.system(size: 14, weight: recommendationIncluded ? .regular : .regular))
+                        .foregroundStyle(recommendationIncluded ? BUITokens.Color.textPrimary : BUITokens.Color.disabled)
+                        .strikethrough(!recommendationIncluded)
+                }
+                Spacer()
+                Text(currency(recommendation.price))
+                    .font(.system(size: 14))
+                    .foregroundStyle(recommendationIncluded ? BUITokens.Color.textPrimary : BUITokens.Color.disabled)
+                    .strikethrough(!recommendationIncluded)
+            }
+
+            Button {
+                recommendationIncluded.toggle()
+            } label: {
+                Text(recommendationIncluded ? "Remove" : "Add back")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(recommendationIncluded ? Color.red : BUITokens.Color.bluegreen)
+            }
+        }
+        .padding(.vertical, 8)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(BUITokens.Color.disabled.opacity(0.3)).frame(height: 1)
+        }
+    }
 }
 
 #Preview {
-    CheckoutSheet(appointment: HomeMockData.todaysAppointments[0], onClose: {})
+    CheckoutSheet(
+        appointment: HomeMockData.todaysAppointments[2],
+        recommendation: RecommendedItem(name: "Vitamin C Serum", price: 68, reason: "Tasha mentioned wanting serum"),
+        onClose: {}
+    )
 }
