@@ -25,7 +25,11 @@ struct OrbBackdropFade: View {
             // the gradient above already reaches full opacity by 0.55,
             // but without this the safe-area strip below it isn't
             // covered and scrolled content shows through underneath it.
-            color
+            // Fixed height, not left to size itself: an unconstrained
+            // Color in this VStack expands to fill the whole ZStack
+            // (blanking out everything scrolled above it, not just the
+            // safe-area sliver below the gradient).
+            color.frame(height: 40)
         }
         .allowsHitTesting(false)
         .ignoresSafeArea(edges: .bottom)

@@ -1,43 +1,40 @@
 import SwiftUI
 
-/// Today's other appointments (everything but whichever one is shown as
-/// Next Appointment) — a plain list, not a second schedule screen. "See
-/// full day" hands off to the real Schedule for anything more than that.
+/// A glanceable strip of the day's booked/open hours — not a list of
+/// names, just enough to recognise the shape of the day at a glance
+/// (per CLAUDE.md's "glanceable" level: a card, not a study). Matches the
+/// Figma availability-strip design: one block per business hour, filled
+/// when something's booked, dim when it's open. "See full day" hands off
+/// to the real Schedule for anything more than that.
 struct RemainingAppointmentsCard: View {
+    /// Today's full schedule (not just what's left) — the strip shows the
+    /// whole day's shape, not only what hasn't happened yet.
     var appointments: [Appointment]
     var onViewFullDay: () -> Void
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(appointments) { appointment in
-                HStack(spacing: 10) {
-                    InitialsAvatar(name: appointment.clientName, size: 22)
-                    Text(appointment.clientName)
-                        .font(Tokens.Typography.bodyRegular)
-                        .foregroundStyle(Tokens.Color.textPrimary)
-                    Spacer()
-                    Text(appointment.startTime.formatted(date: .omitted, time: .shortened))
-                        .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textTertiary)
-                }
-                .padding(.vertical, 8)
+    private static let businessHours = 9..<18 // 9am–6pm
+    private static let bookedColor = SwiftUI.Color(hex: "#81C398")
+    private static let openColor = SwiftUI.Color(hex: "#AFAFAF")
 
-                if appointment.id != appointments.last?.id {
-                    Divider()
-                }
+    private var bookedHours: Set<Int> {
+        let calendar = Calendar.current
+        return Set(appointments.map { calendar.component(.hour, from: $0.startTime) })
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(Array(Self.businessHours), id: \.self) { hour in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(bookedHours.contains(hour) ? Self.bookedColor : Self.openColor)
+                    .frame(width: 20, height: 20)
             }
 
+            Spacer(minLength: 8)
+
             Button(action: onViewFullDay) {
-                HStack {
-                    Text("See full day")
-                        .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textSecondary)
-                    Spacer()
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Tokens.Color.textTertiary)
-                }
-                .padding(.top, appointments.isEmpty ? 0 : 10)
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Tokens.Color.textTertiary)
             }
             .buttonStyle(.plain)
         }
@@ -52,7 +49,7 @@ struct RemainingAppointmentsCard: View {
 }
 
 #Preview {
-    RemainingAppointmentsCard(appointments: HomeMockData.remainingAppointments, onViewFullDay: {})
+    RemainingAppointmentsCard(appointments: HomeMockData.todaysAppointments, onViewFullDay: {})
         .padding(28)
         .background(Tokens.Color.background)
 }

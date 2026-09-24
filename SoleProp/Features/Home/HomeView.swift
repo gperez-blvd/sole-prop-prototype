@@ -243,9 +243,9 @@ struct HomeView: View {
                 )
             }
 
-            let remaining = HomeMockData.remainingAppointments
-            if !remaining.isEmpty {
-                RemainingAppointmentsCard(appointments: remaining) {
+            let today = HomeMockData.todaysAppointments
+            if !today.isEmpty {
+                RemainingAppointmentsCard(appointments: today) {
                     router.push(.schedule)
                 }
             }
