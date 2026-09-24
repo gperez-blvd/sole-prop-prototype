@@ -23,6 +23,8 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        NSMicrophoneUsageDescription: "Sole Prop uses your microphone so you can talk to your voice assistant."
+        NSSpeechRecognitionUsageDescription: "Sole Prop uses on-device speech recognition to turn what you say to your voice assistant into text."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: co.blvd.soleprop.app
