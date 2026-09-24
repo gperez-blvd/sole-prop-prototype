@@ -37,23 +37,19 @@ struct VoiceConversationView: View {
                         placeholderMessage = "Sale — not designed yet."
                     }
                     Spacer(minLength: 0)
+                    inputModeToggle
                 }
 
-                HStack(spacing: 12) {
-                    inputModeToggle
-
-                    if viewModel.inputMode == .voice {
-                        Spacer(minLength: 0)
-                        Button {
-                            viewModel.toggleListening()
-                        } label: {
-                            VoiceOrb(size: 56, level: viewModel.audioLevel, isActive: viewModel.isListening)
-                        }
-                        .buttonStyle(.plain)
-                        Spacer(minLength: 0)
-                        // Balances the toggle's width so the orb stays centered.
-                        Color.clear.frame(width: 36, height: 1)
-                    } else {
+                if viewModel.inputMode == .voice {
+                    Button {
+                        viewModel.toggleListening()
+                    } label: {
+                        VoiceOrb(size: 56, level: viewModel.audioLevel, isActive: viewModel.isListening)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
+                } else {
+                    HStack(spacing: 12) {
                         TextField("Ask something…", text: $draftText)
                             .textFieldStyle(.roundedBorder)
                             .focused($textFieldFocused)
