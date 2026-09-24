@@ -41,11 +41,15 @@ struct DetailMomentStack: View {
 
     @ViewBuilder
     private func momentCard(for moment: DetailMoment) -> some View {
-        SwipeToDismissCard(onDismiss: onDismissTop) { requestDismiss in
-            switch moment {
-            case .cue(let cue):
+        switch moment {
+        case .cue(let cue):
+            SwipeToDismissCard(onDismiss: onDismissTop) { requestDismiss in
                 CueCard(cue: cue, onAcknowledge: requestDismiss)
-            case .proposal(let proposal):
+            }
+        case .proposal(let proposal):
+            // A proposal is a decision, not a notice — swiping can move it,
+            // but only picking an option or "Not now" actually dismisses it.
+            SwipeToDismissCard(onDismiss: onDismissTop, swipeToDismissEnabled: false) { requestDismiss in
                 ThresholdProposalCard(
                     proposal: proposal,
                     onAccept: { _ in requestDismiss() },

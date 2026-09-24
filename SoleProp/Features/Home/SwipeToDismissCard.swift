@@ -5,6 +5,10 @@ import SwiftUI
 /// via the `requestDismiss` closure handed to `content`.
 struct SwipeToDismissCard<Content: View>: View {
     var onDismiss: () -> Void
+    /// When false, dragging still moves the card but it always springs back
+    /// on release — a swipe can never dismiss it, only `requestDismiss`
+    /// (i.e. a choice made inside the card) can.
+    var swipeToDismissEnabled: Bool = true
     @ViewBuilder var content: (_ requestDismiss: @escaping () -> Void) -> Content
 
     @State private var dragOffset: CGSize = .zero
@@ -26,7 +30,7 @@ struct SwipeToDismissCard<Content: View>: View {
                     }
                     .onEnded { value in
                         guard !isDismissing else { return }
-                        if abs(value.translation.width) > dismissThreshold {
+                        if swipeToDismissEnabled, abs(value.translation.width) > dismissThreshold {
                             animateOff(direction: value.translation.width > 0 ? 1 : -1)
                         } else {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
