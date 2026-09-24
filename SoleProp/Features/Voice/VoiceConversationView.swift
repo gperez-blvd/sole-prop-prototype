@@ -2,16 +2,18 @@ import SwiftUI
 
 struct VoiceConversationView: View {
     @Environment(Router.self) private var router
-    @State private var viewModel = VoiceConversationViewModel()
+    @Environment(VoiceConversationViewModel.self) private var viewModel
     @State private var draftText = ""
     @FocusState private var textFieldFocused: Bool
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if viewModel.messages.isEmpty {
-                        Text("Tap the orb and ask about your day — \"who's my next appointment?\", \"how many appointments today?\"")
+                        Text("Tap the orb and ask Cue about your day — \"when is my next client?\", \"how many appointments today?\"")
                             .font(Tokens.Typography.bodyRegular)
                             .foregroundStyle(Tokens.Color.textTertiary)
                             .padding(.top, 24)
@@ -35,9 +37,9 @@ struct VoiceConversationView: View {
 
                 if viewModel.inputMode == .voice {
                     Button {
-                        viewModel.isListening ? viewModel.stopListening() : viewModel.startListening()
+                        viewModel.toggleListening()
                     } label: {
-                        VoiceOrb(size: 72, level: viewModel.audioLevel)
+                        VoiceOrb(level: viewModel.audioLevel, isActive: viewModel.isListening)
                     }
                     .buttonStyle(.plain)
                     .padding(.bottom, 24)
@@ -56,10 +58,10 @@ struct VoiceConversationView: View {
             }
         }
         .background(Tokens.Color.background)
-        .navigationTitle("Assistant")
+        .navigationTitle("Cue")
         .navigationBarTitleDisplayMode(.inline)
         .backIconButton { router.pop() }
-        .alert("Voice assistant", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
+        .alert("Cue", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
             Button("OK") { viewModel.errorMessage = nil }
         } message: { message in
             Text(message)
@@ -100,4 +102,5 @@ struct VoiceConversationView: View {
         VoiceConversationView()
     }
     .environment(Router())
+    .environment(VoiceConversationViewModel())
 }

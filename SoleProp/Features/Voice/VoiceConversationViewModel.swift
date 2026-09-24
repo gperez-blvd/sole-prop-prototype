@@ -13,6 +13,13 @@ final class VoiceConversationViewModel {
     var audioLevel: Double { speech.audioLevel }
     var errorMessage: String?
 
+    /// Set whenever Cue detects a checkout request; `HomeView` watches this
+    /// and presents `CheckoutSheet`, then clears it back to nil.
+    var pendingCheckout: Appointment?
+    /// Set alongside `pendingCheckout` when Cue's checkout scenario includes
+    /// a proactive product suggestion (see `HomeMockData.checkoutRecommendation`).
+    var pendingCheckoutRecommendation: RecommendedItem?
+
     private let speech = SpeechRecognitionService()
     private let tts = ElevenLabsTTSService()
     private let player = AudioPlaybackService()
@@ -43,6 +50,13 @@ final class VoiceConversationViewModel {
         isListening = false
     }
 
+    /// The Home orb's tap action — start listening if idle, stop if already
+    /// listening. Long-pressing the orb instead opens the full transcript
+    /// (`VoiceConversationView`), which shares this same instance.
+    func toggleListening() {
+        isListening ? stopListening() : startListening()
+    }
+
     func submitText(_ text: String) {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         handleUserUtterance(text)
@@ -53,6 +67,13 @@ final class VoiceConversationViewModel {
         let reply = assistant.respond(to: text)
         messages.append(ConversationMessage(role: .assistant, text: reply))
         speak(reply)
+
+        let lower = text.lowercased()
+        if lower.contains("checkout") || lower.contains("check out") {
+            let appointment = HomeMockData.appointment(matching: text)
+            pendingCheckout = appointment
+            pendingCheckoutRecommendation = appointment.flatMap(HomeMockData.checkoutRecommendation(for:))
+        }
     }
 
     private func speak(_ text: String) {
