@@ -70,7 +70,7 @@ struct HomeView: View {
                     }
                 }
 
-                VoiceOrb(size: 53, level: voiceAssistant.isListening ? voiceAssistant.audioLevel : 0)
+                VoiceOrb(size: 53, level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
                     .contentShape(Circle())
                     .onTapGesture {
                         voiceAssistant.toggleListening()

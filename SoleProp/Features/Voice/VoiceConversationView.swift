@@ -39,7 +39,7 @@ struct VoiceConversationView: View {
                     Button {
                         viewModel.toggleListening()
                     } label: {
-                        VoiceOrb(size: 72, level: viewModel.audioLevel)
+                        VoiceOrb(size: 72, level: viewModel.audioLevel, isActive: viewModel.isListening)
                     }
                     .buttonStyle(.plain)
                     .padding(.bottom, 24)
