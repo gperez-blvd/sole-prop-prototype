@@ -87,32 +87,21 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, 28)
                 .padding(.top, 19)
-                // Reserves room below the last card for the fixed actions/orb
+                // Reserves room below the last card for the fixed orb
                 // overlay, so scrolled content never sits underneath it.
-                .padding(.bottom, 180)
+                .padding(.bottom, 120)
             }
 
-            VStack(spacing: 10) {
-                HStack(spacing: 12) {
-                    QuickActionButton(title: "Book", systemImage: "calendar.badge.plus") {
-                        placeholderMessage = "Book — not designed yet."
-                    }
-                    QuickActionButton(title: "Sale", systemImage: "tag") {
-                        placeholderMessage = "Sale — not designed yet."
-                    }
+            VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
+                .contentShape(Circle())
+                .onTapGesture {
+                    voiceAssistant.toggleListening()
                 }
-
-                VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
-                    .contentShape(Circle())
-                    .onTapGesture {
-                        voiceAssistant.toggleListening()
-                    }
-                    .onLongPressGesture(minimumDuration: 0.4) {
-                        router.push(.voiceConversation)
-                    }
-            }
-            .padding(.bottom, 12)
-            .frame(maxHeight: .infinity, alignment: .bottom)
+                .onLongPressGesture(minimumDuration: 0.4) {
+                    router.push(.voiceConversation)
+                }
+                .padding(.bottom, 12)
+                .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .navigationBarHidden(true)
         .sheet(isPresented: $showMenu) {

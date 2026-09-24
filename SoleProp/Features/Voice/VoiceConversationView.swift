@@ -4,6 +4,7 @@ struct VoiceConversationView: View {
     @Environment(Router.self) private var router
     @Environment(VoiceConversationViewModel.self) private var viewModel
     @State private var draftText = ""
+    @State private var placeholderMessage: String?
     @FocusState private var textFieldFocused: Bool
 
     var body: some View {
@@ -27,24 +28,32 @@ struct VoiceConversationView: View {
 
             Divider()
 
-            VStack(spacing: 14) {
-                Picker("Input mode", selection: $viewModel.inputMode) {
-                    Text("Voice").tag(ConversationInputMode.voice)
-                    Text("Text").tag(ConversationInputMode.text)
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal, 24)
-
-                if viewModel.inputMode == .voice {
-                    Button {
-                        viewModel.toggleListening()
-                    } label: {
-                        VoiceOrb(level: viewModel.audioLevel, isActive: viewModel.isListening)
+            VStack(spacing: 12) {
+                HStack(spacing: 10) {
+                    QuickActionButton(title: "Book", systemImage: "calendar.badge.plus", isCompact: true) {
+                        placeholderMessage = "Book — not designed yet."
                     }
-                    .buttonStyle(.plain)
-                    .padding(.bottom, 24)
-                } else {
-                    HStack(spacing: 10) {
+                    QuickActionButton(title: "Sale", systemImage: "tag", isCompact: true) {
+                        placeholderMessage = "Sale — not designed yet."
+                    }
+                    Spacer(minLength: 0)
+                }
+
+                HStack(spacing: 12) {
+                    inputModeToggle
+
+                    if viewModel.inputMode == .voice {
+                        Spacer(minLength: 0)
+                        Button {
+                            viewModel.toggleListening()
+                        } label: {
+                            VoiceOrb(size: 56, level: viewModel.audioLevel, isActive: viewModel.isListening)
+                        }
+                        .buttonStyle(.plain)
+                        Spacer(minLength: 0)
+                        // Balances the toggle's width so the orb stays centered.
+                        Color.clear.frame(width: 36, height: 1)
+                    } else {
                         TextField("Ask something…", text: $draftText)
                             .textFieldStyle(.roundedBorder)
                             .focused($textFieldFocused)
@@ -52,10 +61,11 @@ struct VoiceConversationView: View {
                         Button("Send", action: submitDraft)
                             .disabled(draftText.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
                 }
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+            .padding(.bottom, 24)
         }
         .background(BUITokens.Color.background)
         .navigationTitle("Cue")
@@ -66,6 +76,42 @@ struct VoiceConversationView: View {
         } message: { message in
             Text(message)
         }
+        .alert("Not designed yet", isPresented: .constant(placeholderMessage != nil), presenting: placeholderMessage) { _ in
+            Button("OK") { placeholderMessage = nil }
+        } message: { message in
+            Text(message)
+        }
+    }
+
+    /// Keyboard/voice icon toggle, replacing the earlier text segmented
+    /// control — matches the familiar Messages-style input switcher.
+    @ViewBuilder
+    private var inputModeToggle: some View {
+        @Bindable var viewModel = viewModel
+
+        HStack(spacing: 2) {
+            toggleIcon("keyboard", mode: .text, binding: $viewModel.inputMode)
+            toggleIcon("waveform", mode: .voice, binding: $viewModel.inputMode)
+        }
+        .padding(3)
+        .background(Capsule().fill(Color(.systemGray5)))
+    }
+
+    private func toggleIcon(_ systemImage: String, mode: ConversationInputMode, binding: Binding<ConversationInputMode>) -> some View {
+        let isSelected = binding.wrappedValue == mode
+        return Button {
+            binding.wrappedValue = mode
+            if mode == .text {
+                textFieldFocused = true
+            }
+        } label: {
+            Image(systemName: systemImage)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(isSelected ? .white : BUITokens.Color.textPrimary)
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(isSelected ? BUITokens.Color.contrastPrimary : .clear))
+        }
+        .buttonStyle(.plain)
     }
 
     private func submitDraft() {
