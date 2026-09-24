@@ -11,6 +11,12 @@ struct RootView: View {
     @State private var voiceAssistant = VoiceConversationViewModel()
     @State private var phase: AppPhase = .auth
 
+    // Keys the Home stack below so the PROTOTYPE lifecycle switch (see
+    // `MenuSheet`) reseeds and returns to Home: changing this identity tears
+    // down and rebuilds the stack, which resets `Router.path` and dismisses
+    // whatever sheet is open — no manual pop/dismiss wiring needed.
+    @AppStorage("prototype.lifecycleStage") private var lifecycleStageRawValue = LifecycleStage.steady.rawValue
+
     var body: some View {
         Group {
             switch phase {
@@ -51,6 +57,7 @@ struct RootView: View {
                 }
                 .environment(router)
                 .environment(voiceAssistant)
+                .id(lifecycleStageRawValue)
             }
         }
     }
