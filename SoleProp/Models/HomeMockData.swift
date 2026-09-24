@@ -6,10 +6,14 @@ import Foundation
 /// Everything below `currentStage` is read from `Dataset`, one per
 /// `LifecycleStage`. The switch in the PROTOTYPE section of `MenuSheet`
 /// changes `currentStage`; nothing here or upstream branches on it —
-/// `dataset(for:)` is the one place that maps stage to seed data.
+/// `dataset(for:)` is the one place that maps stage to seed data. `HomeView`
+/// in turn never reads `currentStage` at all — it ranks whatever these
+/// fields contain by density, so the day's shape comes from what exists,
+/// not from which stage produced it.
 enum HomeMockData {
     static let ownerFirstName = "Jazz"
     static let businessName = "Jazz Aesthetics"
+    static let bookingLink = "bookjazz.blvd.com"
 
     private static let stageStorageKey = "prototype.lifecycleStage"
 
@@ -24,7 +28,10 @@ enum HomeMockData {
     static var todaysAppointments: [Appointment] { dataset(for: currentStage).appointments }
     static var pendingCue: Cue? { dataset(for: currentStage).pendingCue }
     static var pendingThresholdProposal: Proposal? { dataset(for: currentStage).pendingThresholdProposal }
-    static var dayStripSlots: [Bool] { dataset(for: currentStage).dayStripSlots }
+    static var openings: [Opening] { dataset(for: currentStage).openings }
+    static var capabilityLimitationNote: String? { dataset(for: currentStage).capabilityLimitationNote }
+    static var handledCount: Int { dataset(for: currentStage).handledCount }
+    static var handledExamples: [String] { dataset(for: currentStage).handledExamples }
     static var unreadNotificationCount: Int { dataset(for: currentStage).unreadNotificationCount }
     static var unreadMessageCount: Int { dataset(for: currentStage).unreadMessageCount }
 
@@ -32,6 +39,17 @@ enum HomeMockData {
         let now = Date()
         let appointments = todaysAppointments
         return appointments.first { $0.startTime >= now } ?? appointments.first
+    }
+
+    /// Whatever's still ahead today after `nextAppointment` — never an
+    /// already-passed one, even when `nextAppointment` itself had to fall
+    /// back to the day's first appointment because every real slot is
+    /// behind "now".
+    static var remainingAppointments: [Appointment] {
+        guard let next = nextAppointment else { return [] }
+        return todaysAppointments
+            .filter { $0.id != next.id && $0.startTime > next.startTime }
+            .sorted { $0.startTime < $1.startTime }
     }
 
     /// Finds the appointment whose client is named in `text` (e.g. "check out
@@ -62,7 +80,14 @@ enum HomeMockData {
         let appointments: [Appointment]
         let pendingCue: Cue?
         let pendingThresholdProposal: Proposal?
-        let dayStripSlots: [Bool]
+        let openings: [Opening]
+        /// Set only while a real capability is still unconnected — stated
+        /// honestly as DETAIL's limitation, never as homework for her. Empty
+        /// once the capability activates, which is itself real evidence a
+        /// dataset uses to decide whether to set this.
+        let capabilityLimitationNote: String?
+        let handledCount: Int
+        let handledExamples: [String]
         let unreadNotificationCount: Int
         let unreadMessageCount: Int
     }
@@ -83,7 +108,8 @@ enum HomeMockData {
 
     /// Week 2–month 1. A near-empty day — DETAIL hasn't seen enough of this
     /// business yet to have much to flag, so what little it says leans on
-    /// cohort priors rather than observed history.
+    /// cohort priors rather than observed history. No openings and nothing
+    /// handled yet, because there isn't enough history for either.
     private static let activatingDataset = Dataset(
         appointments: [
             Appointment(clientName: "Maya N.", service: "Neurotoxin", startTime: time(11), durationMinutes: 30, isFirstTime: true, note: "Referred by Dani. Nervous about bruising.", price: 325),
@@ -92,25 +118,29 @@ enum HomeMockData {
         ],
         pendingCue: Cue(
             spokenText: "That's your 20th booked appointment this month.",
-            action: DetailAction(description: "Noted the milestone — nothing you need to do.")
+            action: DetailAction(description: "Noted the milestone — nothing you need to do."),
+            isMilestone: true
         ),
         pendingThresholdProposal: Proposal(
-            context: "New client — Maya N.",
-            spokenFraming: "I haven't seen how you handle first-timers yet — want me to flag every new client the way I just did, or only ones referred by someone?",
-            finding: "Most solo injectors flag every new client at first and loosen it later, but you're the one this needs to fit — this is the first new client since I started watching.",
+            context: "Priya S. — running late",
+            spokenFraming: "I can text clients when you're running behind, but I don't have permission to send messages yet — want me to set that up?",
+            finding: "Texting unlocks same-day delay notices — most solo injectors turn this on in their first month.",
             options: [
-                ThresholdOption(boundaryValue: 1, label: "Every new client"),
-                ThresholdOption(boundaryValue: 0, label: "Referrals only"),
+                ThresholdOption(boundaryValue: 1, label: "Set it up"),
+                ThresholdOption(boundaryValue: 0, label: "Not yet"),
             ],
             threshold: Threshold(
-                ruleStatement: "Flag new clients before their first appointment.",
+                ruleStatement: "Text clients when an appointment is running late.",
                 boundaryValue: 1,
-                unit: "referral",
+                unit: "capability",
                 confidence: .low,
                 evidenceCount: 1
             )
         ),
-        dayStripSlots: [false, true, false, false, false, true, false, false, false, true],
+        openings: [],
+        capabilityLimitationNote: "I can't collect payment on my own yet — you'll still need to run cards yourself until that's connected.",
+        handledCount: 0,
+        handledExamples: [],
         unreadNotificationCount: 1,
         unreadMessageCount: 1
     )
@@ -143,7 +173,15 @@ enum HomeMockData {
                 evidenceCount: 1
             )
         ),
-        dayStripSlots: [false, true, true, true, false, true, false, true, false, true],
+        openings: [
+            Opening(slotLabel: "Today 5:15 PM", durationMinutes: 45, estimatedValue: 199),
+        ],
+        capabilityLimitationNote: nil,
+        handledCount: 12,
+        handledExamples: [
+            "Moved Priya's cleanup window so Tasha's checkout wasn't rushed",
+            "Sent Dani's delay notice as soon as the rain forecast came in",
+        ],
         unreadNotificationCount: 2,
         unreadMessageCount: 3
     )
@@ -180,7 +218,17 @@ enum HomeMockData {
                 evidenceCount: 34
             )
         ),
-        dayStripSlots: [true, true, true, true, false, true, true, true, false, true],
+        openings: [
+            Opening(slotLabel: "Today 1:00 PM", durationMinutes: 30, estimatedValue: 325),
+            Opening(slotLabel: "Today 4:30 PM", durationMinutes: 50, estimatedValue: 199),
+        ],
+        capabilityLimitationNote: nil,
+        handledCount: 27,
+        handledExamples: [
+            "Rebooked Corey automatically off her usual six-week cadence",
+            "Applied Maya's loyalty pricing without being asked",
+            "Sent Dani's delay notice as soon as the rain forecast came in",
+        ],
         unreadNotificationCount: 4,
         unreadMessageCount: 2
     )
