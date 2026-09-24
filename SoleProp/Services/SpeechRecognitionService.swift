@@ -34,6 +34,8 @@ final class SpeechRecognitionService: NSObject {
     private var task: SFSpeechRecognitionTask?
     private var onFinalCallback: ((String) -> Void)?
     private var didFinalize = false
+    private var lastResultAt = Date.distantPast
+    private var watchdogGeneration = 0
 
     /// Checks/requests both permissions Speech needs — they're separate iOS
     /// settings (Microphone and Speech Recognition), and it's easy for only
@@ -111,11 +113,15 @@ final class SpeechRecognitionService: NSObject {
         audioEngine.prepare()
         try audioEngine.start()
         isListening = true
+        lastResultAt = Date()
+        watchdogGeneration += 1
+        startSilenceWatchdog(generation: watchdogGeneration)
 
         task = recognizer.recognitionTask(with: request) { [weak self] result, error in
             guard let self else { return }
             if let result {
                 self.transcript = result.bestTranscription.formattedString
+                self.lastResultAt = Date()
                 if result.isFinal {
                     self.finish()
                 }
@@ -127,6 +133,29 @@ final class SpeechRecognitionService: NSObject {
                 // back whatever partial transcript was captured instead of
                 // dropping it.
                 self.finish()
+            }
+        }
+    }
+
+    /// iOS's own silence-based `isFinal` didn't reliably fire for short,
+    /// one-off commands during on-device testing — recognition would keep
+    /// the mic open indefinitely with a correct partial transcript that
+    /// never got handed off. This finalizes on our own schedule instead of
+    /// depending solely on that: soon after speech stops once something's
+    /// been said, or after a longer cap if nothing was ever heard at all
+    /// (letting continuous listening's empty-transcript cycle restart
+    /// rather than listening forever).
+    private func startSilenceWatchdog(generation: Int) {
+        Task { [weak self] in
+            while true {
+                try? await Task.sleep(for: .milliseconds(250))
+                guard let self, generation == self.watchdogGeneration, !self.didFinalize else { return }
+                let quiet = Date().timeIntervalSince(self.lastResultAt)
+                let hasSpeech = !self.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                if (hasSpeech && quiet > 1.2) || quiet > 8 {
+                    self.finish()
+                    return
+                }
             }
         }
     }
