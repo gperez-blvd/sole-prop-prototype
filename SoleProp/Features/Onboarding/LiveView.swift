@@ -1,39 +1,29 @@
 import SwiftUI
 
-private struct Stat: Identifiable {
-    let id = UUID()
-    let value: String
-    let label: String
-}
-
+/// Home. A short list of things worth doing, not a dashboard — book someone
+/// from the list Boulevard already built, connect a calendar, bring history
+/// from the last system. Each row is a door; nothing here suggests she ought
+/// to open it.
 struct LiveView: View {
     var state: OnboardingState
+    var onOpen: (OnboardingStep) -> Void
     var onContinue: () -> Void
 
     @State private var confettiTrigger = false
-
-    private var services: [(String, String)] {
-        var rows = [
-            ("Neurotoxin", "30 min · from $13/unit"),
-            ("Lip filler", "45 min · $650"),
-            ("HydraFacial", "50 min · $199"),
-        ]
-        if state.microneedling == .yes {
-            rows.append(("Microneedling", "45 min · $300"))
-        }
-        return rows
-    }
-
-    private let stats = [
-        Stat(value: "3", label: "Asked"),
-        Stat(value: "47", label: "Found"),
-        Stat(value: "6", label: "Taps"),
-        Stat(value: "4 min", label: "To live"),
-    ]
+    @State private var showShareToast = false
 
     var body: some View {
         ZStack {
-            OnboardingScreen(section: "Live") {
+            OnboardingScreen(section: "Home") {
+                Circle()
+                    .fill(Tokens.Color.ink)
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Text(initials)
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Tokens.Color.fog)
+                    )
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Your Secret Service is set up.")
                         .font(.system(size: 15))
@@ -43,13 +33,30 @@ struct LiveView: View {
                         .foregroundStyle(Tokens.Color.textPrimary)
                 }
 
-                businessCard
+                Text("bookjazz.blvd.com")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Tokens.Color.textSecondary)
 
-                statsRow
-
-                Text("Payouts connect when your first card runs. Bookings don't wait.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Tokens.Color.textTertiary)
+                VStack(spacing: 0) {
+                    actionRow(
+                        title: "Book an appointment",
+                        subtitle: bookSubtitle,
+                        done: !state.bookedAppointments.isEmpty
+                    ) { onOpen(.book) }
+                    actionRow(
+                        title: "Connect your calendar",
+                        subtitle: calSubtitle,
+                        done: state.googleCalendarConnected || state.iCalConnected
+                    ) { onOpen(.cal) }
+                    actionRow(
+                        title: "Bring data from somewhere else",
+                        subtitle: migrateSubtitle,
+                        done: state.migrationDone
+                    ) { onOpen(state.migrationDone ? .migrateDone : .migrate) }
+                }
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(Color.black.opacity(0.13)).frame(height: 1)
+                }
 
                 VStack(spacing: 10) {
                     PillButton(
@@ -57,6 +64,11 @@ struct LiveView: View {
                         isDisabled: state.bookingLinkShared
                     ) {
                         state.bookingLinkShared = true
+                        showShareToast = true
+                        Task {
+                            try? await Task.sleep(for: .seconds(2.2))
+                            showShareToast = false
+                        }
                     }
                     PillButton(title: "Continue", style: .ghost, action: onContinue)
                 }
@@ -64,72 +76,79 @@ struct LiveView: View {
             }
 
             ConfettiView(trigger: confettiTrigger)
+
+            if showShareToast {
+                VStack {
+                    Spacer()
+                    Text("Booking link texted to your imported clients.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Tokens.Color.fog)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        .background(Tokens.Color.ink)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 20)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .animation(.easeOut(duration: 0.25), value: showShareToast)
         .onAppear {
+            guard !state.helloSpoken else { return }
+            state.helloSpoken = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 confettiTrigger = true
             }
         }
     }
 
-    private var businessCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(Tokens.Color.ink)
-                    .frame(width: 44, height: 44)
-                    .overlay(
-                        Text(initials)
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundStyle(Tokens.Color.fog)
-                    )
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(state.firstName) Aesthetics")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Tokens.Color.textPrimary)
-                    Text("book.blvd.co/jazz")
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundStyle(Tokens.Color.textSecondary)
-                }
-            }
-
-            VStack(spacing: 0) {
-                ForEach(services, id: \.0) { service in
-                    HStack {
-                        Text(service.0)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Tokens.Color.textPrimary)
-                        Spacer()
-                        Text(service.1)
-                            .font(.system(size: 11.5, design: .monospaced))
-                            .foregroundStyle(Tokens.Color.textSecondary)
-                    }
-                    .padding(.vertical, 10)
-                    .overlay(alignment: .top) {
-                        Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-                    }
-                }
-            }
+    private var bookSubtitle: String {
+        if let last = state.bookedAppointments.last {
+            return "\(state.bookedAppointments.count) booked today · \(last)"
         }
-        .padding(14)
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Tokens.Color.hairline, lineWidth: 1))
+        return "For any of the \(state.clientCount.formatted()) clients already in your list."
     }
 
-    private var statsRow: some View {
-        HStack(spacing: 8) {
-            ForEach(stats) { stat in
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(stat.value)
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(Tokens.Color.textPrimary)
-                    TrackedLabel(text: stat.label, font: Tokens.Typography.labelSmall)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+    private var calSubtitle: String {
+        switch (state.googleCalendarConnected, state.iCalConnected) {
+        case (true, true): return "Google Calendar and iCalendar connected"
+        case (true, false): return "Google Calendar connected · add iCalendar"
+        case (false, true): return "iCalendar connected · add Google Calendar"
+        case (false, false): return "Google Calendar or iCalendar. Personal events block your book."
         }
-        .padding(.top, 10)
+    }
+
+    private var migrateSubtitle: String {
+        if state.migrationDone {
+            return "\(state.migrationProvider ?? "Your old system") · clients, appointments and history imported"
+        } else if state.migrationProvider != nil {
+            return "Import in progress"
+        }
+        return "Clients, appointments and history from your last system."
+    }
+
+    private func actionRow(title: String, subtitle: String, done: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Tokens.Color.textPrimary)
+                    Text(subtitle)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(Tokens.Color.textSecondary)
+                }
+                Spacer(minLength: 12)
+                Text(done ? "✓" : "→")
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundStyle(done ? Color(hex: "#8A6F3F") : Tokens.Color.textTertiary)
+            }
+            .padding(.vertical, 10)
+        }
+        .buttonStyle(.plain)
         .overlay(alignment: .top) {
-            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
+            Rectangle().fill(Color.black.opacity(0.13)).frame(height: 1)
         }
     }
 
@@ -145,5 +164,5 @@ struct LiveView: View {
 }
 
 #Preview {
-    LiveView(state: OnboardingState(), onContinue: {})
+    LiveView(state: OnboardingState(), onOpen: { _ in }, onContinue: {})
 }

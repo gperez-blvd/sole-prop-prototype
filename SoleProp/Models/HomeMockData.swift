@@ -32,4 +32,22 @@ enum HomeMockData {
 
     /// Coarse booked/open slots across the day, for the Home screen's day strip.
     static let dayStripSlots = [false, true, true, true, false, true, false, true, false, true]
+
+    /// A threshold-tuning proposal DETAIL is still learning toward — surfaced
+    /// on Home while confidence stays low, gone once she answers it once.
+    static let pendingThresholdProposal: Proposal? = Proposal(
+        spokenFraming: "Want me to flag it when someone's running 10 minutes late, or wait until 20?",
+        finding: "You've had a few late arrivals this month and I haven't said anything — I'm not sure yet how much notice you want.",
+        options: [
+            ThresholdOption(boundaryValue: 10, label: "10 min"),
+            ThresholdOption(boundaryValue: 20, label: "20 min"),
+        ],
+        threshold: Threshold(
+            ruleStatement: "Flag it when an appointment is running late.",
+            boundaryValue: 15,
+            unit: "minutes",
+            confidence: .low,
+            evidenceCount: 3
+        )
+    )
 }

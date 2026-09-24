@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var showMenu = false
     @State private var selectedAppointment: Appointment?
     @State private var placeholderMessage: String?
+    @State private var pendingProposal = HomeMockData.pendingThresholdProposal
 
     private static let todayDateString: String = {
         let formatter = DateFormatter()
@@ -33,6 +34,15 @@ struct HomeView: View {
                     Text(Self.todayDateString)
                         .font(.system(size: 10))
                         .foregroundStyle(BUITokens.Color.textStrong)
+                }
+
+                if let proposal = pendingProposal {
+                    ThresholdProposalCard(
+                        proposal: proposal,
+                        onAccept: { _ in withAnimation { pendingProposal = nil } },
+                        onDecline: { withAnimation { pendingProposal = nil } }
+                    )
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
