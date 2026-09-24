@@ -1,0 +1,17 @@
+{
+  "name": "detail-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DETAIL / CUE proof-of-concept: typed relational in-memory data layer + ladder simulation for Boulevard's voice-first operator assistant.",
+  "type": "module",
+  "scripts": {
+    "sim": "tsx src/run.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

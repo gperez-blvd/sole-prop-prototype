@@ -1,0 +1,1392 @@
+{
+  "title": "Boulevard Secret Service",
+  "objects": [
+    "OPERATOR",
+    "BUSINESS",
+    "DETAIL",
+    "PERSONA",
+    "PATTERN",
+    "THRESHOLD",
+    "SIGNAL",
+    "CUE DECISION",
+    "CUE",
+    "DAY",
+    "BRIEFING",
+    "ACTION",
+    "PROPOSAL",
+    "CAPABILITY",
+    "CLIENT",
+    "CHART",
+    "CHART ENTRY",
+    "FORM",
+    "APPOINTMENT",
+    "SERVICE",
+    "OPENING",
+    "WAITLIST REQUEST",
+    "MESSAGE",
+    "CAMPAIGN",
+    "SEGMENT",
+    "REVIEW"
+  ],
+  "roles": [
+    {
+      "name": "OPERATOR",
+      "description": "Jazz. Solo provider, owner, front desk, entire staff."
+    },
+    {
+      "name": "DETAIL",
+      "description": "The System / AI role. CTAs manifest as speech, not buttons."
+    },
+    {
+      "name": "CLIENT",
+      "description": "Her customer. Generates most of the day's signals."
+    }
+  ],
+  "cells": [
+    {
+      "role": "OPERATOR",
+      "object": "OPERATOR",
+      "ctas": [
+        {
+          "cta": "Edit profile"
+        },
+        {
+          "cta": "Add a credential"
+        },
+        {
+          "cta": "Set working hours"
+        },
+        {
+          "cta": "Pause my day"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "OPERATOR",
+      "ctas": []
+    },
+    {
+      "role": "CLIENT",
+      "object": "OPERATOR",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "BUSINESS",
+      "ctas": [
+        {
+          "cta": "Edit brand"
+        },
+        {
+          "cta": "Edit hours"
+        },
+        {
+          "cta": "Add a service"
+        },
+        {
+          "cta": "Close for a day"
+        },
+        {
+          "cta": "Share booking link"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "BUSINESS",
+      "ctas": [
+        {
+          "cta": "Refresh brand from Instagram",
+          "authority": "~"
+        },
+        {
+          "cta": "Update hours from observed pattern",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "BUSINESS",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "DETAIL",
+      "ctas": [
+        {
+          "cta": "Rename"
+        },
+        {
+          "cta": "Switch persona"
+        },
+        {
+          "cta": "Tune voice"
+        },
+        {
+          "cta": "Mute for an hour"
+        },
+        {
+          "cta": "Mute for the day"
+        },
+        {
+          "cta": "Pause entirely"
+        },
+        {
+          "cta": "Wake"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "DETAIL",
+      "ctas": [
+        {
+          "cta": "Change my own voice",
+          "authority": "x"
+        },
+        {
+          "cta": "Expand my own autonomy",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "DETAIL",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PERSONA",
+      "ctas": [
+        {
+          "cta": "Audition"
+        },
+        {
+          "cta": "Select"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PERSONA",
+      "ctas": [
+        {
+          "cta": "Recommend one",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PERSONA",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PATTERN",
+      "ctas": [
+        {
+          "cta": "Confirm"
+        },
+        {
+          "cta": "“That’s not true”"
+        },
+        {
+          "cta": "Ask for the evidence"
+        },
+        {
+          "cta": "Act on it"
+        },
+        {
+          "cta": "Mute"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PATTERN",
+      "ctas": [
+        {
+          "cta": "Observe",
+          "authority": "*"
+        },
+        {
+          "cta": "Strengthen",
+          "authority": "*"
+        },
+        {
+          "cta": "Let it decay",
+          "authority": "*"
+        },
+        {
+          "cta": "Cite in a proposal",
+          "authority": "*"
+        },
+        {
+          "cta": "Announce once",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PATTERN",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "THRESHOLD",
+      "ctas": [
+        {
+          "cta": "Confirm"
+        },
+        {
+          "cta": "Adjust"
+        },
+        {
+          "cta": "Tighten"
+        },
+        {
+          "cta": "Loosen"
+        },
+        {
+          "cta": "Decline"
+        },
+        {
+          "cta": "Revert this instance"
+        },
+        {
+          "cta": "Pause"
+        },
+        {
+          "cta": "Delete"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "THRESHOLD",
+      "ctas": [
+        {
+          "cta": "Apply",
+          "authority": "*"
+        },
+        {
+          "cta": "Infer silently",
+          "authority": "*"
+        },
+        {
+          "cta": "Propose a change",
+          "authority": "~"
+        },
+        {
+          "cta": "Retire a stale one",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "THRESHOLD",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "SIGNAL",
+      "ctas": [
+        {
+          "cta": "“Should have told me”"
+        },
+        {
+          "cta": "“Didn’t need this”"
+        },
+        {
+          "cta": "Escalate to a cue"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "SIGNAL",
+      "ctas": [
+        {
+          "cta": "Evaluate against thresholds",
+          "authority": "*"
+        },
+        {
+          "cta": "Suppress",
+          "authority": "*"
+        },
+        {
+          "cta": "Defer",
+          "authority": "*"
+        },
+        {
+          "cta": "Escalate",
+          "authority": "*"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "SIGNAL",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CUE DECISION",
+      "ctas": [
+        {
+          "cta": "Disagree with this call"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CUE DECISION",
+      "ctas": [
+        {
+          "cta": "Decide",
+          "authority": "*"
+        },
+        {
+          "cta": "Reverse a decision",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CUE DECISION",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CUE",
+      "ctas": [
+        {
+          "cta": "Answer"
+        },
+        {
+          "cta": "Acknowledge"
+        },
+        {
+          "cta": "Defer"
+        },
+        {
+          "cta": "Dismiss"
+        },
+        {
+          "cta": "Replay"
+        },
+        {
+          "cta": "Act on it in-app"
+        },
+        {
+          "cta": "“Too late”"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CUE",
+      "ctas": [
+        {
+          "cta": "Compose",
+          "authority": "*"
+        },
+        {
+          "cta": "Speak",
+          "authority": "*"
+        },
+        {
+          "cta": "Queue",
+          "authority": "*"
+        },
+        {
+          "cta": "Withhold",
+          "authority": "*"
+        },
+        {
+          "cta": "Expire",
+          "authority": "*"
+        },
+        {
+          "cta": "Suppress a clinical flag",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CUE",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "DAY",
+      "ctas": [
+        {
+          "cta": "Add a note"
+        },
+        {
+          "cta": "Block time"
+        },
+        {
+          "cta": "Close early"
+        },
+        {
+          "cta": "Reopen"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "DAY",
+      "ctas": [
+        {
+          "cta": "Compile the brief",
+          "authority": "*"
+        },
+        {
+          "cta": "Compile the debrief",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag a conflict",
+          "authority": "*"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "DAY",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "BRIEFING",
+      "ctas": [
+        {
+          "cta": "Play"
+        },
+        {
+          "cta": "Replay"
+        },
+        {
+          "cta": "Skip"
+        },
+        {
+          "cta": "Act on an item"
+        },
+        {
+          "cta": "Move delivery time"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "BRIEFING",
+      "ctas": [
+        {
+          "cta": "Compose",
+          "authority": "*"
+        },
+        {
+          "cta": "Deliver",
+          "authority": "*"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "BRIEFING",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "ACTION",
+      "ctas": [
+        {
+          "cta": "Undo"
+        },
+        {
+          "cta": "Approve"
+        },
+        {
+          "cta": "Reject"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "ACTION",
+      "ctas": [
+        {
+          "cta": "Execute",
+          "authority": "*"
+        },
+        {
+          "cta": "Queue for approval",
+          "authority": "~"
+        },
+        {
+          "cta": "Revert on failure",
+          "authority": "*"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "ACTION",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "PROPOSAL",
+      "ctas": [
+        {
+          "cta": "Accept"
+        },
+        {
+          "cta": "Decline"
+        },
+        {
+          "cta": "Snooze"
+        },
+        {
+          "cta": "Ask for the math"
+        },
+        {
+          "cta": "Run as a test"
+        },
+        {
+          "cta": "Roll back"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "PROPOSAL",
+      "ctas": [
+        {
+          "cta": "Raise",
+          "authority": "~"
+        },
+        {
+          "cta": "Withdraw",
+          "authority": "*"
+        },
+        {
+          "cta": "Re-raise with new evidence",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "PROPOSAL",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CAPABILITY",
+      "ctas": [
+        {
+          "cta": "Activate"
+        },
+        {
+          "cta": "Connect"
+        },
+        {
+          "cta": "Disconnect"
+        },
+        {
+          "cta": "Decline"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CAPABILITY",
+      "ctas": [
+        {
+          "cta": "Detect availability",
+          "authority": "*"
+        },
+        {
+          "cta": "Propose activation",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CAPABILITY",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CLIENT",
+      "ctas": [
+        {
+          "cta": "Add"
+        },
+        {
+          "cta": "Edit"
+        },
+        {
+          "cta": "Add a note"
+        },
+        {
+          "cta": "Merge duplicates"
+        },
+        {
+          "cta": "Message"
+        },
+        {
+          "cta": "Charge a fee"
+        },
+        {
+          "cta": "Waive a fee"
+        },
+        {
+          "cta": "Block"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CLIENT",
+      "ctas": [
+        {
+          "cta": "Create from a booking",
+          "authority": "*"
+        },
+        {
+          "cta": "Update from intake",
+          "authority": "*"
+        },
+        {
+          "cta": "Message in her voice",
+          "authority": "*"
+        },
+        {
+          "cta": "Merge duplicates",
+          "authority": "~"
+        },
+        {
+          "cta": "Charge a fee",
+          "authority": "x"
+        },
+        {
+          "cta": "Offer a discount",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CLIENT",
+      "ctas": [
+        {
+          "cta": "Edit own details"
+        },
+        {
+          "cta": "Fill intake form"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CHART",
+      "ctas": [
+        {
+          "cta": "Open"
+        },
+        {
+          "cta": "Review before treatment"
+        },
+        {
+          "cta": "Amend"
+        },
+        {
+          "cta": "Export"
+        },
+        {
+          "cta": "Share with a provider"
+        },
+        {
+          "cta": "Lock"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CHART",
+      "ctas": [
+        {
+          "cta": "Surface it before a treatment",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag a contraindication",
+          "authority": "*"
+        },
+        {
+          "cta": "Summarize for her eyes",
+          "authority": "*"
+        },
+        {
+          "cta": "Read clinical detail aloud",
+          "authority": "x"
+        },
+        {
+          "cta": "Disclose to a third party",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CHART",
+      "ctas": [
+        {
+          "cta": "Request a copy"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CHART ENTRY",
+      "ctas": [
+        {
+          "cta": "Create"
+        },
+        {
+          "cta": "Dictate"
+        },
+        {
+          "cta": "Attach a photo"
+        },
+        {
+          "cta": "Sign"
+        },
+        {
+          "cta": "Amend"
+        },
+        {
+          "cta": "Discard a draft"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CHART ENTRY",
+      "ctas": [
+        {
+          "cta": "Transcribe from her dictation",
+          "authority": "*"
+        },
+        {
+          "cta": "Pre-fill from the service",
+          "authority": "*"
+        },
+        {
+          "cta": "Remind her to sign",
+          "authority": "*"
+        },
+        {
+          "cta": "Sign on her behalf",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CHART ENTRY",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "FORM",
+      "ctas": [
+        {
+          "cta": "Send"
+        },
+        {
+          "cta": "Resend"
+        },
+        {
+          "cta": "Mark complete on paper"
+        },
+        {
+          "cta": "Fill on her behalf"
+        },
+        {
+          "cta": "Waive"
+        },
+        {
+          "cta": "Review the flags"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "FORM",
+      "ctas": [
+        {
+          "cta": "Send at booking",
+          "authority": "*"
+        },
+        {
+          "cta": "Remind the client",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag a contraindication",
+          "authority": "*"
+        },
+        {
+          "cta": "Mark complete",
+          "authority": "*"
+        },
+        {
+          "cta": "Waive a required form",
+          "authority": "x"
+        },
+        {
+          "cta": "Answer for the client",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "FORM",
+      "ctas": [
+        {
+          "cta": "Fill"
+        },
+        {
+          "cta": "Sign"
+        },
+        {
+          "cta": "Update"
+        },
+        {
+          "cta": "Request a copy"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "APPOINTMENT",
+      "ctas": [
+        {
+          "cta": "Book"
+        },
+        {
+          "cta": "Reschedule"
+        },
+        {
+          "cta": "Cancel"
+        },
+        {
+          "cta": "Check in"
+        },
+        {
+          "cta": "Complete"
+        },
+        {
+          "cta": "Charge"
+        },
+        {
+          "cta": "Add a note"
+        },
+        {
+          "cta": "Rebook in the room"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "APPOINTMENT",
+      "ctas": [
+        {
+          "cta": "Confirm",
+          "authority": "*"
+        },
+        {
+          "cta": "Send a reminder",
+          "authority": "*"
+        },
+        {
+          "cta": "Check in",
+          "authority": "*"
+        },
+        {
+          "cta": "Reschedule inside threshold",
+          "authority": "*"
+        },
+        {
+          "cta": "Reschedule beyond threshold",
+          "authority": "~"
+        },
+        {
+          "cta": "Cancel",
+          "authority": "x"
+        },
+        {
+          "cta": "Charge",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "APPOINTMENT",
+      "ctas": [
+        {
+          "cta": "Book"
+        },
+        {
+          "cta": "Reschedule"
+        },
+        {
+          "cta": "Cancel"
+        },
+        {
+          "cta": "Confirm"
+        },
+        {
+          "cta": "Check in"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "SERVICE",
+      "ctas": [
+        {
+          "cta": "Add"
+        },
+        {
+          "cta": "Edit"
+        },
+        {
+          "cta": "Set price"
+        },
+        {
+          "cta": "Set consent requirement"
+        },
+        {
+          "cta": "Mark non-discountable"
+        },
+        {
+          "cta": "Retire"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "SERVICE",
+      "ctas": [
+        {
+          "cta": "Import at onboarding",
+          "authority": "~"
+        },
+        {
+          "cta": "Propose a price test",
+          "authority": "~"
+        },
+        {
+          "cta": "Change price",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "SERVICE",
+      "ctas": []
+    },
+    {
+      "role": "OPERATOR",
+      "object": "OPENING",
+      "ctas": [
+        {
+          "cta": "Offer to waitlist"
+        },
+        {
+          "cta": "Post publicly"
+        },
+        {
+          "cta": "Fill manually"
+        },
+        {
+          "cta": "Block"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "OPENING",
+      "ctas": [
+        {
+          "cta": "Detect",
+          "authority": "*"
+        },
+        {
+          "cta": "Hold",
+          "authority": "*"
+        },
+        {
+          "cta": "Offer to waitlist",
+          "authority": "~"
+        },
+        {
+          "cta": "Post publicly",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "OPENING",
+      "ctas": [
+        {
+          "cta": "Claim"
+        },
+        {
+          "cta": "Join waitlist"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "WAITLIST REQUEST",
+      "ctas": [
+        {
+          "cta": "Add for a client"
+        },
+        {
+          "cta": "Edit"
+        },
+        {
+          "cta": "Offer a slot"
+        },
+        {
+          "cta": "Fulfil manually"
+        },
+        {
+          "cta": "Re-rank"
+        },
+        {
+          "cta": "Expire"
+        },
+        {
+          "cta": "Remove"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "WAITLIST REQUEST",
+      "ctas": [
+        {
+          "cta": "Create from a DM or call",
+          "authority": "*"
+        },
+        {
+          "cta": "Match to an opening",
+          "authority": "*"
+        },
+        {
+          "cta": "Re-rank the queue",
+          "authority": "*"
+        },
+        {
+          "cta": "Expire a stale one",
+          "authority": "*"
+        },
+        {
+          "cta": "Offer",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "WAITLIST REQUEST",
+      "ctas": [
+        {
+          "cta": "Request"
+        },
+        {
+          "cta": "Update"
+        },
+        {
+          "cta": "Withdraw"
+        },
+        {
+          "cta": "Accept an offer"
+        },
+        {
+          "cta": "Decline an offer"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "MESSAGE",
+      "ctas": [
+        {
+          "cta": "Send"
+        },
+        {
+          "cta": "Draft"
+        },
+        {
+          "cta": "Edit a draft"
+        },
+        {
+          "cta": "Approve"
+        },
+        {
+          "cta": "Reply"
+        },
+        {
+          "cta": "Delete"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "MESSAGE",
+      "ctas": [
+        {
+          "cta": "Draft in her voice",
+          "authority": "*"
+        },
+        {
+          "cta": "Send inside threshold",
+          "authority": "*"
+        },
+        {
+          "cta": "Auto-reply an FAQ",
+          "authority": "*"
+        },
+        {
+          "cta": "Send outside threshold",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "MESSAGE",
+      "ctas": [
+        {
+          "cta": "Send"
+        },
+        {
+          "cta": "Reply"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "CAMPAIGN",
+      "ctas": [
+        {
+          "cta": "Create"
+        },
+        {
+          "cta": "Edit the copy"
+        },
+        {
+          "cta": "Approve"
+        },
+        {
+          "cta": "Schedule"
+        },
+        {
+          "cta": "Send now"
+        },
+        {
+          "cta": "Pause"
+        },
+        {
+          "cta": "Cancel"
+        },
+        {
+          "cta": "Duplicate"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "CAMPAIGN",
+      "ctas": [
+        {
+          "cta": "Draft in her voice",
+          "authority": "*"
+        },
+        {
+          "cta": "Measure",
+          "authority": "*"
+        },
+        {
+          "cta": "Stop on an unsubscribe spike",
+          "authority": "*"
+        },
+        {
+          "cta": "Propose",
+          "authority": "~"
+        },
+        {
+          "cta": "Send to a matched shortlist",
+          "authority": "*"
+        },
+        {
+          "cta": "Send to a segment",
+          "authority": "~"
+        },
+        {
+          "cta": "Send without consent",
+          "authority": "x"
+        },
+        {
+          "cta": "Discount to fill a gap",
+          "authority": "x"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "CAMPAIGN",
+      "ctas": [
+        {
+          "cta": "Book from it"
+        },
+        {
+          "cta": "Reply"
+        },
+        {
+          "cta": "Unsubscribe"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "SEGMENT",
+      "ctas": [
+        {
+          "cta": "Create"
+        },
+        {
+          "cta": "Name"
+        },
+        {
+          "cta": "Edit criteria"
+        },
+        {
+          "cta": "Exclude a client"
+        },
+        {
+          "cta": "Delete"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "SEGMENT",
+      "ctas": [
+        {
+          "cta": "Refresh membership",
+          "authority": "*"
+        },
+        {
+          "cta": "Exclude the unreachable",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag fatigue",
+          "authority": "*"
+        },
+        {
+          "cta": "Propose a segment",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "SEGMENT",
+      "ctas": [
+        {
+          "cta": "Opt out of marketing"
+        },
+        {
+          "cta": "Update contact preferences"
+        }
+      ]
+    },
+    {
+      "role": "OPERATOR",
+      "object": "REVIEW",
+      "ctas": [
+        {
+          "cta": "Reply"
+        },
+        {
+          "cta": "Approve a drafted reply"
+        },
+        {
+          "cta": "Flag"
+        },
+        {
+          "cta": "Share"
+        }
+      ]
+    },
+    {
+      "role": "DETAIL",
+      "object": "REVIEW",
+      "ctas": [
+        {
+          "cta": "Draft a reply",
+          "authority": "*"
+        },
+        {
+          "cta": "Tag themes",
+          "authority": "*"
+        },
+        {
+          "cta": "Flag",
+          "authority": "*"
+        },
+        {
+          "cta": "Send a reply",
+          "authority": "~"
+        }
+      ]
+    },
+    {
+      "role": "CLIENT",
+      "object": "REVIEW",
+      "ctas": [
+        {
+          "cta": "Write"
+        },
+        {
+          "cta": "Edit own"
+        }
+      ]
+    }
+  ]
+}

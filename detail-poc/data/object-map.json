@@ -1,0 +1,2300 @@
+{
+  "title": "Boulevard Secret Service — Object Map",
+  "objects": [
+    {
+      "name": "OPERATOR",
+      "core_content": [
+        {
+          "name": "Full Name",
+          "example": "Jazz Bennett"
+        },
+        {
+          "name": "Mobile",
+          "example": "(615) 555-0142"
+        },
+        {
+          "name": "Photo",
+          "example": "<headshot>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Role",
+          "example": "owner / provider / front desk"
+        },
+        {
+          "name": "Licenses & Certifications",
+          "example": "injector, esthetics, laser"
+        },
+        {
+          "name": "Tenure on Boulevard",
+          "example": "Day 0 → Year 2"
+        },
+        {
+          "name": "Timezone",
+          "example": "America/Chicago"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "personal operator"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "works in"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "performing"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SERVICE",
+          "nature": "qualified for"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "serving"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "DAY",
+          "nature": "worked"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CHART ENTRY",
+          "nature": "authored"
+        }
+      ]
+    },
+    {
+      "name": "BUSINESS",
+      "core_content": [
+        {
+          "name": "Business Name",
+          "example": "Jazz Aesthetics"
+        },
+        {
+          "name": "Logo",
+          "example": "<from Instagram>"
+        },
+        {
+          "name": "Brand Palette & Voice",
+          "example": "<from Instagram>"
+        },
+        {
+          "name": "Booking Link",
+          "example": "book.blvd.co/jazz"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Category",
+          "example": "Medical aesthetics"
+        },
+        {
+          "name": "Address",
+          "example": "Suite 204 · Nashville, TN"
+        },
+        {
+          "name": "Hours",
+          "example": "Tue–Sat · 9 to 6"
+        },
+        {
+          "name": "Star Rating",
+          "example": "4.9"
+        },
+        {
+          "name": "Review Count",
+          "example": "38"
+        },
+        {
+          "name": "△ Activation Stage",
+          "example": "onboarded / activating / steady"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1-many",
+          "object": "OPERATOR",
+          "nature": "working in it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SERVICE",
+          "nature": "offered"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "on file"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "booked"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAPABILITY",
+          "nature": "△ available to it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "generated"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "DAY",
+          "nature": "of operation"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "sent"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SEGMENT",
+          "nature": "defined"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "observed in it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "REVIEW",
+          "nature": "received"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "OPENING",
+          "nature": "unfilled"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "MESSAGE",
+          "nature": "exchanged"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "WAITLIST REQUEST",
+          "nature": "outstanding"
+        }
+      ]
+    },
+    {
+      "name": "DETAIL",
+      "core_content": [
+        {
+          "name": "Name / Codename",
+          "example": "Fixer"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Voice — Calm ↔ Energetic",
+          "example": "slider position"
+        },
+        {
+          "name": "Voice — Facts ↔ Conversational",
+          "example": "slider position"
+        },
+        {
+          "name": "Voice — Professional ↔ Playful",
+          "example": "slider position"
+        },
+        {
+          "name": "Voice — Humor",
+          "example": "none ↔ dry"
+        },
+        {
+          "name": "Tenure",
+          "example": "Day 0 / Week 2 / Year 1"
+        },
+        {
+          "name": "Knowledge Level",
+          "example": "8 → 32 → 62 → 82 → 92"
+        },
+        {
+          "name": "Avg Cues per Day",
+          "example": "5"
+        },
+        {
+          "name": "Status",
+          "example": "active / paused"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "OPERATOR",
+          "nature": "it serves"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "PERSONA",
+          "nature": "based on"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "THRESHOLD",
+          "nature": "learned"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE",
+          "nature": "delivered"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "taken"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PROPOSAL",
+          "nature": "pending"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE DECISION",
+          "nature": "made"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "drafted"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "observed"
+        }
+      ]
+    },
+    {
+      "name": "PERSONA",
+      "core_content": [
+        {
+          "name": "Persona Name",
+          "example": "Concierge / Fixer / Shadow / Hype"
+        },
+        {
+          "name": "Description",
+          "example": "the one who just handles it"
+        },
+        {
+          "name": "Sample Cue Phrasing",
+          "example": "\"1:30 ran twelve late. Handled.\""
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Default Tone Positions",
+          "example": "4 slider defaults"
+        },
+        {
+          "name": "Adoption Rate",
+          "example": "% of operators who pick it"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 0-many",
+          "object": "DETAIL",
+          "nature": "based on it"
+        }
+      ]
+    },
+    {
+      "name": "PATTERN",
+      "core_content": [
+        {
+          "name": "Observation",
+          "example": "“Your Thursdays book out three weeks ahead”"
+        },
+        {
+          "name": "Value Implication",
+          "example": "one more half day ≈ $1,800 a month"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Unit",
+          "example": "weekday / time-of-day / seasonal / weather / cohort / service"
+        },
+        {
+          "name": "Evidence Count",
+          "example": "4 weeks running"
+        },
+        {
+          "name": "Confidence",
+          "example": "high"
+        },
+        {
+          "name": "First Observed",
+          "example": "Year 1, Month 8"
+        },
+        {
+          "name": "Last Confirmed",
+          "example": "this Thursday"
+        },
+        {
+          "name": "Direction",
+          "example": "strengthening / stable / decaying"
+        },
+        {
+          "name": "Estimated Value",
+          "example": "$1,800 / month"
+        },
+        {
+          "name": "Status",
+          "example": "watching / announced / confirmed / dismissed"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "that observed it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "DAY",
+          "nature": "evidencing it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PROPOSAL",
+          "nature": "it generated"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "THRESHOLD",
+          "nature": "derived from it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SEGMENT",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "BRIEFING",
+          "nature": "that announced it"
+        }
+      ]
+    },
+    {
+      "name": "THRESHOLD",
+      "core_content": [
+        {
+          "name": "Rule Statement",
+          "example": "lateness under 15 min: handle it, don't ask"
+        },
+        {
+          "name": "Observed Behavior",
+          "example": "41 of 41 small shifts approved"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Type",
+          "example": "speaking window / autonomy grant / decision boundary"
+        },
+        {
+          "name": "Boundary Value",
+          "example": "15 min · 2nd offense · after 3pm Fri"
+        },
+        {
+          "name": "Permitted Action",
+          "example": "handle / ask first / stay silent"
+        },
+        {
+          "name": "Mechanics",
+          "example": "△ inherited / declared / inferred-and-confirmed / inferred-silently"
+        },
+        {
+          "name": "Evidence Count",
+          "example": "41"
+        },
+        {
+          "name": "Confidence",
+          "example": "high"
+        },
+        {
+          "name": "Learned Date",
+          "example": "Month 1, Week 3"
+        },
+        {
+          "name": "Last Confirmed",
+          "example": "9 months ago"
+        },
+        {
+          "name": "△ Resolution Timing",
+          "example": "ask-now / ask-at-debrief / infer-silently"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "belongs to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "evidenced by"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PROPOSAL",
+          "nature": "created or tuned by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE DECISION",
+          "nature": "consulted in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAPABILITY",
+          "nature": "△ enabled by"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PATTERN",
+          "nature": "derived from"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "it authorized"
+        }
+      ]
+    },
+    {
+      "name": "SIGNAL",
+      "core_content": [
+        {
+          "name": "Payload / Raw Event",
+          "example": "check-in: 1:30 client arrived 12 min late"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Timestamp",
+          "example": "1:42:10"
+        },
+        {
+          "name": "Source",
+          "example": "check-in / payment / DM / review / weather / stock / △ form / △ chart / API / △ derived"
+        },
+        {
+          "name": "Domain",
+          "example": "scheduling / payments / messaging / inventory / external"
+        },
+        {
+          "name": "Disposition",
+          "example": "handled-silently / suppressed / deferred / escalated-to-cue / awaiting-approval"
+        },
+        {
+          "name": "Materiality",
+          "example": "does it matter? — ladder step 2"
+        },
+        {
+          "name": "Auto-actionable?",
+          "example": "yes — ladder step 3"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "THRESHOLD",
+          "nature": "evaluated against"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "triggered"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CUE DECISION",
+          "nature": "resolved by"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "processed on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "FORM",
+          "nature": "it's about"
+        }
+      ]
+    },
+    {
+      "name": "CUE DECISION",
+      "core_content": [
+        {
+          "name": "Reasoning",
+          "example": "she should know her next client moved. One sentence. Wait for the gap."
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Ladder Stop",
+          "example": "step 1–5 (where the signal stopped)"
+        },
+        {
+          "name": "Outcome",
+          "example": "handled-silently / suppressed / deferred / escalated"
+        },
+        {
+          "name": "Timing Decision",
+          "example": "speak now / wait for gap / hold for debrief"
+        },
+        {
+          "name": "Suppressed Alongside",
+          "example": "3 marketing notices, 1 stock alert, 2 payout confirmations"
+        },
+        {
+          "name": "Decided At",
+          "example": "1:44:54"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1-many",
+          "object": "SIGNAL",
+          "nature": "it resolved"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CUE",
+          "nature": "it produced"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "THRESHOLD",
+          "nature": "consulted"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "that decided"
+        }
+      ]
+    },
+    {
+      "name": "CUE",
+      "core_content": [
+        {
+          "name": "Spoken Text",
+          "example": "\"Your 1:30 is running 12 minutes late. I moved your cleanup window and texted your 2:30. Nothing you need to do.\""
+        },
+        {
+          "name": "Operator Response",
+          "example": "\"Do it.\""
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Timestamp",
+          "example": "1:38 PM"
+        },
+        {
+          "name": "Type",
+          "example": "interstitial / △ milestone / △ capability / △ clinical-flag"
+        },
+        {
+          "name": "△ Intent",
+          "example": "inform / decide / demonstrate / request"
+        },
+        {
+          "name": "Channel",
+          "example": "in-ear / CarPlay / watch / phone"
+        },
+        {
+          "name": "Delivery Window",
+          "example": "between clients / commute / after hours"
+        },
+        {
+          "name": "Word Count",
+          "example": "21"
+        },
+        {
+          "name": "Requires Decision?",
+          "example": "no"
+        },
+        {
+          "name": "Status",
+          "example": "queued / delivered / acknowledged / expired"
+        },
+        {
+          "name": "Persona Voice Used",
+          "example": "Fixer"
+        },
+        {
+          "name": "△ Clinical Override",
+          "example": "yes — ignores speaking windows, cannot be suppressed"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "delivered by"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "CUE DECISION",
+          "nature": "produced by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "it reports"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PROPOSAL",
+          "nature": "it carries"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAPABILITY",
+          "nature": "△ it concerns"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "spoken on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "FORM",
+          "nature": "it concerns"
+        }
+      ]
+    },
+    {
+      "name": "DAY",
+      "core_content": [
+        {
+          "name": "Date",
+          "example": "September 23, 2026"
+        },
+        {
+          "name": "Day Label",
+          "example": "Tuesday the 23rd"
+        },
+        {
+          "name": "△ Day Note",
+          "example": "first day back after being out sick"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Weekday",
+          "example": "Tuesday"
+        },
+        {
+          "name": "Status",
+          "example": "upcoming / in-progress / complete"
+        },
+        {
+          "name": "Appointment Count",
+          "example": "7 scheduled"
+        },
+        {
+          "name": "Clients Seen",
+          "example": "7"
+        },
+        {
+          "name": "Collected",
+          "example": "$3,180"
+        },
+        {
+          "name": "vs. Weekday Average",
+          "example": "$2,940 — up $240"
+        },
+        {
+          "name": "Rebooked in Room",
+          "example": "2"
+        },
+        {
+          "name": "Utilization",
+          "example": "88% booked"
+        },
+        {
+          "name": "Cues Spoken",
+          "example": "5"
+        },
+        {
+          "name": "Signals Processed",
+          "example": "412"
+        },
+        {
+          "name": "Actions Taken Without Her",
+          "example": "407"
+        },
+        {
+          "name": "Weather",
+          "example": "rain from 3 PM"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "OPERATOR",
+          "nature": "whose day it is"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "it belongs to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "BRIEFING",
+          "nature": "that bracket it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "scheduled"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "OPENING",
+          "nature": "unfilled"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE",
+          "nature": "spoken during it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "taken during it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "processed"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PROPOSAL",
+          "nature": "surfaced"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "REVIEW",
+          "nature": "arrived"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "sent"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "it evidences"
+        }
+      ]
+    },
+    {
+      "name": "BRIEFING",
+      "core_content": [
+        {
+          "name": "Headline",
+          "example": "“Morning, Jazz.” / “That’s the day.”"
+        },
+        {
+          "name": "Spoken Script",
+          "example": "“Seven today. Your 11:00 is Maya, first-time tox…”"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Type",
+          "example": "brief (morning) / debrief (evening)"
+        },
+        {
+          "name": "Delivered At",
+          "example": "7:42 AM · 6:20 PM"
+        },
+        {
+          "name": "Duration",
+          "example": "0:38 · 40 sec"
+        },
+        {
+          "name": "Item Count",
+          "example": "4 · 6"
+        },
+        {
+          "name": "Channel",
+          "example": "CarPlay"
+        },
+        {
+          "name": "Status",
+          "example": "played / skipped / replayed"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "delivered by"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "OPERATOR",
+          "nature": "it's for"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "flagged"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "OPENING",
+          "nature": "it covers"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PROPOSAL",
+          "nature": "carried"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "summarized"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "REVIEW",
+          "nature": "new today"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "announced"
+        }
+      ]
+    },
+    {
+      "name": "ACTION",
+      "core_content": [
+        {
+          "name": "Description",
+          "example": "moved cleanup window 2:27 → 2:40"
+        },
+        {
+          "name": "Outcome",
+          "example": "Sent. Delivered."
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Timestamp",
+          "example": "1:42:13"
+        },
+        {
+          "name": "Target Primitive",
+          "example": "calendar / messaging / payments / inventory / forms"
+        },
+        {
+          "name": "Reversible?",
+          "example": "yes"
+        },
+        {
+          "name": "Authorized By",
+          "example": "threshold / operator approval / △ inherited default"
+        },
+        {
+          "name": "Status",
+          "example": "executed / failed / reverted"
+        },
+        {
+          "name": "Visible to Operator?",
+          "example": "reported in cue / audit only"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "that took it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SIGNAL",
+          "nature": "triggered by"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "THRESHOLD",
+          "nature": "authorized by"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CUE",
+          "nature": "reported in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "acted on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "MESSAGE",
+          "nature": "it sent"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "taken on"
+        }
+      ]
+    },
+    {
+      "name": "PROPOSAL",
+      "core_content": [
+        {
+          "name": "Finding",
+          "example": "Tox clients are rebooking 18 days later than six months ago"
+        },
+        {
+          "name": "The Math",
+          "example": "120 clients × 0.77 fewer visits × $450 ≈ $41,000"
+        },
+        {
+          "name": "Recommended Action",
+          "example": "Build a re-engagement plan"
+        },
+        {
+          "name": "Spoken Framing",
+          "example": "\"Want me to build a re-engagement plan?\""
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Type",
+          "example": "growth-opportunity / threshold-tuning / △ capability-activation / △ marketing"
+        },
+        {
+          "name": "△ Evidence Source",
+          "example": "observed-behavior / cohort-prior / domain-knowledge / declared"
+        },
+        {
+          "name": "Estimated Value",
+          "example": "$41,000 / year"
+        },
+        {
+          "name": "Confidence",
+          "example": "medium"
+        },
+        {
+          "name": "Status",
+          "example": "pending / accepted / declined / expired"
+        },
+        {
+          "name": "Rollback Available?",
+          "example": "yes — price test"
+        },
+        {
+          "name": "Surfaced At",
+          "example": "8:05, Year 2"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "DETAIL",
+          "nature": "that raised it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "THRESHOLD",
+          "nature": "would create or tune"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAPABILITY",
+          "nature": "△ would activate"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CUE",
+          "nature": "delivered in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "OPENING",
+          "nature": "it would fill"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "it concerns"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "affected"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "DAY",
+          "nature": "surfaced on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAMPAIGN",
+          "nature": "it would send"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SEGMENT",
+          "nature": "it targets"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PATTERN",
+          "nature": "it cites"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "WAITLIST REQUEST",
+          "nature": "it would fulfil"
+        }
+      ]
+    },
+    {
+      "name": "CAPABILITY",
+      "core_content": [
+        {
+          "name": "△ Name",
+          "example": "Payouts"
+        },
+        {
+          "name": "△ What It Unlocks",
+          "example": "\"I can move money for you\""
+        },
+        {
+          "name": "△ Completion Surface",
+          "example": "<link sent to her phone>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "△ Status",
+          "example": "unavailable / available / proposed / declined / active"
+        },
+        {
+          "name": "△ Type",
+          "example": "integration / data import / policy / first-time action"
+        },
+        {
+          "name": "△ Effort",
+          "example": "2 min"
+        },
+        {
+          "name": "△ Estimated Value",
+          "example": "unlocks same-day payouts"
+        },
+        {
+          "name": "△ Declined At",
+          "example": "never ask unprompted again"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "△ it belongs to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PROPOSAL",
+          "nature": "△ surfaced by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "THRESHOLD",
+          "nature": "△ it enables"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAPABILITY",
+          "nature": "△ it depends on"
+        }
+      ]
+    },
+    {
+      "name": "CLIENT",
+      "core_content": [
+        {
+          "name": "Full Name",
+          "example": "Maya Okafor"
+        },
+        {
+          "name": "Photo",
+          "example": "<optional>"
+        },
+        {
+          "name": "Mobile",
+          "example": "(615) 555-0188"
+        },
+        {
+          "name": "Notes",
+          "example": "nervous about bruising"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Client Since",
+          "example": "Year 1, Month 4"
+        },
+        {
+          "name": "Visit Count",
+          "example": "6"
+        },
+        {
+          "name": "Lifetime Value",
+          "example": "$2,700"
+        },
+        {
+          "name": "Rebooking Cadence",
+          "example": "84 days"
+        },
+        {
+          "name": "No-show Count",
+          "example": "1"
+        },
+        {
+          "name": "Preferred Channel",
+          "example": "text"
+        },
+        {
+          "name": "Referred By",
+          "example": "Dani"
+        },
+        {
+          "name": "Tags",
+          "example": "first-time, tox"
+        },
+        {
+          "name": "Marketing Consent — SMS",
+          "example": "granted Mar 2026 at booking"
+        },
+        {
+          "name": "Marketing Consent — Email",
+          "example": "granted / denied / withdrawn"
+        },
+        {
+          "name": "Unsubscribed At",
+          "example": "—"
+        },
+        {
+          "name": "Last Marketing Contact",
+          "example": "9 days ago"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "client of"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "booked"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SERVICE",
+          "nature": "received"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "MESSAGE",
+          "nature": "exchanged"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "REVIEW",
+          "nature": "written"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SEGMENT",
+          "nature": "she belongs to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "received"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "about her"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE",
+          "nature": "about her"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "about her"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "OPENING",
+          "nature": "offered to her"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "WAITLIST REQUEST",
+          "nature": "she's made"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "CHART",
+          "nature": "hers"
+        }
+      ]
+    },
+    {
+      "name": "CHART",
+      "core_content": [
+        {
+          "name": "Medical History",
+          "example": "free text + structured history"
+        },
+        {
+          "name": "Allergies",
+          "example": "“lidocaine sensitivity”"
+        },
+        {
+          "name": "Medications",
+          "example": "“low-dose aspirin”"
+        },
+        {
+          "name": "Contraindication Notes",
+          "example": "“no tox — pregnancy, cleared Mar 2027”"
+        },
+        {
+          "name": "Baseline Photos",
+          "example": "<before set>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Status",
+          "example": "open / current / locked"
+        },
+        {
+          "name": "Last Reviewed",
+          "example": "Sept 23, before the 11:00"
+        },
+        {
+          "name": "Last Updated",
+          "example": "Sept 23, 11:52 PM"
+        },
+        {
+          "name": "Open Flags",
+          "example": "1 — blood thinner"
+        },
+        {
+          "name": "Entry Count",
+          "example": "14"
+        },
+        {
+          "name": "Retention Until",
+          "example": "per state rule"
+        },
+        {
+          "name": "△ Contains PHI",
+          "example": "yes — access and disclosure restricted"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "CLIENT",
+          "nature": "it documents"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CHART ENTRY",
+          "nature": "filed in it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "FORM",
+          "nature": "filed in it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "it covers"
+        }
+      ]
+    },
+    {
+      "name": "CHART ENTRY",
+      "core_content": [
+        {
+          "name": "What Was Done",
+          "example": "“20 units, glabella and crow’s feet”"
+        },
+        {
+          "name": "Observations",
+          "example": "“mild erythema, no bruising at 10 min”"
+        },
+        {
+          "name": "Photos",
+          "example": "<after set>"
+        },
+        {
+          "name": "Products & Lots",
+          "example": "Botox, lot 4471C, exp 03/27"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Type",
+          "example": "treatment note / consult note / photo / phone note / amendment"
+        },
+        {
+          "name": "Units / Dosage",
+          "example": "20 units"
+        },
+        {
+          "name": "Sites Treated",
+          "example": "glabella, lateral canthus"
+        },
+        {
+          "name": "Authored At",
+          "example": "Sept 23, 11:48 AM"
+        },
+        {
+          "name": "Signed At",
+          "example": "— unsigned"
+        },
+        {
+          "name": "Status",
+          "example": "draft / signed / amended"
+        },
+        {
+          "name": "Authored By",
+          "example": "her / △ DETAIL from dictation"
+        },
+        {
+          "name": "Amends",
+          "example": "entry #11"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "CHART",
+          "nature": "it's filed in"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "OPERATOR",
+          "nature": "who authored it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it documents"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "performed"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CHART ENTRY",
+          "nature": "it amends"
+        }
+      ]
+    },
+    {
+      "name": "FORM",
+      "core_content": [
+        {
+          "name": "Form Name",
+          "example": "Neurotoxin consent · Intake — medical history"
+        },
+        {
+          "name": "Responses",
+          "example": "<the client's answers>"
+        },
+        {
+          "name": "Signature",
+          "example": "<client signature, Sept 22 11:52 PM>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Type",
+          "example": "intake / medical history / consent / post-care acknowledgment"
+        },
+        {
+          "name": "Status",
+          "example": "not sent / sent / overdue / complete / expired / waived"
+        },
+        {
+          "name": "Template & Version",
+          "example": "Boulevard tox consent v3"
+        },
+        {
+          "name": "Sent At",
+          "example": "Sept 20, at booking"
+        },
+        {
+          "name": "Completed At",
+          "example": "Sept 22, 11:52 PM"
+        },
+        {
+          "name": "Expires",
+          "example": "12 months from signature"
+        },
+        {
+          "name": "Flags Raised",
+          "example": "1 — anticoagulant"
+        },
+        {
+          "name": "Required For",
+          "example": "this appointment / this service / annually"
+        },
+        {
+          "name": "Source",
+          "example": "client-completed / on paper / filled by her"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "CHART",
+          "nature": "it's filed in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "required for"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "consent for"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "it generated"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE",
+          "nature": "it prompted"
+        }
+      ]
+    },
+    {
+      "name": "APPOINTMENT",
+      "core_content": [
+        {
+          "name": "Confirmation Number",
+          "example": "BLVD-4471"
+        },
+        {
+          "name": "Notes",
+          "example": "second tox session, forehead only"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Start Time",
+          "example": "1:30 PM"
+        },
+        {
+          "name": "Duration",
+          "example": "45 min"
+        },
+        {
+          "name": "Status",
+          "example": "booked / confirmed / checked-in / completed / cancelled / no-show"
+        },
+        {
+          "name": "Check-in Time",
+          "example": "1:42 PM"
+        },
+        {
+          "name": "Lateness",
+          "example": "12 min"
+        },
+        {
+          "name": "Price",
+          "example": "$650"
+        },
+        {
+          "name": "Deposit Taken?",
+          "example": "yes"
+        },
+        {
+          "name": "Room / Device",
+          "example": "Suite 204 · laser 1"
+        },
+        {
+          "name": "△ Readiness",
+          "example": "ready / forms outstanding / consent expired / blocked"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "CLIENT",
+          "nature": "booked by"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "OPERATOR",
+          "nature": "performing"
+        },
+        {
+          "cardinality": "has 1-many",
+          "object": "SERVICE",
+          "nature": "being performed"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "booked at"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SIGNAL",
+          "nature": "generated"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "ACTION",
+          "nature": "applied to it"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "scheduled on"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAMPAIGN",
+          "nature": "booked from"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CUE",
+          "nature": "about it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "MESSAGE",
+          "nature": "about it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "REVIEW",
+          "nature": "it produced"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "WAITLIST REQUEST",
+          "nature": "it came from"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "FORM",
+          "nature": "required"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CHART ENTRY",
+          "nature": "documenting it"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "CHART",
+          "nature": "being documented"
+        }
+      ]
+    },
+    {
+      "name": "SERVICE",
+      "core_content": [
+        {
+          "name": "Service Name",
+          "example": "Lip filler"
+        },
+        {
+          "name": "Description",
+          "example": "<from Linktree>"
+        },
+        {
+          "name": "Photo",
+          "example": "<optional>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Duration",
+          "example": "45 min"
+        },
+        {
+          "name": "Price",
+          "example": "$650"
+        },
+        {
+          "name": "Price Model",
+          "example": "flat / per-unit (from $13/unit)"
+        },
+        {
+          "name": "Category",
+          "example": "injectable / laser / facial / peel"
+        },
+        {
+          "name": "Processing Time",
+          "example": "tox: 10–14 days"
+        },
+        {
+          "name": "Requires Consent Form?",
+          "example": "yes"
+        },
+        {
+          "name": "Discountable?",
+          "example": "no — never discount tox"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "offered by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "performed in"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "OPERATOR",
+          "nature": "qualified to perform"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "THRESHOLD",
+          "nature": "governed by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "promoting it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "SEGMENT",
+          "nature": "defined by it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "about it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "who've had it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "WAITLIST REQUEST",
+          "nature": "requesting it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CHART ENTRY",
+          "nature": "documenting it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "FORM",
+          "nature": "consents for it"
+        }
+      ]
+    },
+    {
+      "name": "OPENING",
+      "core_content": [
+        {
+          "name": "Slot Label",
+          "example": "Tomorrow 2:30, 90 minutes"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Start Time",
+          "example": "2:30 PM"
+        },
+        {
+          "name": "Date",
+          "example": "Wed 24"
+        },
+        {
+          "name": "Duration",
+          "example": "90 min"
+        },
+        {
+          "name": "Estimated Value",
+          "example": "$650"
+        },
+        {
+          "name": "Origin",
+          "example": "cancellation / never-booked / schedule gap"
+        },
+        {
+          "name": "Status",
+          "example": "open / offered / filled / expired"
+        },
+        {
+          "name": "Offer Order",
+          "example": "waitlist → Instagram"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "belongs to"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "vacated by"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "suited to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "offered to"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "filled by"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PROPOSAL",
+          "nature": "surfaced in"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "it sits in"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAMPAIGN",
+          "nature": "promoting it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "WAITLIST REQUEST",
+          "nature": "matched to it"
+        }
+      ]
+    },
+    {
+      "name": "WAITLIST REQUEST",
+      "core_content": [
+        {
+          "name": "Request ID",
+          "example": "BLVD-WL-0312"
+        },
+        {
+          "name": "Request Note",
+          "example": "“wants anything Thursday afternoon”"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Desired Window",
+          "example": "Thursday afternoons"
+        },
+        {
+          "name": "Flexibility",
+          "example": "specific date / any Thursday / any time"
+        },
+        {
+          "name": "Created",
+          "example": "Mon 12:40 PM"
+        },
+        {
+          "name": "Expires",
+          "example": "end of month"
+        },
+        {
+          "name": "Status",
+          "example": "waiting / offered / booked / expired / withdrawn"
+        },
+        {
+          "name": "Queue Order",
+          "example": "2 of 3"
+        },
+        {
+          "name": "Times Offered",
+          "example": "1"
+        },
+        {
+          "name": "Times Declined",
+          "example": "0"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "CLIENT",
+          "nature": "who asked"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "asked of"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "wanted"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "OPENING",
+          "nature": "offered to her"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it became"
+        }
+      ]
+    },
+    {
+      "name": "MESSAGE",
+      "core_content": [
+        {
+          "name": "Body",
+          "example": "\"Running about 10 behind, see you at 2:40?\""
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Timestamp",
+          "example": "1:42:15"
+        },
+        {
+          "name": "Direction",
+          "example": "inbound / outbound"
+        },
+        {
+          "name": "Channel",
+          "example": "SMS / Instagram DM / email"
+        },
+        {
+          "name": "Status",
+          "example": "draft / sent / delivered / replied"
+        },
+        {
+          "name": "Authored By",
+          "example": "operator / DETAIL in her voice / template"
+        },
+        {
+          "name": "Tone Read",
+          "example": "fine"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "with"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "sent from"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "ACTION",
+          "nature": "that sent it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SIGNAL",
+          "nature": "it generated"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "CAMPAIGN",
+          "nature": "sent from"
+        }
+      ]
+    },
+    {
+      "name": "CAMPAIGN",
+      "core_content": [
+        {
+          "name": "Campaign Name",
+          "example": "March filler promo"
+        },
+        {
+          "name": "Subject Line",
+          "example": "Your lips, before spring"
+        },
+        {
+          "name": "Body / Copy",
+          "example": "<written in her voice>"
+        },
+        {
+          "name": "Offer",
+          "example": "optional — $50 off, expires Friday"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Type",
+          "example": "fill-a-gap / re-engagement / lapsed-winback / promotion / seasonal"
+        },
+        {
+          "name": "Channel",
+          "example": "SMS / email"
+        },
+        {
+          "name": "Status",
+          "example": "draft / proposed / scheduled / sending / sent / cancelled"
+        },
+        {
+          "name": "Scheduled For",
+          "example": "Thu 9:00 AM"
+        },
+        {
+          "name": "Audience Size",
+          "example": "120 matching"
+        },
+        {
+          "name": "Reachable Size",
+          "example": "94 with SMS consent"
+        },
+        {
+          "name": "Opens",
+          "example": "61%"
+        },
+        {
+          "name": "Clicks",
+          "example": "18%"
+        },
+        {
+          "name": "Bookings Attributed",
+          "example": "7"
+        },
+        {
+          "name": "Revenue Attributed",
+          "example": "$3,150"
+        },
+        {
+          "name": "Unsubscribes",
+          "example": "2"
+        },
+        {
+          "name": "Authored By",
+          "example": "her / DETAIL in her voice"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "sent from"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "SEGMENT",
+          "nature": "its audience"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "MESSAGE",
+          "nature": "sent from it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "PROPOSAL",
+          "nature": "that raised it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "OPENING",
+          "nature": "it's filling"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "it promotes"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "APPOINTMENT",
+          "nature": "booked from it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "DAY",
+          "nature": "sent on"
+        }
+      ]
+    },
+    {
+      "name": "SEGMENT",
+      "core_content": [
+        {
+          "name": "Segment Name",
+          "example": "Tox clients overdue"
+        },
+        {
+          "name": "Definition",
+          "example": "had tox, no visit in 100+ days — in her words"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Size",
+          "example": "120 matching"
+        },
+        {
+          "name": "Reachable — SMS",
+          "example": "94"
+        },
+        {
+          "name": "Reachable — Email",
+          "example": "112"
+        },
+        {
+          "name": "Last Sent",
+          "example": "9 days ago"
+        },
+        {
+          "name": "Send Frequency",
+          "example": "3 sends / 90 days"
+        },
+        {
+          "name": "△ Fatigue",
+          "example": "fresh / warm / over-messaged"
+        },
+        {
+          "name": "Created By",
+          "example": "her / DETAIL"
+        },
+        {
+          "name": "Auto-updating?",
+          "example": "yes — membership recalculates"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "belongs to"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CLIENT",
+          "nature": "matching"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "CAMPAIGN",
+          "nature": "sent to it"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "SERVICE",
+          "nature": "defined by"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PROPOSAL",
+          "nature": "about it"
+        },
+        {
+          "cardinality": "has 0-many",
+          "object": "PATTERN",
+          "nature": "about it"
+        }
+      ]
+    },
+    {
+      "name": "REVIEW",
+      "core_content": [
+        {
+          "name": "Review Body",
+          "example": "\"She didn't rush me.\""
+        },
+        {
+          "name": "Reviewer Name",
+          "example": "M. Rivera — may be unmatched to a CLIENT"
+        },
+        {
+          "name": "Reply Text",
+          "example": "<drafted, awaiting her nod>"
+        }
+      ],
+      "metadata": [
+        {
+          "name": "Star Rating",
+          "example": "5"
+        },
+        {
+          "name": "Date",
+          "example": "11:30 AM, Tue 23"
+        },
+        {
+          "name": "Source",
+          "example": "Google / Instagram"
+        },
+        {
+          "name": "Reply Status",
+          "example": "drafted / sent / none"
+        },
+        {
+          "name": "Tagged Themes",
+          "example": "strength: didn't rush me"
+        }
+      ],
+      "nested_objects": [
+        {
+          "cardinality": "has 0-1",
+          "object": "CLIENT",
+          "nature": "who wrote it"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "BUSINESS",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "OPERATOR",
+          "nature": "it's about"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "APPOINTMENT",
+          "nature": "it follows"
+        },
+        {
+          "cardinality": "has 0-1",
+          "object": "MESSAGE",
+          "nature": "the reply"
+        },
+        {
+          "cardinality": "has 1",
+          "object": "DAY",
+          "nature": "arrived on"
+        }
+      ]
+    }
+  ]
+}
