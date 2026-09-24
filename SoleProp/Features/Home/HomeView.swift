@@ -2,12 +2,13 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(Router.self) private var router
+    @Environment(VoiceConversationViewModel.self) private var voiceAssistant
 
     @State private var showMenu = false
     @State private var selectedAppointment: Appointment?
+    @State private var checkoutAppointment: Appointment?
     @State private var placeholderMessage: String?
-    @State private var showTooltip = true
-    @State private var pendingProposal = HomeMockData.pendingThresholdProposal
+    @State private var currentMoment = HomeMockData.pendingCue.map { DetailMoment.cue($0) }
 
     private static let todayDateString: String = {
         let formatter = DateFormatter()
@@ -36,12 +37,25 @@ struct HomeView: View {
                         .foregroundStyle(BUITokens.Color.textStrong)
                 }
 
-                if let proposal = pendingProposal {
-                    ThresholdProposalCard(
-                        proposal: proposal,
-                        onAccept: { _ in withAnimation { pendingProposal = nil } },
-                        onDecline: { withAnimation { pendingProposal = nil } }
-                    )
+                if let moment = currentMoment {
+                    Group {
+                        switch moment {
+                        case .cue(let cue):
+                            CueCard(cue: cue) {
+                                withAnimation {
+                                    currentMoment = HomeMockData.pendingThresholdProposal.map { .proposal($0) }
+                                }
+                            }
+                            .id("cue")
+                        case .proposal(let proposal):
+                            ThresholdProposalCard(
+                                proposal: proposal,
+                                onAccept: { _ in withAnimation { currentMoment = nil } },
+                                onDecline: { withAnimation { currentMoment = nil } }
+                            )
+                            .id("proposal")
+                        }
+                    }
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -56,7 +70,8 @@ struct HomeView: View {
                             onTap: { selectedAppointment = next },
                             onEdit: { placeholderMessage = "Edit — not designed yet." },
                             onClientInfo: { placeholderMessage = "Client info — not designed yet." },
-                            onMessage: { placeholderMessage = "Message — not designed yet." }
+                            onMessage: { placeholderMessage = "Message — not designed yet." },
+                            onCheckout: { checkoutAppointment = next }
                         )
                     }
 
@@ -70,17 +85,24 @@ struct HomeView: View {
             .padding(.horizontal, 28)
             .padding(.top, 19)
 
-            VStack(spacing: 12) {
-                if showTooltip {
-                    VoiceOrbTooltip(text: "Tap to pull up conversation")
+            VStack(spacing: 16) {
+                HStack(spacing: 12) {
+                    QuickActionButton(title: "Book", systemImage: "calendar.badge.plus") {
+                        placeholderMessage = "Book — not designed yet."
+                    }
+                    QuickActionButton(title: "Sale", systemImage: "tag") {
+                        placeholderMessage = "Sale — not designed yet."
+                    }
                 }
-                Button {
-                    showTooltip = false
-                    router.push(.voiceConversation)
-                } label: {
-                    VoiceOrb(size: 44)
-                }
-                .buttonStyle(.plain)
+
+                VoiceOrb(size: 53, level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
+                    .contentShape(Circle())
+                    .onTapGesture {
+                        voiceAssistant.toggleListening()
+                    }
+                    .onLongPressGesture(minimumDuration: 0.4) {
+                        router.push(.voiceConversation)
+                    }
             }
             .padding(.bottom, 28)
             .frame(maxHeight: .infinity, alignment: .bottom)
@@ -97,43 +119,34 @@ struct HomeView: View {
                 selectedAppointment = nil
             }
         }
+        .sheet(item: $checkoutAppointment) { appointment in
+            CheckoutSheet(appointment: appointment) {
+                checkoutAppointment = nil
+            }
+        }
+        .onChange(of: voiceAssistant.pendingCheckout) { _, newValue in
+            guard let newValue else { return }
+            checkoutAppointment = newValue
+            voiceAssistant.pendingCheckout = nil
+        }
         .alert("Not designed yet", isPresented: .constant(placeholderMessage != nil), presenting: placeholderMessage) { _ in
             Button("OK") { placeholderMessage = nil }
+        } message: { message in
+            Text(message)
+        }
+        .alert("Cue", isPresented: .constant(voiceAssistant.errorMessage != nil), presenting: voiceAssistant.errorMessage) { _ in
+            Button("OK") { voiceAssistant.errorMessage = nil }
         } message: { message in
             Text(message)
         }
     }
 }
 
-private struct VoiceOrbTooltip: View {
-    var text: String
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text(text)
-                .font(BUITokens.Typography.tooltip)
-                .foregroundStyle(.white)
-                .padding(8)
-                .background(BUITokens.Color.contrastPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            Triangle()
-                .fill(BUITokens.Color.contrastPrimary)
-                .frame(width: 12, height: 6)
-        }
-        .shadow(color: .black.opacity(0.22), radius: 24, x: 0, y: 16)
-    }
-}
-
-private struct Triangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.closeSubpath()
-        return path
-    }
+/// The sequence of things DETAIL surfaces in one moment: the CUE first,
+/// then — because it's still learning — the PROPOSAL that follows from it.
+private enum DetailMoment {
+    case cue(Cue)
+    case proposal(Proposal)
 }
 
 #Preview {
@@ -141,4 +154,5 @@ private struct Triangle: Shape {
         HomeView()
     }
     .environment(Router())
+    .environment(VoiceConversationViewModel())
 }

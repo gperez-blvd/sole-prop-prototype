@@ -8,6 +8,7 @@ struct Appointment: Identifiable, Hashable {
     let durationMinutes: Int
     let isFirstTime: Bool
     let note: String?
+    let price: Decimal
 
     var endTime: Date {
         startTime.addingTimeInterval(TimeInterval(durationMinutes * 60))

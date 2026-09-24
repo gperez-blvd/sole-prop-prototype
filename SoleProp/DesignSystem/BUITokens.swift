@@ -31,6 +31,5 @@ enum BUITokens {
         static let sectionLabel = Font.system(size: 14, weight: .regular)
         static let cardTitle = Font.system(size: 16, weight: .regular)
         static let headerTitle = Font.system(size: 14, weight: .medium)
-        static let tooltip = Font.system(size: 14, weight: .regular)
     }
 }

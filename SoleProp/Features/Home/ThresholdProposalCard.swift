@@ -19,6 +19,13 @@ struct ThresholdProposalCard: View {
                     .font(BUITokens.Typography.cardTitle)
                     .foregroundStyle(BUITokens.Color.textPrimary)
             } else {
+                if let context = proposal.context {
+                    Text(context.uppercased())
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(BUITokens.Color.disabled)
+                        .kerning(0.6)
+                }
+
                 Text(proposal.spokenFraming)
                     .font(BUITokens.Typography.cardTitle)
                     .foregroundStyle(BUITokens.Color.textPrimary)

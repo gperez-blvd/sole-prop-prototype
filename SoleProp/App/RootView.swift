@@ -8,6 +8,7 @@ private enum AppPhase: Equatable {
 
 struct RootView: View {
     @State private var router = Router()
+    @State private var voiceAssistant = VoiceConversationViewModel()
     @State private var phase: AppPhase = .auth
 
     var body: some View {
@@ -49,6 +50,7 @@ struct RootView: View {
                         }
                 }
                 .environment(router)
+                .environment(voiceAssistant)
             }
         }
     }
