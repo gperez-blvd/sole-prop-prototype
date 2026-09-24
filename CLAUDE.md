@@ -153,5 +153,11 @@ Each of these means the principle is slipping:
 - `HANDOFF-SCREENS.md` — the screens, in tiers.
 - `HANDOFF-ADDENDUM-01.md` — products and checkout; supersedes the object counts in the above.
 - The `.html` files are renderings of the two JSONs for humans. Don't parse them.
+- `detail-poc/src/design/tokens.ts` — **the design system.** Color, typography, spacing, radius,
+  shadow, breakpoints — the onyx/ochre/paper/silt palette pulled from the DETAIL onboarding
+  artifact. `SoleProp/DesignSystem/Tokens.swift` is its Swift mirror; use one or the other
+  depending on which side you're building. `BUITokens.swift` is legacy — it predates this
+  decision and still governs screens that haven't been migrated yet, but new work should reach
+  for `Tokens`, not `BUITokens`.
 
 `△` in the JSON marks a proposal rather than a decision. Implement, but report.

@@ -16,19 +16,20 @@ struct ThresholdProposalCard: View {
         VStack(alignment: .leading, spacing: 12) {
             if let confirmedOption {
                 Text("Got it — I'll flag it at \(confirmedOption.label) late.")
-                    .font(BUITokens.Typography.cardTitle)
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .font(Tokens.Typography.body)
+                    .foregroundStyle(Tokens.Color.textPrimary)
             } else {
                 if let context = proposal.context {
-                    Text(context.uppercased())
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(BUITokens.Color.disabled)
-                        .kerning(0.6)
+                    Text(context)
+                        .font(Tokens.Typography.labelSmall)
+                        .foregroundStyle(Tokens.Color.textTertiary)
+                        .textCase(.uppercase)
+                        .kerning(1.2)
                 }
 
                 Text(proposal.spokenFraming)
-                    .font(BUITokens.Typography.cardTitle)
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .font(Tokens.Typography.body)
+                    .foregroundStyle(Tokens.Color.textPrimary)
 
                 HStack(spacing: 8) {
                     ForEach(proposal.options) { option in
@@ -40,28 +41,31 @@ struct ThresholdProposalCard: View {
                     Button(showReasoning ? "Hide why" : "Why are you asking?") {
                         withAnimation { showReasoning.toggle() }
                     }
-                    .font(.system(size: 12))
-                    .foregroundStyle(BUITokens.Color.textStrong)
+                    .font(Tokens.Typography.caption)
+                    .foregroundStyle(Tokens.Color.textSecondary)
 
                     Spacer()
 
                     Button("Not now", action: onDecline)
-                        .font(.system(size: 12))
-                        .foregroundStyle(BUITokens.Color.disabled)
+                        .font(Tokens.Typography.caption)
+                        .foregroundStyle(Tokens.Color.textTertiary)
                 }
 
                 if showReasoning {
                     Text(proposal.finding)
-                        .font(.system(size: 12))
-                        .foregroundStyle(BUITokens.Color.textStrong)
+                        .font(Tokens.Typography.caption)
+                        .foregroundStyle(Tokens.Color.textSecondary)
                         .transition(.opacity)
                 }
             }
         }
         .padding(16)
-        .background(BUITokens.Color.background)
-        .clipShape(RoundedRectangle(cornerRadius: BUITokens.Radius.card))
-        .shadow(color: BUITokens.Shadow.medium, radius: BUITokens.Shadow.mediumRadius, x: 0, y: BUITokens.Shadow.mediumY)
+        .background(Tokens.Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                .strokeBorder(Tokens.Color.hairline)
+        )
     }
 
     private func optionChip(_ option: ThresholdOption) -> some View {
@@ -70,11 +74,11 @@ struct ThresholdProposalCard: View {
         } label: {
             Text(option.label)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(BUITokens.Color.textPrimary)
+                .foregroundStyle(Tokens.Color.textPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .overlay(
-                    Capsule().strokeBorder(BUITokens.Color.textPrimary.opacity(0.25))
+                    Capsule().strokeBorder(Tokens.Color.ochre.opacity(0.55))
                 )
         }
         .buttonStyle(.plain)
@@ -96,5 +100,5 @@ struct ThresholdProposalCard: View {
         onDecline: {}
     )
     .padding(28)
-    .background(BUITokens.Color.background)
+    .background(Tokens.Color.background)
 }

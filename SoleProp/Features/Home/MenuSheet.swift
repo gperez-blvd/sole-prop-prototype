@@ -44,9 +44,9 @@ struct MenuSheet: View {
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(BUITokens.Color.disabled)
+                            .foregroundStyle(Tokens.Color.textTertiary)
                     }
-                    .foregroundStyle(BUITokens.Color.textPrimary)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .padding(.vertical, 14)
                     .padding(.horizontal, 24)
                 }
@@ -59,7 +59,7 @@ struct MenuSheet: View {
             Spacer(minLength: 0)
         }
         .padding(.top, 24)
-        .background(BUITokens.Color.background)
+        .background(Tokens.Color.background)
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }

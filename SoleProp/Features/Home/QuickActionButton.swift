@@ -17,13 +17,12 @@ struct QuickActionButton: View {
                 Text(title)
                     .font(.system(size: isCompact ? 12.5 : 14, weight: .medium))
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Tokens.Color.paper)
             .padding(.horizontal, isCompact ? 14 : 20)
             .padding(.vertical, isCompact ? 8 : 12)
         }
         .buttonStyle(.plain)
-        .background(BUITokens.Color.contrastPrimary)
+        .background(Tokens.Color.onyx)
         .clipShape(Capsule())
-        .shadow(color: BUITokens.Shadow.medium, radius: isCompact ? 10 : 20, x: 0, y: isCompact ? 3 : 6)
     }
 }

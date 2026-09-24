@@ -19,7 +19,7 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            BUITokens.Color.background.ignoresSafeArea()
+            Tokens.Color.background.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
@@ -32,11 +32,13 @@ struct HomeView: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Good morning \(HomeMockData.ownerFirstName).")
-                            .font(BUITokens.Typography.greeting)
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .font(Tokens.Typography.largeTitle)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                         Text(Self.todayDateString)
-                            .font(.system(size: 10))
-                            .foregroundStyle(BUITokens.Color.textStrong)
+                            .font(Tokens.Typography.labelSmall)
+                            .foregroundStyle(Tokens.Color.textTertiary)
+                            .textCase(.uppercase)
+                            .kerning(1.2)
                     }
 
                     if let moment = currentMoment {
@@ -63,8 +65,10 @@ struct HomeView: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Next appointment")
-                            .font(BUITokens.Typography.sectionLabel)
-                            .foregroundStyle(BUITokens.Color.textStrong)
+                            .font(Tokens.Typography.label)
+                            .foregroundStyle(Tokens.Color.textTertiary)
+                            .textCase(.uppercase)
+                            .kerning(1.4)
 
                         if let next = HomeMockData.nextAppointment {
                             NextAppointmentCard(

@@ -15,11 +15,14 @@ struct AppointmentDetailSheet: View {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(appointment.clientName)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(Tokens.Typography.largeTitle)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                         if appointment.isFirstTime {
-                            Text("FIRST TIME")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(BUITokens.Color.bluegreen)
+                            Text("First time")
+                                .font(Tokens.Typography.labelSmall)
+                                .foregroundStyle(Tokens.Color.ochre)
+                                .textCase(.uppercase)
+                                .kerning(1.2)
                         }
                     }
 
@@ -34,13 +37,13 @@ struct AppointmentDetailSheet: View {
 
                     if let placeholderMessage {
                         Text(placeholderMessage)
-                            .font(.system(size: 12))
-                            .foregroundStyle(BUITokens.Color.disabled)
+                            .font(Tokens.Typography.caption)
+                            .foregroundStyle(Tokens.Color.textTertiary)
                     }
                 }
                 .padding(24)
             }
-            .background(BUITokens.Color.background)
+            .background(Tokens.Color.background)
             .navigationTitle("Appointment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -48,7 +51,7 @@ struct AppointmentDetailSheet: View {
                     Button(action: onClose) {
                         Image(systemName: "xmark")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -66,12 +69,14 @@ struct AppointmentDetailSheet: View {
 
     private func detailRow(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label.uppercased())
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(BUITokens.Color.disabled)
+            Text(label)
+                .font(Tokens.Typography.labelSmall)
+                .foregroundStyle(Tokens.Color.textTertiary)
+                .textCase(.uppercase)
+                .kerning(1.2)
             Text(value)
-                .font(.system(size: 15))
-                .foregroundStyle(BUITokens.Color.textPrimary)
+                .font(Tokens.Typography.body)
+                .foregroundStyle(Tokens.Color.textPrimary)
         }
     }
 }

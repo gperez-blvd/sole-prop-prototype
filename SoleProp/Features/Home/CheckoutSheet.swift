@@ -30,10 +30,11 @@ struct CheckoutSheet: View {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(appointment.clientName)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(Tokens.Typography.largeTitle)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                         Text(appointment.service)
-                            .font(.system(size: 14))
-                            .foregroundStyle(BUITokens.Color.textStrong)
+                            .font(Tokens.Typography.bodyRegular)
+                            .foregroundStyle(Tokens.Color.textSecondary)
                     }
 
                     VStack(spacing: 0) {
@@ -44,31 +45,31 @@ struct CheckoutSheet: View {
                         lineItem(label: "Total", value: currency(total), emphasized: true)
                     }
                     .padding(16)
-                    .background(Color.white)
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(BUITokens.Color.disabled.opacity(0.4), lineWidth: 1))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .background(Tokens.Color.white)
+                    .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.card).strokeBorder(Tokens.Color.hairline))
+                    .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
 
                     if let placeholderMessage {
                         Text(placeholderMessage)
-                            .font(.system(size: 12))
-                            .foregroundStyle(BUITokens.Color.disabled)
+                            .font(Tokens.Typography.caption)
+                            .foregroundStyle(Tokens.Color.textTertiary)
                     }
 
                     Button {
                         placeholderMessage = "Payment processing — not designed yet."
                     } label: {
                         Text("Charge \(currency(total))")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .font(Tokens.Typography.button)
+                            .foregroundStyle(Tokens.Color.paper)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                     }
-                    .background(BUITokens.Color.contrastPrimary)
+                    .background(Tokens.Color.onyx)
                     .clipShape(Capsule())
                 }
                 .padding(24)
             }
-            .background(BUITokens.Color.background)
+            .background(Tokens.Color.background)
             .navigationTitle("Checkout")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -76,7 +77,7 @@ struct CheckoutSheet: View {
                     Button(action: onClose) {
                         Image(systemName: "xmark")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(BUITokens.Color.textPrimary)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }
             }
@@ -87,16 +88,16 @@ struct CheckoutSheet: View {
         HStack {
             Text(label)
                 .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
-                .foregroundStyle(BUITokens.Color.textPrimary)
+                .foregroundStyle(Tokens.Color.textPrimary)
             Spacer()
             Text(value)
                 .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
-                .foregroundStyle(BUITokens.Color.textPrimary)
+                .foregroundStyle(Tokens.Color.textPrimary)
         }
         .padding(.vertical, 8)
         .overlay(alignment: .bottom) {
             if !emphasized {
-                Rectangle().fill(BUITokens.Color.disabled.opacity(0.3)).frame(height: 1)
+                Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
             }
         }
     }
@@ -108,20 +109,20 @@ struct CheckoutSheet: View {
                     HStack(spacing: 6) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(BUITokens.Color.bluegreen)
+                            .foregroundStyle(Tokens.Color.ochre)
                         Text("Suggested by Cue")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(BUITokens.Color.bluegreen)
+                            .foregroundStyle(Tokens.Color.ochre)
                     }
                     Text(recommendation.name)
                         .font(.system(size: 14, weight: recommendationIncluded ? .regular : .regular))
-                        .foregroundStyle(recommendationIncluded ? BUITokens.Color.textPrimary : BUITokens.Color.disabled)
+                        .foregroundStyle(recommendationIncluded ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
                         .strikethrough(!recommendationIncluded)
                 }
                 Spacer()
                 Text(currency(recommendation.price))
                     .font(.system(size: 14))
-                    .foregroundStyle(recommendationIncluded ? BUITokens.Color.textPrimary : BUITokens.Color.disabled)
+                    .foregroundStyle(recommendationIncluded ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
                     .strikethrough(!recommendationIncluded)
             }
 
@@ -130,12 +131,12 @@ struct CheckoutSheet: View {
             } label: {
                 Text(recommendationIncluded ? "Remove" : "Add back")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(recommendationIncluded ? Color.red : BUITokens.Color.bluegreen)
+                    .foregroundStyle(recommendationIncluded ? Color.red : Tokens.Color.ochre)
             }
         }
         .padding(.vertical, 8)
         .overlay(alignment: .bottom) {
-            Rectangle().fill(BUITokens.Color.disabled.opacity(0.3)).frame(height: 1)
+            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
         }
     }
 }
