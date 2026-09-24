@@ -13,7 +13,7 @@ struct VoiceConversationView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if viewModel.messages.isEmpty {
-                        Text("Tap the orb and ask about your day — \"who's my next appointment?\", \"how many appointments today?\"")
+                        Text("Tap the orb and ask Cue about your day — \"when is my next client?\", \"how many appointments today?\"")
                             .font(.system(size: 13.5))
                             .foregroundStyle(BUITokens.Color.disabled)
                             .padding(.top, 24)
@@ -58,10 +58,10 @@ struct VoiceConversationView: View {
             }
         }
         .background(BUITokens.Color.background)
-        .navigationTitle("Assistant")
+        .navigationTitle("Cue")
         .navigationBarTitleDisplayMode(.inline)
         .backIconButton { router.pop() }
-        .alert("Voice assistant", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
+        .alert("Cue", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
             Button("OK") { viewModel.errorMessage = nil }
         } message: { message in
             Text(message)

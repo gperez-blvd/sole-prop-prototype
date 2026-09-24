@@ -99,7 +99,7 @@ struct HomeView: View {
         } message: { message in
             Text(message)
         }
-        .alert("Voice assistant", isPresented: .constant(voiceAssistant.errorMessage != nil), presenting: voiceAssistant.errorMessage) { _ in
+        .alert("Cue", isPresented: .constant(voiceAssistant.errorMessage != nil), presenting: voiceAssistant.errorMessage) { _ in
             Button("OK") { voiceAssistant.errorMessage = nil }
         } message: { message in
             Text(message)
