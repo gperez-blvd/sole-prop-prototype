@@ -64,14 +64,9 @@ final class VoiceConversationViewModel {
     private func listenCycle(token: Int) {
         guard isEnabled, token == sessionToken else { return }
         Task {
-            let granted = await speech.requestPermission()
-            guard token == sessionToken else { return }
-            guard granted else {
-                errorMessage = "Microphone and speech recognition access are needed for voice mode."
-                stopListening()
-                return
-            }
             do {
+                try await speech.requestPermission()
+                guard token == sessionToken else { return }
                 isListening = true
                 try speech.startListening { [weak self] finalTranscript in
                     guard let self, token == self.sessionToken else { return }
@@ -80,6 +75,11 @@ final class VoiceConversationViewModel {
                     guard !trimmed.isEmpty else {
                         // Silence timeout with nothing said — just keep
                         // listening rather than treating it as a command.
+                        // Logged for now so a "mic isn't picking anything
+                        // up" report is visible as *this* (recognition
+                        // ran, heard nothing) instead of indistinguishable
+                        // from the mic never engaging at all.
+                        self.messages.append(ConversationMessage(role: .system, text: "Didn't catch anything that time — still listening."))
                         self.listenCycle(token: token)
                         return
                     }
@@ -92,6 +92,10 @@ final class VoiceConversationViewModel {
                 guard token == self.sessionToken else { return }
                 isListening = false
                 errorMessage = error.localizedDescription
+                // Logged to the transcript too, not just a dismissable
+                // alert — the alert is easy to miss or swipe away, and
+                // this is the only record of why voice mode stopped.
+                messages.append(ConversationMessage(role: .system, text: error.localizedDescription))
                 stopListening()
             }
         }
@@ -149,7 +153,12 @@ final class VoiceConversationViewModel {
 
     private func speak(_ text: String) async {
         guard ElevenLabsConfig.isConfigured else {
-            messages.append(ConversationMessage(role: .system, text: "Voice reply not spoken — ElevenLabs API key isn't configured yet."))
+            let notice = "Voice reply not spoken — ElevenLabs API key isn't configured yet."
+            messages.append(ConversationMessage(role: .system, text: notice))
+            // Also an alert, not just a transcript entry — Home doesn't
+            // render the transcript at all, so this would otherwise be
+            // invisible unless you're on the full Cue conversation screen.
+            errorMessage = notice
             return
         }
         do {

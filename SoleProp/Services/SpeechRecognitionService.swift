@@ -2,12 +2,18 @@ import AVFoundation
 import Speech
 
 enum SpeechRecognitionError: LocalizedError {
-    case permissionDenied
+    case speechRecognitionDenied
+    case microphoneDenied
+    case recognizerUnavailable
 
     var errorDescription: String? {
         switch self {
-        case .permissionDenied:
-            return "Microphone or speech recognition permission was denied."
+        case .speechRecognitionDenied:
+            return "Speech Recognition is off for this app. Settings > Privacy & Security > Speech Recognition > Sole Prop Prototype."
+        case .microphoneDenied:
+            return "Microphone access is off for this app. Settings > Privacy & Security > Microphone > Sole Prop Prototype."
+        case .recognizerUnavailable:
+            return "Speech recognition isn't available right now (no recognizer for this locale, or Siri/Dictation is disabled on this device)."
         }
     }
 }
@@ -28,25 +34,61 @@ final class SpeechRecognitionService: NSObject {
     private var task: SFSpeechRecognitionTask?
     private var onFinalCallback: ((String) -> Void)?
     private var didFinalize = false
+    private var lastResultAt = Date.distantPast
+    private var watchdogGeneration = 0
 
-    func requestPermission() async -> Bool {
-        let speechStatus = await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                continuation.resume(returning: status)
+    /// Checks/requests both permissions Speech needs — they're separate iOS
+    /// settings (Microphone and Speech Recognition), and it's easy for only
+    /// one to be granted without noticing, which silently breaks listening
+    /// with no obvious symptom beyond "nothing happens." Throws instead of
+    /// returning a bare Bool so the caller can tell the operator which one.
+    ///
+    /// Checks the current status first and only calls the OS's `request*`
+    /// APIs when it's genuinely undetermined — continuous listening calls
+    /// this once per cycle (every few seconds), and re-prompting an already
+    /// -decided permission on every cycle is both pointless and, on device,
+    /// adds a noticeable stall before the mic re-engages.
+    func requestPermission() async throws {
+        switch SFSpeechRecognizer.authorizationStatus() {
+        case .authorized:
+            break
+        case .notDetermined:
+            let status = await withCheckedContinuation { continuation in
+                SFSpeechRecognizer.requestAuthorization { status in
+                    continuation.resume(returning: status)
+                }
             }
+            guard status == .authorized else {
+                throw SpeechRecognitionError.speechRecognitionDenied
+            }
+        case .denied, .restricted:
+            throw SpeechRecognitionError.speechRecognitionDenied
+        @unknown default:
+            throw SpeechRecognitionError.speechRecognitionDenied
         }
-        guard speechStatus == .authorized else { return false }
 
-        return await withCheckedContinuation { continuation in
-            AVAudioApplication.requestRecordPermission { granted in
-                continuation.resume(returning: granted)
+        switch AVAudioApplication.shared.recordPermission {
+        case .granted:
+            break
+        case .undetermined:
+            let granted = await withCheckedContinuation { continuation in
+                AVAudioApplication.requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
             }
+            guard granted else {
+                throw SpeechRecognitionError.microphoneDenied
+            }
+        case .denied:
+            throw SpeechRecognitionError.microphoneDenied
+        @unknown default:
+            throw SpeechRecognitionError.microphoneDenied
         }
     }
 
     func startListening(onFinal: @escaping (String) -> Void) throws {
         guard let recognizer, recognizer.isAvailable else {
-            throw SpeechRecognitionError.permissionDenied
+            throw SpeechRecognitionError.recognizerUnavailable
         }
 
         transcript = ""
@@ -71,11 +113,15 @@ final class SpeechRecognitionService: NSObject {
         audioEngine.prepare()
         try audioEngine.start()
         isListening = true
+        lastResultAt = Date()
+        watchdogGeneration += 1
+        startSilenceWatchdog(generation: watchdogGeneration)
 
         task = recognizer.recognitionTask(with: request) { [weak self] result, error in
             guard let self else { return }
             if let result {
                 self.transcript = result.bestTranscription.formattedString
+                self.lastResultAt = Date()
                 if result.isFinal {
                     self.finish()
                 }
@@ -87,6 +133,29 @@ final class SpeechRecognitionService: NSObject {
                 // back whatever partial transcript was captured instead of
                 // dropping it.
                 self.finish()
+            }
+        }
+    }
+
+    /// iOS's own silence-based `isFinal` didn't reliably fire for short,
+    /// one-off commands during on-device testing — recognition would keep
+    /// the mic open indefinitely with a correct partial transcript that
+    /// never got handed off. This finalizes on our own schedule instead of
+    /// depending solely on that: soon after speech stops once something's
+    /// been said, or after a longer cap if nothing was ever heard at all
+    /// (letting continuous listening's empty-transcript cycle restart
+    /// rather than listening forever).
+    private func startSilenceWatchdog(generation: Int) {
+        Task { [weak self] in
+            while true {
+                try? await Task.sleep(for: .milliseconds(250))
+                guard let self, generation == self.watchdogGeneration, !self.didFinalize else { return }
+                let quiet = Date().timeIntervalSince(self.lastResultAt)
+                let hasSpeech = !self.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                if (hasSpeech && quiet > 1.2) || quiet > 8 {
+                    self.finish()
+                    return
+                }
             }
         }
     }
