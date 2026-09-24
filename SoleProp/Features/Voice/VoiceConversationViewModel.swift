@@ -19,6 +19,10 @@ final class VoiceConversationViewModel {
     /// Set alongside `pendingCheckout` when Cue's checkout scenario includes
     /// a proactive product suggestion (see `HomeMockData.checkoutRecommendation`).
     var pendingCheckoutRecommendation: RecommendedItem?
+    /// Set whenever Cue detects a quarterly-recap request ("how have we
+    /// been doing the last 3 months?"); `HomeView` watches this and
+    /// presents `QuarterlyBriefSheet`, then clears it back to false.
+    var pendingQuarterlyBrief = false
 
     private let speech = SpeechRecognitionService()
     private let tts = ElevenLabsTTSService()
@@ -73,7 +77,18 @@ final class VoiceConversationViewModel {
             let appointment = HomeMockData.appointment(matching: text)
             pendingCheckout = appointment
             pendingCheckoutRecommendation = appointment.flatMap(HomeMockData.checkoutRecommendation(for:))
+        } else if (lower.contains("3 months") || lower.contains("three months") || lower.contains("quarter"))
+            && (lower.contains("how") || lower.contains("doing") || lower.contains("recap") || lower.contains("go")) {
+            pendingQuarterlyBrief = true
         }
+    }
+
+    /// Called when the operator taps a growth idea on `QuarterlyBriefSheet`
+    /// to hear more — logs Cue's elaboration to the transcript and speaks it,
+    /// same as any other reply.
+    func elaborate(on idea: GrowthIdea) {
+        messages.append(ConversationMessage(role: .assistant, text: idea.elaboration))
+        speak(idea.elaboration)
     }
 
     private func speak(_ text: String) {

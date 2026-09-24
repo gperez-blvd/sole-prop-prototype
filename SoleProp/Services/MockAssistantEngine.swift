@@ -15,6 +15,10 @@ struct MockAssistantEngine {
             return checkoutAnswer(for: text)
         }
 
+        if isQuarterlyRecapQuery(text) {
+            return quarterlyRecapAnswer()
+        }
+
         if text.contains("how many") && text.contains("appointment") {
             return "You have \(HomeMockData.todaysAppointments.count) appointments today."
         }
@@ -63,6 +67,25 @@ struct MockAssistantEngine {
         }
         let price = appointment.price.formatted(.currency(code: "USD"))
         return "Pulling up checkout for \(appointment.clientName) — \(appointment.service), \(price)."
+    }
+
+    /// Matches "how have we been doing the last 3 months", "how did this
+    /// quarter go", "last quarter", etc.
+    private func isQuarterlyRecapQuery(_ text: String) -> Bool {
+        (text.contains("3 months") || text.contains("three months") || text.contains("quarter"))
+            && (text.contains("how") || text.contains("doing") || text.contains("recap") || text.contains("go"))
+    }
+
+    private func quarterlyRecapAnswer() -> String {
+        let brief = HomeMockData.quarterlyBrief
+        let revenue = brief.revenue.formatted(.currency(code: "USD").precision(.fractionLength(0)))
+        return """
+        You had a great 3 months. Here's a recap.
+
+        You made \(revenue), saw \(brief.clientsSeen) clients, \(brief.newClients) of which were new. That's \(brief.newClientFraction) and is no small feat. Based on your ratings and reviews from those customers, I think we can safely say they're about to be your regulars!
+
+        I have a few ideas for your business for next quarter. Which one of these would you like to hear more about?
+        """
     }
 
     /// "in 45 minutes", "in 1 hour, 20 minutes", "starting now", "running late — started 10 minutes ago".

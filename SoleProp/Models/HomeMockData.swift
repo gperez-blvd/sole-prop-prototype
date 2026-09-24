@@ -80,4 +80,31 @@ enum HomeMockData {
             evidenceCount: 1
         )
     )
+
+    /// The "how have we been doing the last 3 months" demo scenario — Cue's
+    /// quarterly recap plus three growth ideas pulled from the DETAIL/CUE
+    /// prototype's own "We grow you" act. Cue never acts on these itself;
+    /// tapping one just has it elaborate.
+    static let quarterlyBrief = QuarterlyBrief(
+        revenue: 123_500,
+        clientsSeen: 273,
+        newClients: 68,
+        ideas: [
+            GrowthIdea(
+                title: "Rebooking cadence",
+                teaser: "Tox clients are rebooking 18 days later than 6 months ago — roughly $40,000 a year at the old cadence.",
+                elaboration: "Your tox clients are rebooking 18 days later than they were six months ago. If we bring them back to your old cadence, that's roughly $40,000 a year. Want me to build a re-engagement plan?"
+            ),
+            GrowthIdea(
+                title: "Thursday demand",
+                teaser: "14 Thursday requests turned away this quarter — enough demand for one more half day a month.",
+                elaboration: "You're full every Thursday afternoon, and you turned away 14 Thursday requests this quarter. There's enough demand for one more half day a month. Want to see what that could generate?"
+            ),
+            GrowthIdea(
+                title: "Lip filler pricing",
+                teaser: "Comparable practices charge $725–$800 for lip filler versus your $650, with weaker reviews.",
+                elaboration: "Your lip filler is $650. The three closest comparable practices charge $725 to $800, and your reviews are stronger. Want to try $700 for new clients and see what happens to bookings?"
+            ),
+        ]
+    )
 }

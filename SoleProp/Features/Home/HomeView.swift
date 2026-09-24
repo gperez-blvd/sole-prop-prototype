@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var selectedAppointment: Appointment?
     @State private var checkoutAppointment: Appointment?
     @State private var checkoutRecommendation: RecommendedItem?
+    @State private var showQuarterlyBrief = false
     @State private var placeholderMessage: String?
     @State private var currentMoment = HomeMockData.pendingCue.map { DetailMoment.cue($0) }
 
@@ -131,6 +132,18 @@ struct HomeView: View {
             checkoutAppointment = newValue
             voiceAssistant.pendingCheckout = nil
             voiceAssistant.pendingCheckoutRecommendation = nil
+        }
+        .sheet(isPresented: $showQuarterlyBrief) {
+            QuarterlyBriefSheet(
+                brief: HomeMockData.quarterlyBrief,
+                onSelectIdea: { idea in voiceAssistant.elaborate(on: idea) },
+                onClose: { showQuarterlyBrief = false }
+            )
+        }
+        .onChange(of: voiceAssistant.pendingQuarterlyBrief) { _, newValue in
+            guard newValue else { return }
+            showQuarterlyBrief = true
+            voiceAssistant.pendingQuarterlyBrief = false
         }
         .alert("Not designed yet", isPresented: .constant(placeholderMessage != nil), presenting: placeholderMessage) { _ in
             Button("OK") { placeholderMessage = nil }
