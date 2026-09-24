@@ -108,10 +108,14 @@ final class VoiceConversationViewModel {
 
     private func handleUserUtterance(_ text: String) async {
         messages.append(ConversationMessage(role: .user, text: text))
-        let reply = assistant.respond(to: text)
-        messages.append(ConversationMessage(role: .assistant, text: reply))
-        await speak(reply)
 
+        // Nothing this mock data covers — Cue stays silent rather than
+        // announcing it doesn't know, same as any prompt with no match.
+        guard let reply = assistant.respond(to: text) else { return }
+
+        // Set before speaking, not after: the quarterly brief / checkout
+        // sheet should appear the moment the prompt is recognized, not
+        // wait for the (multi-second) spoken reply to finish first.
         let lower = text.lowercased()
         if lower.contains("checkout") || lower.contains("check out") {
             let appointment = HomeMockData.appointment(matching: text)
@@ -121,6 +125,9 @@ final class VoiceConversationViewModel {
             && (lower.contains("how") || lower.contains("doing") || lower.contains("recap") || lower.contains("go")) {
             pendingQuarterlyBrief = true
         }
+
+        messages.append(ConversationMessage(role: .assistant, text: reply))
+        await speak(reply)
     }
 
     /// Plays the morning Brief's real pre-recorded voiceover (not ElevenLabs

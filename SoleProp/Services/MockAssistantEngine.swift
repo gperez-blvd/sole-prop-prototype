@@ -4,7 +4,11 @@ import Foundation
 /// matching — a stand-in for a real LLM until one is wired up. Swap this out
 /// once we decide on an actual model/backend for Cue's reasoning.
 struct MockAssistantEngine {
-    func respond(to query: String) -> String {
+    /// `nil` means the prompt doesn't match anything this mock data covers
+    /// — Cue stays silent rather than saying so out loud every time, since
+    /// with a real model behind it there'd always be *some* answer. Every
+    /// match here is safe to say again: none of it depends on prior state.
+    func respond(to query: String) -> String? {
         let text = query.lowercased()
 
         if isNextClientQuery(text) {
@@ -36,7 +40,7 @@ struct MockAssistantEngine {
             return "\(firstTimers.joined(separator: ", ")) — first time today."
         }
 
-        return "I don't have an answer for that yet — this is running on mock data, not a real model."
+        return nil
     }
 
     /// Matches "when is my next client", "who's my next appointment",
