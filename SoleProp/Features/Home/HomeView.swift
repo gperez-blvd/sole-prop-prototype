@@ -18,6 +18,8 @@ struct HomeView: View {
     @State private var checkoutRecommendation: RecommendedItem?
     @State private var showQuarterlyBrief = false
     @State private var placeholderMessage: String?
+    @State private var captionText: String?
+    @State private var captionHideTask: Task<Void, Never>?
     @State private var momentQueue: [DetailMoment] = [
         HomeMockData.pendingCue.map(DetailMoment.cue),
         HomeMockData.pendingThresholdProposal.map(DetailMoment.proposal),
@@ -97,6 +99,21 @@ struct HomeView: View {
 
             OrbBackdropFade()
 
+            if let captionText {
+                Text(captionText)
+                    .font(Tokens.Typography.bodyRegular)
+                    .foregroundStyle(Tokens.Color.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Tokens.Color.white, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Tokens.Color.hairline))
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 108)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .transition(.opacity)
+            }
+
             VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
                 .contentShape(Circle())
                 .onTapGesture {
@@ -107,6 +124,20 @@ struct HomeView: View {
                 }
                 .padding(.bottom, 12)
                 .frame(maxHeight: .infinity, alignment: .bottom)
+        }
+        // Cue answers the same way no matter which screen the orb is on —
+        // Home doesn't show the full transcript, so without this the
+        // reply would be spoken but never visibly confirmed here. Mirrors
+        // the transcript rather than replacing it: one line, autohides.
+        .onChange(of: voiceAssistant.messages.count) { _, _ in
+            guard let last = voiceAssistant.messages.last, last.role != .user else { return }
+            captionHideTask?.cancel()
+            withAnimation(.easeOut(duration: 0.25)) { captionText = last.text }
+            captionHideTask = Task {
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeOut(duration: 0.25)) { captionText = nil }
+            }
         }
         .sheet(isPresented: $showMenu) {
             MenuSheet { route in
