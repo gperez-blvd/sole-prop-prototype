@@ -351,7 +351,7 @@
       "metadata": [
         {
           "name": "Unit",
-          "example": "weekday / time-of-day / seasonal / weather / cohort / service"
+          "example": "weekday / time-of-day / seasonal / weather / cohort / service / △ cadence (one client: “rebooks about five weeks out”)"
         },
         {
           "name": "Evidence Count",
@@ -1411,6 +1411,10 @@
         {
           "name": "Contraindication Notes",
           "example": "“no tox — pregnancy, cleared Mar 2027”"
+        },
+        {
+          "name": "△ Skin Type",
+          "example": "Fitzpatrick IV · combination, reacts to strong acids — on screen only, never spoken"
         },
         {
           "name": "Baseline Photos",

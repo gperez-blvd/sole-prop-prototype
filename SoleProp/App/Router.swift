@@ -3,6 +3,7 @@ import SwiftUI
 enum Route: Hashable {
     case profile
     case clients
+    case client(ClientMemory)
     case schedule
     case wallet
     case logs

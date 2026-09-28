@@ -125,6 +125,8 @@ import {
 } from "./hardRules.js";
 import { TIGHTENED_CARDINALITIES } from "./relationships.js";
 
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+
 function requireFk<Id extends string>(exists: boolean, table: string, id: Id): void {
   if (!exists) throw new Error(`Referential integrity: ${table} has no row "${id}"`);
 }
@@ -726,6 +728,142 @@ export class RelationalStore {
       return "forms_outstanding";
     }
     return "ready";
+  }
+
+  /**
+   * Everyone on file, for the Clients list — "who is this, and when did I
+   * last see her?" Each row is a name and her most recent completed visit,
+   * nothing more: no tags, spend or counts to study. Most recently seen
+   * first, since the person she's looking for is usually someone from this
+   * week; clients with no visit on record follow, alphabetically. Commercial
+   * only, like clientMemory() — never reads CHART.
+   */
+  clientDirectory(businessId: BusinessId, asOf: Date) {
+    const lastVisit = new Map<ClientId, AppointmentRow>();
+    for (const a of this.appointments.find((a) => a.businessId === businessId && a.status === "completed" && a.startTime <= asOf)) {
+      const current = lastVisit.get(a.clientId);
+      if (!current || a.startTime > current.startTime) lastVisit.set(a.clientId, a);
+    }
+    return this.clients
+      .find((c) => c.businessId === businessId)
+      .map((c) => {
+        const visit = lastVisit.get(c.id);
+        return {
+          clientId: c.id,
+          fullName: c.fullName,
+          lastVisit: visit && {
+            date: visit.startTime,
+            services: this.appointmentServices
+              .filter((j) => j.appointmentId === visit.id)
+              .map((j) => this.services.getOrThrow(j.serviceId).serviceName),
+          },
+        };
+      })
+      .sort((a, b) => {
+        if (a.lastVisit && b.lastVisit) return b.lastVisit.date.getTime() - a.lastVisit.date.getTime();
+        if (a.lastVisit || b.lastVisit) return a.lastVisit ? -1 : 1;
+        return a.fullName.localeCompare(b.fullName);
+      });
+  }
+
+  /**
+   * What DETAIL knows about one client as of `asOf` — the rollup behind the
+   * CLIENT detail page, so she never has to piece it together from visits,
+   * checkouts and patterns herself.
+   *
+   * Commercial only. This never reads CHART or CHART ENTRY: skin type and
+   * treatment notes stay behind the chart's own access boundary, and
+   * `sentence` (the one line DETAIL may say out loud) can't leak what this
+   * method never touched.
+   *
+   * Only surfaced patterns come back (announced or confirmed). "Watching" is
+   * DETAIL still making up its mind, and "dismissed" means she said it
+   * wasn't true — neither is shown. The cadence's day count is derived from
+   * her visits, not stored on the pattern; the pattern supplies the belief
+   * (since when, how sure). Without both, there is no cadence.
+   */
+  clientMemory(clientId: ClientId, asOf: Date) {
+    const client = this.clients.getOrThrow(clientId);
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    const visits = this.appointments
+      .find((a) => a.clientId === clientId && a.status === "completed" && a.startTime <= asOf)
+      .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
+      .map((a) => ({
+        appointmentId: a.id,
+        date: a.startTime,
+        services: this.appointmentServices
+          .filter((j) => j.appointmentId === a.id)
+          .map((j) => this.services.getOrThrow(j.serviceId).serviceName),
+      }));
+
+    const lastOfEach: { serviceName: string; date: Date }[] = [];
+    for (const visit of visits) {
+      for (const serviceName of visit.services) {
+        if (!lastOfEach.some((l) => l.serviceName === serviceName)) lastOfEach.push({ serviceName, date: visit.date });
+      }
+    }
+
+    const orderIds = new Set(
+      this.orders
+        .find((o) => o.clientId === clientId && o.status === "closed" && (o.closedAt ?? o.openedAt) <= asOf)
+        .map((o) => o.id),
+    );
+    const bought = new Map<ProductId, { productName: string; times: number; lastBought: Date }>();
+    for (const li of this.orderLineItems.find((li) => orderIds.has(li.orderId))) {
+      if (li.kind !== "retail_product") continue;
+      const order = this.orders.getOrThrow(li.orderId);
+      const when = order.closedAt ?? order.openedAt;
+      const existing = bought.get(li.productId);
+      if (existing) {
+        existing.times += li.quantity;
+        if (when > existing.lastBought) existing.lastBought = when;
+      } else {
+        bought.set(li.productId, { productName: this.products.getOrThrow(li.productId).productName, times: li.quantity, lastBought: when });
+      }
+    }
+    const productsBought = [...bought.values()].sort((a, b) => b.lastBought.getTime() - a.lastBought.getTime());
+
+    const surfaced = (p: PatternRow) => p.status === "announced" || p.status === "confirmed";
+    const patterns = this.patterns.find((p) => p.clientId === clientId && p.firstObserved <= asOf && surfaced(p));
+
+    const gaps = visits
+      .slice(0, -1)
+      .map((v, i) => Math.round((v.date.getTime() - visits[i + 1]!.date.getTime()) / dayMs))
+      .sort((a, b) => a - b);
+    const cadencePattern = patterns.find((p) => p.unit === "cadence");
+    const cadence =
+      cadencePattern && gaps.length >= 2
+        ? (() => {
+            const days = gaps[Math.floor(gaps.length / 2)]!;
+            return {
+              days,
+              gapsObserved: gaps.length,
+              nextDueAround: new Date(visits[0]!.date.getTime() + days * dayMs),
+              since: cadencePattern.firstObserved,
+              confidence: cadencePattern.confidence,
+              patternId: cadencePattern.id,
+            };
+          })()
+        : undefined;
+
+    const noticed = patterns
+      .filter((p) => p.unit !== "cadence")
+      .map((p) => ({
+        patternId: p.id,
+        observation: p.observation,
+        since: p.firstObserved,
+        evidenceCount: p.evidenceCount,
+        confidence: p.confidence,
+      }));
+
+    const firstName = client.fullName.split(" ")[0];
+    const weeks = cadence ? Math.round(cadence.days / 7) : 0;
+    const sentence = cadence
+      ? `${firstName} rebooks about every ${NUMBER_WORDS[weeks] ?? weeks} weeks — next around ${cadence.nextDueAround.toLocaleDateString("en-US", { month: "short", day: "numeric" })}.`
+      : undefined;
+
+    return { clientId, fullName: client.fullName, clientSince: client.clientSince, sentence, cadence, lastOfEach, productsBought, noticed, visits };
   }
 
   segmentReach(segmentId: SegmentId): { size: number; reachableSms: number; reachableEmail: number } {

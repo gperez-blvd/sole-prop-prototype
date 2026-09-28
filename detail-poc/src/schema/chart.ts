@@ -21,6 +21,14 @@ export interface ChartRow {
   medications: string;
   contraindicationNotes: string;
   baselinePhotoUrls: string[];
+  /**
+   * △ UNRATIFIED — "△ Skin Type" in the map, e.g. "Fitzpatrick IV ·
+   * combination, reacts to strong acids". Clinical, so it lives here and
+   * not on CLIENT: it shows on screen when she opens the chart and is never
+   * read aloud (see hardRules — "Read clinical detail aloud" is `x`).
+   * Optional because a first visit hasn't been assessed yet.
+   */
+  skinType?: string;
 
   // metadata (non-derived only — see class doc)
   status: ChartStatus;

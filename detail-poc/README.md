@@ -17,7 +17,7 @@ more objects, 90 more CTAs, 18 more `never`-by-design rules).
 ```bash
 npm install
 npm run sim        # seeds one day, runs the ladder, prints the hand-back report
-npm test           # the 33 hard-rule tests (one per `x`-marked DETAIL CTA)
+npm test           # the 33 hard-rule tests (one per `x`-marked DETAIL CTA) + client memory
 npm run typecheck  # tsc --noEmit, strict
 ```
 
@@ -51,6 +51,7 @@ src/
   run.ts                   entry point
 tests/
   hardRules.test.ts         one test per hard rule
+  clientMemory.test.ts      the CLIENT page and Clients list: backed by rows, grows with history, never reads the chart
 ```
 
 ## Design choices worth knowing before reading the code

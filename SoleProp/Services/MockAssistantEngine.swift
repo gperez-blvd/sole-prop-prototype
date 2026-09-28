@@ -23,6 +23,10 @@ struct MockAssistantEngine {
             return quarterlyRecapAnswer()
         }
 
+        if let answer = clientAnswer(for: text) {
+            return answer
+        }
+
         if text.contains("how many") && text.contains("appointment") {
             return "You have \(HomeMockData.todaysAppointments.count) appointments today."
         }
@@ -41,6 +45,20 @@ struct MockAssistantEngine {
         }
 
         return nil
+    }
+
+    /// "Tell me about Tasha" / "what do I know about Tasha" — the one line
+    /// DETAIL knows about a client on today's book. Commercial only: it's
+    /// built from her visits, never her chart, so it's safe to say aloud
+    /// with her in the room.
+    private func clientAnswer(for text: String) -> String? {
+        guard text.contains("about") || text.contains("know") else { return nil }
+        let named = HomeMockData.todaysAppointments.first { appointment in
+            let firstName = appointment.clientName.split(separator: " ").first.map(String.init) ?? appointment.clientName
+            return text.contains(firstName.lowercased())
+        }
+        guard let named, let memory = HomeMockData.clientMemory(for: named) else { return nil }
+        return memory.sentence ?? (memory.visits.isEmpty ? "\(memory.firstName)'s new — first visit today." : nil)
     }
 
     /// Matches "when is my next client", "who's my next appointment",
