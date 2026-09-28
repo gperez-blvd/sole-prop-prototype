@@ -279,9 +279,11 @@ export function seed(): SeedResult {
   const tasha = store.createClient({
     fullName: "Tasha Ward",
     mobile: "(615) 555-0151",
-    clientSince: new Date(2025, 1, 2),
+    // Her first visit, which seedTashaHistory() backfills — today is her 9th.
+    clientSince: new Date(2025, 11, 16),
     visitCount: 9,
     lifetimeValue: 4200,
+    rebookingCadenceDays: 35,
     noShowCount: 1,
     preferredChannel: "text",
     tags: ["repeat"],
@@ -289,7 +291,7 @@ export function seed(): SeedResult {
     marketingConsentEmail: "granted",
     businessId: business.id,
   });
-  makeChartFor(tasha.id);
+  makeChartFor(tasha.id, { skinType: "Fitzpatrick IV · combination, reacts to strong acids" });
 
   const lena = store.createClient({
     fullName: "Lena Kim",
@@ -1149,6 +1151,156 @@ export function seed(): SeedResult {
     patternId: usageVariancePattern.id,
   });
   void usageBasedPricing;
+
+  // --- Tasha's history: eight visits before today, so what DETAIL "knows"
+  // about her is backed by rows rather than stated. Facials and peels
+  // roughly every five weeks, the serum every other visit, and tox from
+  // August on (today's BLVD-4471 is her second, as its note says).
+  // Everything is on past DAYs, so Tuesday's rollups and $3,180 don't move.
+  const tashaHistory: { date: Date; service: keyof typeof services; serum?: boolean }[] = [
+    { date: new Date(2025, 11, 16, 13, 30), service: "facial" },
+    { date: new Date(2026, 0, 20, 13, 30), service: "peel", serum: true },
+    { date: new Date(2026, 1, 24, 13, 30), service: "facial" },
+    { date: new Date(2026, 2, 31, 13, 30), service: "peel", serum: true },
+    { date: new Date(2026, 4, 5, 13, 30), service: "facial" },
+    { date: new Date(2026, 5, 9, 13, 30), service: "facial", serum: true },
+    { date: new Date(2026, 6, 14, 13, 30), service: "peel" },
+    { date: new Date(2026, 7, 18, 13, 30), service: "neurotoxin", serum: true },
+  ];
+  const servicePrice = (id: ServiceId) => store.services.getOrThrow(id).price;
+  tashaHistory.forEach((visit, i) => {
+    const day = store.createDay({
+      date: new Date(visit.date.getFullYear(), visit.date.getMonth(), visit.date.getDate()),
+      dayLabel: visit.date.toLocaleDateString("en-US", { month: "long", day: "numeric" }),
+      weekday: visit.date.toLocaleDateString("en-US", { weekday: "long" }),
+      status: "complete",
+      weather: "",
+      operatorId: operator.id,
+      businessId: business.id,
+    });
+    const serviceId = services[visit.service];
+    const price = servicePrice(serviceId);
+    const appt = store.createAppointment(
+      {
+        confirmationNumber: `BLVD-H-${3001 + i}`,
+        startTime: visit.date,
+        durationMinutes: store.services.getOrThrow(serviceId).durationMinutes,
+        status: "completed",
+        checkInTime: visit.date,
+        price,
+        depositTaken: true,
+        roomOrDevice: "Suite 204",
+        clientId: tasha.id,
+        operatorId: operator.id,
+        businessId: business.id,
+        dayId: day.id,
+        chartId: chartOf(tasha.id),
+      },
+      [serviceId],
+    );
+    const closedAt = new Date(visit.date.getTime() + 60 * 60 * 1000);
+    const serumPrice = serum.retailPrice ?? 0;
+    const total = price + (visit.serum ? serumPrice : 0);
+    store.createOrder(
+      {
+        orderNumber: `BLVD-O-H${3001 + i}`,
+        status: "closed",
+        subtotal: total,
+        discounts: 0,
+        tax: 0,
+        gratuity: 0,
+        total,
+        openedAt: visit.date,
+        closedAt,
+        businessId: business.id,
+        clientId: tasha.id,
+        appointmentId: appt.id,
+        closedByOperatorId: operator.id,
+        dayId: day.id,
+      },
+      [
+        {
+          kind: "service",
+          lineLabel: store.services.getOrThrow(serviceId).serviceName,
+          quantity: 1,
+          unitPriceAtSale: price,
+          lineDiscount: 0,
+          lineTotal: price,
+          commissionBasis: "total after product usage folded in",
+          appointmentId: appt.id,
+          serviceId,
+        },
+        ...(visit.serum
+          ? [
+              {
+                kind: "retail_product" as const,
+                lineLabel: "Vitamin C serum",
+                quantity: 1,
+                unitPriceAtSale: serumPrice,
+                lineDiscount: 0,
+                lineTotal: serumPrice,
+                commissionBasis: "retail — no commission",
+                productId: serum.id,
+              },
+            ]
+          : []),
+      ],
+    );
+    // Her July peel is where the skin-type note on her chart comes from.
+    if (visit.service === "peel" && visit.date.getMonth() === 6) {
+      store.createChartEntry({
+        whatWasDone: "Medium-depth peel, 20% TCA, one pass.",
+        observations: "Flaking and redness through day 3. Go lighter next time.",
+        photoUrls: [],
+        productsAndLots: "TCA 20%, lot P-0714.",
+        type: "treatment_note",
+        authoredAt: closedAt,
+        status: "signed",
+        signedAt: closedAt,
+        authoredBy: "detail_from_dictation",
+        chartId: chartOf(tasha.id),
+        operatorId: operator.id,
+        appointmentId: appt.id,
+        serviceId,
+      });
+    }
+  });
+
+  // What DETAIL believes about her. The cadence is the one it's sure of;
+  // the drift toward tox has two visits behind it, so it stays "watching"
+  // — held, never shown — until there's more.
+  store.createPattern({
+    observation: "Usually rebooks about five weeks out.",
+    valueImplication: "Her next visit is due around the end of October.",
+    unit: "cadence",
+    evidenceCount: 8,
+    confidence: "high",
+    // Her third visit — the first point there were two gaps to compare.
+    firstObserved: new Date(2026, 1, 24),
+    lastConfirmed: new Date(2026, 8, 23),
+    direction: "stable",
+    estimatedValue: 0,
+    status: "confirmed",
+    businessId: business.id,
+    detailId: detail.id,
+    clientId: tasha.id,
+  });
+  store.createPattern({
+    observation: "Moving from facials toward tox.",
+    valueImplication: "May want a tox follow-up rather than a facial next time.",
+    unit: "service",
+    evidenceCount: 2,
+    confidence: "low",
+    firstObserved: new Date(2026, 7, 18),
+    lastConfirmed: new Date(2026, 8, 23),
+    direction: "strengthening",
+    estimatedValue: 0,
+    status: "watching",
+    businessId: business.id,
+    detailId: detail.id,
+    serviceId: services.neurotoxin,
+    clientId: tasha.id,
+  });
 
   return {
     store,

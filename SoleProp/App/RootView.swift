@@ -37,7 +37,10 @@ struct RootView: View {
                             case .profile:
                                 PlaceholderScreen(title: "Profile / Settings")
                             case .clients:
-                                PlaceholderScreen(title: "Clients")
+                                ClientListView()
+                            case .client(let memory):
+                                ClientDetailView(memory: memory)
+                                    .backIconButton { router.pop() }
                             case .schedule:
                                 PlaceholderScreen(title: "Schedule")
                             case .wallet:

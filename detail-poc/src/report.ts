@@ -57,6 +57,8 @@ export function printHandBackReport(store: RelationalStore, dayId: DayId, ladder
   line("2. △ UNRATIFIED — proposals, not decisions (implemented, flagged, pullable)");
   line(`   Attributes (${UNRATIFIED_ATTRIBUTES.length}):`);
   for (const a of UNRATIFIED_ATTRIBUTES) line(`     ${a.object}.${a.field} (${a.section})`);
+  line(`   Enum values (1):`);
+  line(`     PATTERN.Unit △ cadence — the one client-scoped unit ("rebooks about five weeks out"); the day count is derived by clientMemory(), not stored`);
   line(`   Relationships (${UNRATIFIED_RELATIONSHIPS.length}):`);
   for (const r of UNRATIFIED_RELATIONSHIPS) {
     line(`     ${r.fromObject} ${r.cardinality} ${r.toObject} (${r.nature})`);

@@ -13,7 +13,15 @@ export type PatternUnit =
   | "seasonal"
   | "weather"
   | "cohort"
-  | "service";
+  | "service"
+  /**
+   * △ UNRATIFIED — the one client-scoped unit: "she usually rebooks about
+   * five weeks out". Always carries `clientId`. The day count itself is not
+   * stored here — RelationalStore.clientMemory() derives it from her
+   * completed appointments, so the pattern holds only the belief (confidence,
+   * since when, confirmed or dismissed) and the history holds the evidence.
+   */
+  | "cadence";
 export type Confidence = "low" | "medium" | "high";
 export type PatternDirection = "strengthening" | "stable" | "decaying";
 export type PatternStatus = "watching" | "announced" | "confirmed" | "dismissed";

@@ -239,7 +239,7 @@ A confident, evidenced generalisation about how the business behaves — 'Thursd
 
 ### Metadata
 
-- `Unit` — *weekday / time-of-day / seasonal / weather / cohort / service*
+- `Unit` — *weekday / time-of-day / seasonal / weather / cohort / service / △ cadence (one client: “rebooks about five weeks out”)*
 - `Evidence Count` — *4 weeks running*
 - `Confidence` — *high*
 - `First Observed` — *Year 1, Month 8*
@@ -870,6 +870,7 @@ The clinical record for one client: history, allergies, medications, contraindic
 - `Allergies` — *“lidocaine sensitivity”*
 - `Medications` — *“low-dose aspirin”*
 - `Contraindication Notes` — *“no tox — pregnancy, cleared Mar 2027”*
+- `△ Skin Type` — *Fitzpatrick IV · combination, reacts to strong acids — on screen only, never spoken*
 - `Baseline Photos` — *<before set>*
 
 ### Metadata

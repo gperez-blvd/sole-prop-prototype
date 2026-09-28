@@ -14,6 +14,7 @@ struct HomeView: View {
 
     @State private var showMenu = false
     @State private var selectedAppointment: Appointment?
+    @State private var clientPage: ClientMemory?
     @State private var checkoutAppointment: Appointment?
     @State private var checkoutRecommendation: RecommendedItem?
     @State private var showQuarterlyBrief = false
@@ -156,6 +157,20 @@ struct HomeView: View {
                 selectedAppointment = nil
             }
         }
+        .sheet(item: $clientPage) { memory in
+            NavigationStack {
+                ClientDetailView(memory: memory)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button { clientPage = nil } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(Tokens.Color.textPrimary)
+                            }
+                        }
+                    }
+            }
+        }
         .sheet(item: $checkoutAppointment) { appointment in
             CheckoutSheet(appointment: appointment, recommendation: checkoutRecommendation) {
                 checkoutAppointment = nil
@@ -266,7 +281,13 @@ struct HomeView: View {
                     appointment: next,
                     onTap: { selectedAppointment = next },
                     onEdit: { placeholderMessage = "Edit — not designed yet." },
-                    onClientInfo: { placeholderMessage = "Client info — not designed yet." },
+                    onClientInfo: {
+                        if let memory = HomeMockData.clientMemory(for: next) {
+                            clientPage = memory
+                        } else {
+                            placeholderMessage = "Client info — not designed yet."
+                        }
+                    },
                     onMessage: { placeholderMessage = "Message — not designed yet." },
                     onCheckout: {
                         checkoutRecommendation = nil
