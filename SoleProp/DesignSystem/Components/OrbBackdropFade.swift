@@ -7,20 +7,21 @@ import SwiftUI
 /// itself, both anchored to the bottom.
 struct OrbBackdropFade: View {
     var color: Color = Tokens.Color.background
-    var height: CGFloat = 220
+    var height: CGFloat = 260
 
     var body: some View {
         VStack(spacing: 0) {
-            // More stops, eased rather than linear — reaching full
-            // opacity gradually instead of over a short, sharp-reading
-            // stretch partway down.
+            // Reaches full opacity well before the orb's own halo starts
+            // (not just before its solid core) — the halo is considerably
+            // wider than the blob itself, and a softer, later-opaque curve
+            // let scrolled content show faintly through it.
             LinearGradient(
                 stops: [
                     .init(color: color.opacity(0), location: 0),
-                    .init(color: color.opacity(0.06), location: 0.25),
-                    .init(color: color.opacity(0.22), location: 0.45),
-                    .init(color: color.opacity(0.5), location: 0.65),
-                    .init(color: color.opacity(0.82), location: 0.82),
+                    .init(color: color.opacity(0.12), location: 0.15),
+                    .init(color: color.opacity(0.35), location: 0.28),
+                    .init(color: color.opacity(0.65), location: 0.38),
+                    .init(color: color, location: 0.48),
                     .init(color: color, location: 1),
                 ],
                 startPoint: .top,

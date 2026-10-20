@@ -62,7 +62,10 @@ enum Tokens {
     enum Radius {
         static let sm: CGFloat = 8
         static let md: CGFloat = 14
-        static let card: CGFloat = 24
+        /// Every card/container's corner radius — same value as buttons,
+        /// so cards and the buttons inside them read as one consistent
+        /// shape language rather than two different roundnesses.
+        static let card: CGFloat = 16
         static let lg: CGFloat = 24
         static let pill: CGFloat = 999
         /// Every tappable button's corner radius — friendly, not a hard

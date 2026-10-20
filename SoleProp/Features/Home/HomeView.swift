@@ -21,6 +21,9 @@ struct HomeView: View {
     @State private var placeholderMessage: String?
     @State private var captionText: String?
     @State private var captionHideTask: Task<Void, Never>?
+
+    /// Lower than it used to sit — closer to the bottom edge.
+    private static let orbBottomPadding: CGFloat = 4
     @State private var momentQueue: [DetailMoment] = [
         HomeMockData.pendingCue.map(DetailMoment.cue),
         HomeMockData.pendingThresholdProposal.map(DetailMoment.proposal),
@@ -61,7 +64,7 @@ struct HomeView: View {
     private var homeContent: some View {
         ZStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
+                VStack(alignment: .leading, spacing: 40) {
                     HomeHeaderBar(
                         businessName: HomeMockData.businessName,
                         onMenuTap: { showMenu = true },
@@ -104,7 +107,7 @@ struct HomeView: View {
                 .onLongPressGesture(minimumDuration: 0.4) {
                     router.push(.voiceConversation)
                 }
-                .padding(.bottom, 12)
+                .padding(.bottom, Self.orbBottomPadding)
                 .frame(maxHeight: .infinity, alignment: .bottom)
 
             // Drawn last (on top of the orb, not behind it) — a long reply
@@ -126,7 +129,8 @@ struct HomeView: View {
                     .background(Tokens.Color.white, in: Capsule())
                     .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, y: Tokens.Shadow.medium.y)
                     .padding(.horizontal, 28)
-                    .padding(.bottom, 126)
+                    // 12px clear of the orb's own top edge, not touching it.
+                    .padding(.bottom, Self.orbBottomPadding + VoiceOrb.standardSize + 12)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .transition(.opacity)
             }
@@ -268,7 +272,7 @@ struct HomeView: View {
 
     @ViewBuilder
     private var appointmentsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 14) {
             Text("Next appointment")
                 .font(Tokens.Typography.label)
                 .foregroundStyle(Tokens.Color.textTertiary)
@@ -305,9 +309,19 @@ struct HomeView: View {
     @ViewBuilder
     private var decisionSection: some View {
         if !momentQueue.isEmpty {
-            DetailMomentStack(moments: momentQueue) {
-                guard !momentQueue.isEmpty else { return }
-                momentQueue.removeFirst()
+            VStack(spacing: 6) {
+                DetailMomentStack(moments: momentQueue) {
+                    guard !momentQueue.isEmpty else { return }
+                    momentQueue.removeFirst()
+                }
+
+                // A minimal hint that there's more behind the front card —
+                // only shown when swiping actually does something.
+                if momentQueue.count > 1 {
+                    Image(systemName: "arrow.left.and.right")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Tokens.Color.textTertiary)
+                }
             }
         }
     }

@@ -22,7 +22,6 @@ struct VoiceOrb: View {
     var level: Double = 0
     var isActive: Bool = false
 
-    @State private var time: Double = 0
     @State private var activeEnergy: Double = 0
 
     // Friendly bluegreen/teal — ties to Tokens.Color.ochre (the app's new
@@ -34,6 +33,26 @@ struct VoiceOrb: View {
     private static let hotSpot = Color(hex: "#F0FFFC")
 
     var body: some View {
+        // Driven by the timeline's own clock, not an animated @State var —
+        // a `repeatForever` animation on a plain @State is fragile: any
+        // other state change on this view (like `level`, updated ~16×/sec
+        // while Cue is talking) can interrupt/reset it, which is exactly
+        // why the blob used to freeze into one shape under real use. A
+        // TimelineView can't be interrupted that way.
+        TimelineView(.animation) { timeline in
+            let phase = timeline.date.timeIntervalSinceReferenceDate * (2 * .pi / 9)
+            orbContent(phase: phase)
+        }
+        .onAppear { activeEnergy = isActive ? 1 : 0 }
+        .onChange(of: isActive) { _, newValue in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                activeEnergy = newValue ? 1 : 0
+            }
+        }
+        .animation(.easeInOut(duration: 0.15), value: level)
+    }
+
+    private func orbContent(phase: Double) -> some View {
         // Zero when at rest — a perfect, still circle. Only once listening
         // does it wobble at all — kept gentle, not performative, but
         // enough to actually read as motion rather than disappearing
@@ -41,7 +60,7 @@ struct VoiceOrb: View {
         let wobble = activeEnergy * (0.32 + level * 0.4)
         let glow = 0.22 + activeEnergy * 0.22 + level * 0.3
 
-        ZStack {
+        return ZStack {
             // Ambient halo — soft glow bleeding onto whatever's behind it.
             Circle()
                 .fill(
@@ -53,30 +72,18 @@ struct VoiceOrb: View {
                 .frame(width: size * 2.2, height: size * 2.2)
                 .blur(radius: size * 0.18)
 
-            blobFill(amplitude: wobble)
-                .overlay(specularSheen(amplitude: wobble))
+            blobFill(phase: phase, amplitude: wobble)
+                .overlay(specularSheen(phase: phase, amplitude: wobble))
                 .overlay(hotSpotHighlight)
                 .frame(width: size, height: size)
                 .shadow(color: Self.base.opacity(0.45), radius: size * 0.2, y: size * 0.06)
         }
         .compositingGroup()
         .scaleEffect(1 + activeEnergy * 0.03 + level * 0.05)
-        .onAppear {
-            activeEnergy = isActive ? 1 : 0
-            withAnimation(.linear(duration: 9).repeatForever(autoreverses: false)) {
-                time = 9 * (2 * .pi)
-            }
-        }
-        .onChange(of: isActive) { _, newValue in
-            withAnimation(.easeInOut(duration: 0.5)) {
-                activeEnergy = newValue ? 1 : 0
-            }
-        }
-        .animation(.easeInOut(duration: 0.15), value: level)
     }
 
-    private func blobFill(amplitude: Double) -> some View {
-        BlobShape(phase: time, amplitude: amplitude)
+    private func blobFill(phase: Double, amplitude: Double) -> some View {
+        BlobShape(phase: phase, amplitude: amplitude)
             .fill(
                 RadialGradient(
                     stops: [
@@ -94,7 +101,7 @@ struct VoiceOrb: View {
     /// reference orb's glass-sheen look — clipped to the same wobbling
     /// silhouette so it reads as light on the blob's surface, not a shape
     /// floating on top of it.
-    private func specularSheen(amplitude: Double) -> some View {
+    private func specularSheen(phase: Double, amplitude: Double) -> some View {
         Ellipse()
             .fill(
                 LinearGradient(
@@ -107,7 +114,7 @@ struct VoiceOrb: View {
             .offset(x: -size * 0.06, y: -size * 0.18)
             .blendMode(.screen)
             .blur(radius: size * 0.015)
-            .clipShape(BlobShape(phase: time, amplitude: amplitude))
+            .clipShape(BlobShape(phase: phase, amplitude: amplitude))
     }
 
     private var hotSpotHighlight: some View {
