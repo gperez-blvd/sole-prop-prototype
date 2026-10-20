@@ -2,9 +2,8 @@ import SwiftUI
 
 /// The quarterly recap popup — a slide-up sheet (not a full-screen push)
 /// with an X close button, opened when Cue answers a "how have we been
-/// doing the last 3 months?" request. Styled dark (onyx), matching the
-/// DETAIL/CUE prototype's own Debrief/Week-in-review screens rather than
-/// Home's light cards — this is a distinct "spoken report" moment.
+/// doing the last 3 months?" request. Light, same as every other screen —
+/// no forced dark mode for this one "spoken report" moment.
 struct QuarterlyBriefSheet: View {
     var brief: QuarterlyBrief
     var onSelectIdea: (GrowthIdea) -> Void
@@ -23,10 +22,10 @@ struct QuarterlyBriefSheet: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("You had a great 3 months.")
                             .font(.system(size: 24, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.paper)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                         Text("Here's a recap.")
                             .font(.system(size: 15))
-                            .foregroundStyle(Tokens.Color.ink3)
+                            .foregroundStyle(Tokens.Color.textTertiary)
                     }
 
                     HStack(spacing: 14) {
@@ -41,12 +40,12 @@ struct QuarterlyBriefSheet: View {
 
                     Text("Based on your ratings and reviews from those customers, I think we can safely say they're about to be your regulars!")
                         .font(.system(size: 13.5))
-                        .foregroundStyle(Tokens.Color.ink3)
+                        .foregroundStyle(Tokens.Color.textTertiary)
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("I have a few ideas for next quarter. Which one would you like to hear more about?")
                             .font(.system(size: 13.5, weight: .medium))
-                            .foregroundStyle(Tokens.Color.paper)
+                            .foregroundStyle(Tokens.Color.textPrimary)
 
                         ForEach(brief.ideas) { idea in
                             ideaCard(idea)
@@ -56,7 +55,7 @@ struct QuarterlyBriefSheet: View {
                 }
                 .padding(24)
             }
-            .background(Tokens.Color.onyx)
+            .background(Tokens.Color.background)
             .navigationTitle("Quarterly Brief")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -64,24 +63,21 @@ struct QuarterlyBriefSheet: View {
                     Button(action: onClose) {
                         Image(systemName: "xmark")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.paper)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }
             }
-            .toolbarBackground(Tokens.Color.onyx, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
         }
-        .preferredColorScheme(.dark)
     }
 
     private func stat(value: String, label: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(value)
                 .font(.system(size: 28, weight: .semibold))
-                .foregroundStyle(Tokens.Color.paper)
+                .foregroundStyle(Tokens.Color.textPrimary)
             Text(label)
                 .font(Tokens.Typography.labelSmall)
-                .foregroundStyle(Tokens.Color.ink3)
+                .foregroundStyle(Tokens.Color.textTertiary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -90,15 +86,15 @@ struct QuarterlyBriefSheet: View {
         HStack {
             Text(label)
                 .font(.system(size: 14))
-                .foregroundStyle(Tokens.Color.paper)
+                .foregroundStyle(Tokens.Color.textPrimary)
             Spacer()
             Text(value)
                 .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                .foregroundStyle(highlighted ? Tokens.Color.ochre : Tokens.Color.paper)
+                .foregroundStyle(highlighted ? Tokens.Color.ochre : Tokens.Color.textPrimary)
         }
         .padding(.vertical, 10)
         .overlay(alignment: .bottom) {
-            Rectangle().fill(Tokens.Color.paper.opacity(0.13)).frame(height: 1)
+            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
         }
     }
 
@@ -114,12 +110,12 @@ struct QuarterlyBriefSheet: View {
                     .foregroundStyle(Tokens.Color.ochre)
                 Text(idea.teaser)
                     .font(.system(size: 13.5))
-                    .foregroundStyle(Tokens.Color.paper)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .multilineTextAlignment(.leading)
                 if isSelected {
                     Text(idea.elaboration)
                         .font(.system(size: 12.5))
-                        .foregroundStyle(Tokens.Color.ink3)
+                        .foregroundStyle(Tokens.Color.textTertiary)
                         .padding(.top, 4)
                 }
             }
@@ -129,7 +125,7 @@ struct QuarterlyBriefSheet: View {
         .buttonStyle(.plain)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(isSelected ? Tokens.Color.ochre.opacity(0.6) : Tokens.Color.paper.opacity(0.13), lineWidth: 1)
+                .strokeBorder(isSelected ? Tokens.Color.ochre.opacity(0.6) : Tokens.Color.hairline, lineWidth: 1)
         )
     }
 }

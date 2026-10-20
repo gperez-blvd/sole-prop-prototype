@@ -14,7 +14,18 @@ final class VoiceConversationViewModel {
     /// turns it off the same way they turned it on: tapping the orb.
     var isListening = false
     var audioLevel: Double { speech.audioLevel }
+    /// True only while Cue's own voice is actually playing — distinct from
+    /// `isListening`, so the orb can move differently (and only) for the
+    /// parts where Cue is the one talking.
+    private(set) var isSpeaking = false
+    var speakingLevel: Double { player.level }
     var errorMessage: String?
+
+    /// What the orb should bind to, regardless of which screen it's on —
+    /// alive while listening *or* while Cue is talking, never both at
+    /// once since the mic is torn down before `speak` ever starts.
+    var orbIsActive: Bool { isListening || isSpeaking }
+    var orbLevel: Double { isListening ? audioLevel : speakingLevel }
 
     /// Set whenever Cue detects a checkout request; `HomeView` watches this
     /// and presents `CheckoutSheet`, then clears it back to nil.
@@ -136,6 +147,8 @@ final class VoiceConversationViewModel {
     func announceDailyBrief(_ brief: DailyBrief) {
         messages.append(ConversationMessage(role: .assistant, text: brief.spokenText))
         Task {
+            isSpeaking = true
+            defer { isSpeaking = false }
             do {
                 try await player.play(resource: "daily-brief", withExtension: "mp3")
             } catch {
@@ -168,6 +181,8 @@ final class VoiceConversationViewModel {
             errorMessage = notice
             return
         }
+        isSpeaking = true
+        defer { isSpeaking = false }
         do {
             let audio = try await tts.synthesize(text: text)
             try await player.play(audio)

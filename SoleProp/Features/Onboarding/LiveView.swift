@@ -15,6 +15,17 @@ struct LiveView: View {
     var body: some View {
         ZStack {
             OnboardingScreen(section: "Home") {
+                // The first time Cue itself appears in the flow — paired
+                // with "we're live," this is the moment it's introduced as
+                // the thing that's now switched on, not just a setup step
+                // finishing.
+                HStack {
+                    Spacer()
+                    VoiceOrb(size: 64)
+                    Spacer()
+                }
+                .padding(.vertical, Tokens.Spacing.sm)
+
                 Circle()
                     .fill(Tokens.Color.ink)
                     .frame(width: 44, height: 44)

@@ -87,7 +87,7 @@ struct HomeView: View {
 
             OrbBackdropFade()
 
-            VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
+            VoiceOrb(level: voiceAssistant.orbLevel, isActive: voiceAssistant.orbIsActive)
                 .contentShape(Circle())
                 .onTapGesture {
                     voiceAssistant.toggleListening()
