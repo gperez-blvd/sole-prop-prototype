@@ -3,8 +3,7 @@ import SwiftUI
 /// The morning car-mode Brief — full-screen (not a sheet), shown once when
 /// Home first appears each launch. Home's own content stays invisible
 /// underneath until "Okay" is tapped, then this fades out while Home
-/// animates in. Styled dark (onyx), matching the DETAIL/CUE prototype's own
-/// CarPlay Brief screen.
+/// animates in. Light, same as every other screen.
 struct DailyBriefView: View {
     var brief: DailyBrief
     var onContinue: () -> Void
@@ -14,9 +13,9 @@ struct DailyBriefView: View {
             HStack {
                 Text("Boulevard")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(Tokens.Color.paper)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                 Spacer()
-                TrackedLabel(text: "Brief", color: Tokens.Color.ink3)
+                TrackedLabel(text: "Brief", color: Tokens.Color.textTertiary)
             }
             .padding(.top, 8)
 
@@ -27,7 +26,7 @@ struct DailyBriefView: View {
 
             Text(brief.greeting)
                 .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Tokens.Color.paper)
+                .foregroundStyle(Tokens.Color.textPrimary)
 
             TrackedLabel(text: "Playing in car · 0:28", color: Tokens.Color.ochre)
                 .padding(.top, -8)
@@ -37,15 +36,15 @@ struct DailyBriefView: View {
                     HStack(alignment: .top) {
                         Text(row.label)
                             .font(.system(size: 14.5))
-                            .foregroundStyle(Tokens.Color.paper)
+                            .foregroundStyle(Tokens.Color.textPrimary)
                         Spacer(minLength: 12)
                         Text(row.value)
                             .font(.system(size: 14.5, design: .monospaced))
-                            .foregroundStyle(row.isHighlighted ? Tokens.Color.ochre : Tokens.Color.ink3)
+                            .foregroundStyle(row.isHighlighted ? Tokens.Color.ochre : Tokens.Color.textTertiary)
                     }
                     .padding(.vertical, 12)
                     .overlay(alignment: .bottom) {
-                        Rectangle().fill(Tokens.Color.paper.opacity(0.13)).frame(height: 1)
+                        Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
                     }
                 }
             }
@@ -55,16 +54,16 @@ struct DailyBriefView: View {
             Button(action: onContinue) {
                 Text("Okay")
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Tokens.Color.ink)
+                    .foregroundStyle(Tokens.Color.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }
-            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(Tokens.Color.paper))
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(Tokens.Color.onyx))
         }
         .padding(24)
         .padding(.top, 12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Tokens.Color.onyx.ignoresSafeArea())
+        .background(Tokens.Color.background.ignoresSafeArea())
     }
 }
 

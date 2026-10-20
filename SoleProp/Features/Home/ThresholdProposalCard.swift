@@ -17,7 +17,7 @@ struct ThresholdProposalCard: View {
             if let confirmedOption {
                 Text("Got it — I'll flag it at \(confirmedOption.label) late.")
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.fog)
+                    .foregroundStyle(Tokens.Color.textPrimary)
             } else {
                 if let context = proposal.context {
                     Text(context)
@@ -27,7 +27,7 @@ struct ThresholdProposalCard: View {
 
                 Text(proposal.spokenFraming)
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.fog)
+                    .foregroundStyle(Tokens.Color.textPrimary)
 
                 HStack(spacing: 8) {
                     ForEach(proposal.options) { option in
@@ -40,30 +40,24 @@ struct ThresholdProposalCard: View {
                         withAnimation { showReasoning.toggle() }
                     }
                     .font(Tokens.Typography.caption)
-                    .foregroundStyle(Tokens.Color.silt)
+                    .foregroundStyle(Tokens.Color.textSecondary)
 
                     Spacer()
 
                     Button("Not now", action: onDecline)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.silt.opacity(0.7))
+                        .foregroundStyle(Tokens.Color.textTertiary)
                 }
 
                 if showReasoning {
                     Text(proposal.finding)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.silt)
+                        .foregroundStyle(Tokens.Color.textSecondary)
                         .transition(.opacity)
                 }
             }
         }
-        .padding(16)
-        .background(Tokens.Color.ink)
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Color.white.opacity(0.12))
-        )
+        .cardStyle()
     }
 
     private func optionChip(_ option: ThresholdOption) -> some View {
@@ -72,7 +66,7 @@ struct ThresholdProposalCard: View {
         } label: {
             Text(option.label)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Tokens.Color.fog)
+                .foregroundStyle(Tokens.Color.ochre)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .overlay(

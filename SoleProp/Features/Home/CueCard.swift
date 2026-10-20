@@ -18,7 +18,7 @@ struct CueCard: View {
                 }
                 Text(cue.spokenText)
                     .font(Tokens.Typography.body)
-                    .foregroundStyle(Tokens.Color.fog)
+                    .foregroundStyle(Tokens.Color.textPrimary)
             }
 
             if let action = cue.action {
@@ -28,7 +28,7 @@ struct CueCard: View {
                         .foregroundStyle(Tokens.Color.ochre)
                     Text(action.description)
                         .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.silt)
+                        .foregroundStyle(Tokens.Color.textSecondary)
                 }
             }
 
@@ -36,16 +36,10 @@ struct CueCard: View {
                 Spacer()
                 Button("Got it", action: onAcknowledge)
                     .font(Tokens.Typography.caption)
-                    .foregroundStyle(Tokens.Color.silt)
+                    .foregroundStyle(Tokens.Color.textSecondary)
             }
         }
-        .padding(16)
-        .background(Tokens.Color.ink)
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Color.white.opacity(0.12))
-        )
+        .cardStyle()
     }
 }
 
