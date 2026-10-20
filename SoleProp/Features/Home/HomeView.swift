@@ -85,6 +85,15 @@ struct HomeView: View {
                 .padding(.bottom, 120)
             }
 
+            // Dims the whole page while Cue is listening or talking —
+            // a clear "this is the moment that has your attention" cue,
+            // not just the orb itself lighting up.
+            Color.black
+                .opacity(voiceAssistant.orbIsActive ? 0.25 : 0)
+                .allowsHitTesting(false)
+                .ignoresSafeArea()
+                .animation(.easeInOut(duration: 0.35), value: voiceAssistant.orbIsActive)
+
             OrbBackdropFade()
 
             VoiceOrb(level: voiceAssistant.orbLevel, isActive: voiceAssistant.orbIsActive)
