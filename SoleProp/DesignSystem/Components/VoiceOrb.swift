@@ -40,7 +40,7 @@ struct VoiceOrb: View {
         // why the blob used to freeze into one shape under real use. A
         // TimelineView can't be interrupted that way.
         TimelineView(.animation) { timeline in
-            let phase = timeline.date.timeIntervalSinceReferenceDate * (2 * .pi / 9)
+            let phase = timeline.date.timeIntervalSinceReferenceDate * (2 * .pi / 16)
             orbContent(phase: phase)
         }
         .onAppear { activeEnergy = isActive ? 1 : 0 }
@@ -57,8 +57,8 @@ struct VoiceOrb: View {
         // does it wobble at all — kept gentle, not performative, but
         // enough to actually read as motion rather than disappearing
         // entirely, nudged further by how loud what it's hearing is.
-        let wobble = activeEnergy * (0.32 + level * 0.4)
-        let glow = 0.22 + activeEnergy * 0.22 + level * 0.3
+        let wobble = activeEnergy * (0.07 + level * 0.12)
+        let glow = 0.22 + activeEnergy * 0.08 + level * 0.15
 
         return ZStack {
             // Ambient halo — soft glow bleeding onto whatever's behind it.
@@ -79,7 +79,7 @@ struct VoiceOrb: View {
                 .shadow(color: Self.base.opacity(0.45), radius: size * 0.2, y: size * 0.06)
         }
         .compositingGroup()
-        .scaleEffect(1 + activeEnergy * 0.03 + level * 0.05)
+        .scaleEffect(1 + level * 0.025)
     }
 
     private func blobFill(phase: Double, amplitude: Double) -> some View {
