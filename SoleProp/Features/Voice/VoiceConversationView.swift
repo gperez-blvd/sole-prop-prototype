@@ -24,11 +24,14 @@ struct VoiceConversationView: View {
                     }
                 }
                 .padding(24)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxHeight: .infinity)
+            .scrollDismissesKeyboard(.interactively)
 
             Divider()
 
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 HStack(spacing: 10) {
                     QuickActionButton(title: "Book", systemImage: "calendar.badge.plus", isCompact: true) {
                         placeholderMessage = "Book — not designed yet."
@@ -39,8 +42,12 @@ struct VoiceConversationView: View {
                     Spacer(minLength: 0)
                     inputModeToggle
                 }
+                .padding(.horizontal, 24)
 
                 if viewModel.inputMode == .voice {
+                    // Same bottom inset as Home's orb — this is the same
+                    // control pinned to the bottom of the screen, not a
+                    // smaller panel-relative placement.
                     Button {
                         viewModel.toggleListening()
                     } label: {
@@ -48,6 +55,7 @@ struct VoiceConversationView: View {
                     }
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity)
+                    .padding(.bottom, VoiceOrb.standardBottomInset)
                 } else {
                     HStack(spacing: 12) {
                         TextField("Ask something…", text: $draftText)
@@ -57,11 +65,11 @@ struct VoiceConversationView: View {
                         Button("Send", action: submitDraft)
                             .disabled(draftText.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .padding(.bottom, 24)
+            .padding(.top, 8)
         }
         .background(Tokens.Color.background)
         .navigationTitle("Cue")

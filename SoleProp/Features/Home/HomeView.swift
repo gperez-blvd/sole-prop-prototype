@@ -22,8 +22,6 @@ struct HomeView: View {
     @State private var captionText: String?
     @State private var captionHideTask: Task<Void, Never>?
 
-    /// Lower than it used to sit — closer to the bottom edge.
-    private static let orbBottomPadding: CGFloat = 4
     @State private var momentQueue: [DetailMoment] = [
         HomeMockData.pendingCue.map(DetailMoment.cue),
         HomeMockData.pendingThresholdProposal.map(DetailMoment.proposal),
@@ -107,7 +105,7 @@ struct HomeView: View {
                 .onLongPressGesture(minimumDuration: 0.4) {
                     router.push(.voiceConversation)
                 }
-                .padding(.bottom, Self.orbBottomPadding)
+                .padding(.bottom, VoiceOrb.standardBottomInset)
                 .frame(maxHeight: .infinity, alignment: .bottom)
 
             // Drawn last (on top of the orb, not behind it) — a long reply
@@ -130,7 +128,7 @@ struct HomeView: View {
                     .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, y: Tokens.Shadow.medium.y)
                     .padding(.horizontal, 28)
                     // 12px clear of the orb's own top edge, not touching it.
-                    .padding(.bottom, Self.orbBottomPadding + VoiceOrb.standardSize + 12)
+                    .padding(.bottom, VoiceOrb.standardBottomInset + VoiceOrb.standardSize + 12)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .transition(.opacity)
             }

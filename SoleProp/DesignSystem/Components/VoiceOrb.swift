@@ -24,6 +24,10 @@ struct VoiceOrb: View {
     /// the full conversation screen both use this so the button reads as
     /// the same control throughout the app, not a smaller stand-in.
     static let standardSize: CGFloat = 72
+    /// The bottom inset used wherever the orb is pinned to the bottom of
+    /// a screen — shared so Home and the full conversation screen place
+    /// it at exactly the same height, not just the same size.
+    static let standardBottomInset: CGFloat = 4
 
     var size: CGFloat = VoiceOrb.standardSize
     var level: Double = 0
