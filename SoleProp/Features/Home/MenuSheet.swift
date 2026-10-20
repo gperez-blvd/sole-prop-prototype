@@ -83,7 +83,12 @@ struct MenuSheet: View {
 /// it never branches any layout — and pops back to Home, since `RootView`
 /// keys the whole Home stack on the current stage.
 private struct PrototypeLifecycleSection: View {
+    @Environment(VoiceConversationViewModel.self) private var voiceAssistant
     @AppStorage("prototype.lifecycleStage") private var stageRawValue = LifecycleStage.steady.rawValue
+    // Same key RootView keys the Home stack's `.id()` on — bumping this
+    // forces a full reseed/rebuild even when `stageRawValue` itself isn't
+    // changing (e.g. resetting while already on "Steady").
+    @AppStorage("prototype.resetToken") private var resetToken = 0
 
     private var stage: LifecycleStage {
         LifecycleStage(rawValue: stageRawValue) ?? .steady
@@ -114,12 +119,36 @@ private struct PrototypeLifecycleSection: View {
                 readoutRow("KNOWLEDGE", \.knowledgeLevel)
             }
             .padding(.top, 4)
+
+            Button(action: resetData) {
+                Text("Reset demo data")
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Tokens.Color.alert)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+            .buttonStyle(.plain)
+            .overlay(
+                RoundedRectangle(cornerRadius: Tokens.Radius.sm)
+                    .strokeBorder(Tokens.Color.alert.opacity(0.5))
+            )
+            .padding(.top, 8)
         }
         .padding(12)
         .overlay(
             RoundedRectangle(cornerRadius: 4)
                 .strokeBorder(Tokens.Color.textTertiary, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
         )
+    }
+
+    /// Back to "Steady" and a fresh seed, every time — not a toggle, so
+    /// it reliably undoes whatever state got into during a run-through
+    /// (dismissed cues, booked appointments, a stale Cue transcript)
+    /// regardless of which stage it's currently on.
+    private func resetData() {
+        voiceAssistant.resetConversation()
+        stageRawValue = LifecycleStage.steady.rawValue
+        resetToken += 1
     }
 
     @ViewBuilder

@@ -5,10 +5,15 @@ import SwiftUI
 /// Replaces the earlier flat line-art braid with a lit, volumetric-reading
 /// blob — modeled on the Figma reference's glossy sphere (soft ambient
 /// glow, specular sheen, bright hot spot) but deliberately not a sphere.
-/// **At rest (`isActive == false`) it is a plain, still circle** — no
-/// wobble, no motion, nothing reading as "alive" while paused. Once
-/// listening it drifts gently, like something floating in water, nudged
-/// a little further by how loud what it's hearing is (`level`, 0...1).
+/// **Two independent layers of motion, always both running:**
+/// - A constant, gentle flow — never stops, never changes with
+///   `isActive`/`level` — that's what gives it the ethereal, "always
+///   alive" quality rather than reading as a dormant button.
+/// - A pulse (scale + glow + a little extra shape amplitude) riding on
+///   top, driven only by `level` (0...1 — live mic amplitude while
+///   listening, live playback amplitude while Cue talks) — zero at rest,
+///   so it's visibly reacting only when it's actually hearing or saying
+///   something, without ever interrupting the constant flow underneath.
 ///
 /// Every number driving its shape is computed directly from elapsed wall
 /// -clock time inside the `TimelineView` tick — deliberately *not* via
@@ -55,7 +60,7 @@ struct VoiceOrb: View {
     var body: some View {
         TimelineView(.animation) { timeline in
             let now = timeline.date
-            let phase = now.timeIntervalSinceReferenceDate * (2 * .pi / 16)
+            let phase = now.timeIntervalSinceReferenceDate * (2 * .pi / 7)
             let energy = smoothedEnergy(at: now)
             let lvl = smoothedLevel(at: now)
             orbContent(phase: phase, activeEnergy: energy, level: lvl)
@@ -97,12 +102,15 @@ struct VoiceOrb: View {
     }
 
     private func orbContent(phase: Double, activeEnergy: Double, level: Double) -> some View {
-        // Zero when at rest — a perfect, still circle. Only once listening
-        // does it drift at all — kept gentle, not performative, but
-        // enough to actually read as motion, nudged further by how loud
-        // what it's hearing is.
-        let wobble = activeEnergy * (0.07 + level * 0.12)
-        let glow = 0.22 + activeEnergy * 0.08 + level * 0.15
+        // The constant flow — always on, same whether idle, listening, or
+        // speaking. This is what reads as "ethereal"; it never pauses and
+        // never ramps with activity.
+        let constantFlow = 0.1
+        // The pulse — zero at rest, rides on top of the constant flow the
+        // moment there's real sound (hearing you, or Cue's own voice).
+        let pulse = level
+        let wobble = constantFlow + pulse * 0.1
+        let glow = 0.22 + activeEnergy * 0.08 + pulse * 0.3
 
         return ZStack {
             // Ambient halo — soft glow bleeding onto whatever's behind it.
@@ -116,14 +124,33 @@ struct VoiceOrb: View {
                 .frame(width: size * 2.2, height: size * 2.2)
                 .blur(radius: size * 0.18)
 
+            // Softened, misty core — blurred *and* alpha-faded toward the
+            // edge (not just color-faded), which is what reads as
+            // "cloud/spirit" rather than "blurry circle": a uniformly
+            // blurred hard edge still looks like an out-of-focus photo,
+            // where a fading edge dissolves into whatever's behind it.
             blobFill(phase: phase, amplitude: wobble)
-                .overlay(specularSheen(phase: phase, amplitude: wobble))
-                .overlay(hotSpotHighlight)
+                .blur(radius: size * 0.05)
+                .mask(
+                    RadialGradient(
+                        colors: [.white, .white.opacity(0.85), .white.opacity(0)],
+                        center: .center, startRadius: size * 0.18, endRadius: size * 0.56
+                    )
+                )
                 .frame(width: size, height: size)
-                .shadow(color: Self.base.opacity(0.45), radius: size * 0.2, y: size * 0.06)
+
+            // Kept crisp (no blur) on top of the misty core — a touch of
+            // sharp dimensionality is what keeps this reading as lit and
+            // glassy rather than a flat, featureless smear. Each already
+            // clips/positions itself to the same blob silhouette.
+            ZStack {
+                specularSheen(phase: phase, amplitude: wobble)
+                hotSpotHighlight
+            }
+            .frame(width: size, height: size)
         }
         .compositingGroup()
-        .scaleEffect(1 + level * 0.025)
+        .scaleEffect(1 + pulse * 0.07)
     }
 
     private func blobFill(phase: Double, amplitude: Double) -> some View {

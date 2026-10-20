@@ -16,6 +16,12 @@ struct RootView: View {
     // down and rebuilds the stack, which resets `Router.path` and dismisses
     // whatever sheet is open — no manual pop/dismiss wiring needed.
     @AppStorage("prototype.lifecycleStage") private var lifecycleStageRawValue = LifecycleStage.steady.rawValue
+    // Bumped by the PROTOTYPE section's "Reset demo data" button — folded
+    // into the same `.id()` below so a reset forces the same full
+    // reseed/rebuild even when the stage itself doesn't change (e.g.
+    // resetting while already on "Steady" wouldn't otherwise change
+    // `lifecycleStageRawValue`, so nothing would rebuild on its own).
+    @AppStorage("prototype.resetToken") private var resetToken = 0
 
     var body: some View {
         Group {
@@ -60,7 +66,7 @@ struct RootView: View {
                 }
                 .environment(router)
                 .environment(voiceAssistant)
-                .id(lifecycleStageRawValue)
+                .id("\(lifecycleStageRawValue)_\(resetToken)")
             }
         }
     }

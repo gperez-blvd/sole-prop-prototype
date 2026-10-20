@@ -50,6 +50,19 @@ final class VoiceConversationViewModel {
     /// orb was switched off) can't re-arm the mic after the fact.
     private var sessionToken = 0
 
+    /// Called by the PROTOTYPE section's "Reset demo data" button — clears
+    /// Cue's transcript and any pending sheet triggers, so a reset doesn't
+    /// leave stale conversation history sitting around after everything
+    /// else on Home has reseeded.
+    func resetConversation() {
+        stopListening()
+        messages = []
+        pendingCheckout = nil
+        pendingCheckoutRecommendation = nil
+        pendingQuarterlyBrief = false
+        errorMessage = nil
+    }
+
     /// The orb's tap action — switches continuous listening on if it's
     /// off, or off if it's on. Long-pressing the orb instead opens the
     /// full transcript (`VoiceConversationView`), which shares this same
