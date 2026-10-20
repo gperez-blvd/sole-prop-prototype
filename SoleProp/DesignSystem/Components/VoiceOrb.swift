@@ -4,14 +4,14 @@ import SwiftUI
 ///
 /// Replaces the earlier flat line-art braid with a lit, volumetric-reading
 /// blob — modeled on the Figma reference's glossy sphere (soft ambient
-/// glow, specular sheen, bright hot spot) but deliberately not a sphere:
-/// the silhouette itself wobbles continuously (two summed, out-of-phase
-/// sine terms, not one clean periodic wave) so it reads as organic/
-/// amorphous rather than a perfect glass ball, and the palette is a
-/// friendly teal/bluegreen rather than the reference's blue. `level`
-/// (0...1, live mic amplitude) adds extra wobble and glow once listening;
-/// `isActive` just changes how much energy the idle animation already has
-/// — the blob is alive at rest too, never a static frozen image.
+/// glow, specular sheen, bright hot spot) but deliberately not a sphere.
+/// **At rest (`isActive == false`) it is a plain, still circle** — no
+/// wobble, no motion, nothing reading as "alive" while paused. Once
+/// listening it wobbles, but only just: a small constant idle amount plus
+/// a little more riding on `level` (0...1 live mic amplitude), so it
+/// nudges/jumps with what it's hearing rather than performing a visible
+/// animation on its own. Every motion here is deliberately subtle —
+/// this reads as a calm indicator, not a screensaver.
 struct VoiceOrb: View {
     /// The one size used everywhere this appears — Home's entry point and
     /// the full conversation screen both use this so the button reads as
@@ -34,8 +34,11 @@ struct VoiceOrb: View {
     private static let hotSpot = Color(hex: "#F0FFFC")
 
     var body: some View {
-        let wobble = 0.16 + activeEnergy * 0.14 + level * 0.1
-        let glow = 0.3 + activeEnergy * 0.25 + level * 0.25
+        // Zero when at rest — a perfect, still circle. Only once listening
+        // does it wobble at all, and even then just a hint, nudged further
+        // by how loud what it's hearing is right now.
+        let wobble = activeEnergy * (0.05 + level * 0.09)
+        let glow = 0.22 + activeEnergy * 0.1 + level * 0.18
 
         ZStack {
             // Ambient halo — soft glow bleeding onto whatever's behind it.
@@ -56,19 +59,19 @@ struct VoiceOrb: View {
                 .shadow(color: Self.base.opacity(0.45), radius: size * 0.2, y: size * 0.06)
         }
         .compositingGroup()
-        .scaleEffect(1 + level * 0.06)
+        .scaleEffect(1 + level * 0.03)
         .onAppear {
             activeEnergy = isActive ? 1 : 0
-            withAnimation(.linear(duration: 18).repeatForever(autoreverses: false)) {
-                time = 18 * (2 * .pi)
+            withAnimation(.linear(duration: 24).repeatForever(autoreverses: false)) {
+                time = 24 * (2 * .pi)
             }
         }
         .onChange(of: isActive) { _, newValue in
-            withAnimation(.easeInOut(duration: 0.6)) {
+            withAnimation(.easeInOut(duration: 0.5)) {
                 activeEnergy = newValue ? 1 : 0
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: level)
+        .animation(.easeInOut(duration: 0.15), value: level)
     }
 
     private func blobFill(amplitude: Double) -> some View {
@@ -144,6 +147,9 @@ private struct BlobShape: Shape {
         for i in 0...steps {
             let t = Double(i) / Double(steps)
             let theta = t * 2 * .pi
+            // Coefficients sum to 1 — `amplitude` (already kept small by
+            // the caller) is the actual radius variation, not amplified
+            // further here.
             let wobble = 1
                 + amplitude * 0.5 * sin(theta * 3 + phase)
                 + amplitude * 0.3 * sin(theta * 5 - phase * 1.4)

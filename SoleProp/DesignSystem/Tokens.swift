@@ -83,3 +83,17 @@ enum Tokens {
         static let labelSmall = Font.system(size: 12, weight: .regular)
     }
 }
+
+extension View {
+    /// The one card treatment used app-wide: white surface, soft shadow,
+    /// no border — applies `Tokens.Radius.card`/`Tokens.Shadow.medium`
+    /// consistently instead of each screen hand-rolling its own
+    /// background/clip/border chain (which is how hairline borders crept
+    /// back in after the move away from them).
+    func cardStyle(padding: CGFloat = 16) -> some View {
+        self
+            .padding(padding)
+            .background(Tokens.Color.white, in: RoundedRectangle(cornerRadius: Tokens.Radius.card))
+            .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, x: 0, y: Tokens.Shadow.medium.y)
+    }
+}

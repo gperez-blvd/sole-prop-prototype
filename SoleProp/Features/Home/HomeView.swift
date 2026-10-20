@@ -29,12 +29,6 @@ struct HomeView: View {
     /// `homeContent`/`DailyBriefView`.
     @State private var showDailyBrief = true
 
-    private static let todayDateString: String = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yyyy"
-        return formatter.string(from: Date())
-    }()
-
     var body: some View {
         ZStack {
             Tokens.Color.background.ignoresSafeArea()
@@ -75,14 +69,9 @@ struct HomeView: View {
                         onNotificationsTap: { router.push(.notifications) }
                     )
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Good morning \(HomeMockData.ownerFirstName).")
-                            .font(Tokens.Typography.largeTitle)
-                            .foregroundStyle(Tokens.Color.textPrimary)
-                        Text(Self.todayDateString)
-                            .font(Tokens.Typography.labelSmall)
-                            .foregroundStyle(Tokens.Color.textTertiary)
-                    }
+                    Text("Good morning \(HomeMockData.ownerFirstName).")
+                        .font(Tokens.Typography.largeTitle)
+                        .foregroundStyle(Tokens.Color.textPrimary)
 
                     ForEach(rankedSections) { section in
                         sectionView(section)
@@ -98,6 +87,20 @@ struct HomeView: View {
 
             OrbBackdropFade()
 
+            VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
+                .contentShape(Circle())
+                .onTapGesture {
+                    voiceAssistant.toggleListening()
+                }
+                .onLongPressGesture(minimumDuration: 0.4) {
+                    router.push(.voiceConversation)
+                }
+                .padding(.bottom, 12)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+
+            // Drawn last (on top of the orb, not behind it) — a long reply
+            // sits well clear of the orb's own glow rather than risking an
+            // overlap with it.
             if let captionText {
                 Text(captionText)
                     .font(Tokens.Typography.bodyRegular)
@@ -112,23 +115,12 @@ struct HomeView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(Tokens.Color.white, in: Capsule())
-                    .overlay(Capsule().strokeBorder(Tokens.Color.hairline))
+                    .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, y: Tokens.Shadow.medium.y)
                     .padding(.horizontal, 28)
-                    .padding(.bottom, 108)
+                    .padding(.bottom, 126)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .transition(.opacity)
             }
-
-            VoiceOrb(level: voiceAssistant.audioLevel, isActive: voiceAssistant.isListening)
-                .contentShape(Circle())
-                .onTapGesture {
-                    voiceAssistant.toggleListening()
-                }
-                .onLongPressGesture(minimumDuration: 0.4) {
-                    router.push(.voiceConversation)
-                }
-                .padding(.bottom, 12)
-                .frame(maxHeight: .infinity, alignment: .bottom)
         }
         // Cue answers the same way no matter which screen the orb is on —
         // Home doesn't show the full transcript, so without this the

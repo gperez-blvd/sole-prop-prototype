@@ -44,13 +44,7 @@ struct NextAppointmentCard: View {
                     .frame(width: 36, height: 36)
             }
         }
-        .padding(16)
-        .background(Tokens.Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Tokens.Color.hairline)
-        )
+        .cardStyle()
     }
 }
 

@@ -14,6 +14,7 @@ struct ClientDetailView: View {
     @State var memory: ClientMemory
 
     @State private var showingHowIKnow = false
+    @State private var showAllVisits = false
 
     var body: some View {
         ScrollView {
@@ -122,13 +123,22 @@ struct ClientDetailView: View {
         }
     }
 
+    /// Enough to show the pattern (per CLAUDE.md: glanceable, not a study)
+    /// — the full history is one tap away, not dumped on the page by
+    /// default.
+    private static let collapsedVisitCount = 4
+
+    private var visibleVisits: [ClientVisit] {
+        showAllVisits ? memory.visits : Array(memory.visits.prefix(Self.collapsedVisitCount))
+    }
+
     private var visitHistory: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Visits")
                 .font(Tokens.Typography.labelSmall)
                 .foregroundStyle(Tokens.Color.textTertiary)
                 .padding(.bottom, 6)
-            ForEach(memory.visits) { visit in
+            ForEach(visibleVisits) { visit in
                 HStack {
                     Text(visit.service)
                         .font(Tokens.Typography.bodyRegular)
@@ -142,6 +152,17 @@ struct ClientDetailView: View {
                 }
                 .padding(.vertical, 10)
                 .overlay(alignment: .bottom) { hairline }
+            }
+            if memory.visits.count > Self.collapsedVisitCount {
+                Button {
+                    withAnimation(.easeOut(duration: 0.2)) { showAllVisits.toggle() }
+                } label: {
+                    Text(showAllVisits ? "Show less" : "See all \(memory.visits.count)")
+                        .font(Tokens.Typography.caption)
+                        .foregroundStyle(Tokens.Color.textSecondary)
+                        .padding(.top, 10)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

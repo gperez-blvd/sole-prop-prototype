@@ -31,13 +31,7 @@ struct BookingLinkCard: View {
                 }
             }
         }
-        .padding(16)
-        .background(Tokens.Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: Tokens.Radius.card)
-                .strokeBorder(Tokens.Color.hairline)
-        )
+        .cardStyle()
     }
 }
 
