@@ -124,25 +124,27 @@ struct VoiceOrb: View {
                 .frame(width: size * 2.2, height: size * 2.2)
                 .blur(radius: size * 0.18)
 
-            // Softened, misty core — blurred *and* alpha-faded toward the
-            // edge (not just color-faded), which is what reads as
-            // "cloud/spirit" rather than "blurry circle": a uniformly
-            // blurred hard edge still looks like an out-of-focus photo,
-            // where a fading edge dissolves into whatever's behind it.
+            // The core itself stays sharp — blurring the whole fill (what
+            // was here before) softened away exactly the edge detail the
+            // wobble animates, which is why it stopped reading as moving
+            // at all, and flattened the organic bumps into a plain smooth
+            // ball. Only the rim should be soft.
             blobFill(phase: phase, amplitude: wobble)
-                .blur(radius: size * 0.05)
-                .mask(
-                    RadialGradient(
-                        colors: [.white, .white.opacity(0.85), .white.opacity(0)],
-                        center: .center, startRadius: size * 0.18, endRadius: size * 0.56
-                    )
-                )
                 .frame(width: size, height: size)
 
-            // Kept crisp (no blur) on top of the misty core — a touch of
-            // sharp dimensionality is what keeps this reading as lit and
-            // glassy rather than a flat, featureless smear. Each already
-            // clips/positions itself to the same blob silhouette.
+            // A blurred glow traced *along* the same silhouette's edge
+            // only (a stroke, not the fill) — this is what dissolves the
+            // boundary into whatever's behind it without touching the
+            // solid, clearly-animating body inside it.
+            BlobShape(phase: phase, amplitude: wobble)
+                .stroke(Self.mid.opacity(0.65), lineWidth: size * 0.16)
+                .blur(radius: size * 0.05)
+                .frame(width: size, height: size)
+
+            // Kept crisp on top — a touch of sharp dimensionality is what
+            // keeps this reading as lit and glassy rather than a flat,
+            // featureless smear. Each already clips/positions itself to
+            // the same blob silhouette.
             ZStack {
                 specularSheen(phase: phase, amplitude: wobble)
                 hotSpotHighlight

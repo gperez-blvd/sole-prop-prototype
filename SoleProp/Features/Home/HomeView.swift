@@ -128,7 +128,11 @@ struct HomeView: View {
                     .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, y: Tokens.Shadow.medium.y)
                     .padding(.horizontal, 28)
                     // 12px clear of the orb's own top edge, not touching it.
-                    .padding(.bottom, VoiceOrb.standardBottomInset + VoiceOrb.standardSize + 12)
+                    // 12px clear of the orb's nominal frame wasn't enough
+                    // once its glow/blurred edge is accounted for — the
+                    // halo reaches visually further than the frame alone,
+                    // so bumped up another 24px of clearance.
+                    .padding(.bottom, VoiceOrb.standardBottomInset + VoiceOrb.standardSize + 12 + 24)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .transition(.opacity)
             }
