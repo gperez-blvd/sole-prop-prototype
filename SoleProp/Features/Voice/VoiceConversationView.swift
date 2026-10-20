@@ -90,7 +90,7 @@ struct VoiceConversationView: View {
             toggleIcon("waveform", mode: .voice, binding: $viewModel.inputMode)
         }
         .padding(3)
-        .background(Capsule().fill(Tokens.Color.silt))
+        .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(Tokens.Color.silt))
     }
 
     private func toggleIcon(_ systemImage: String, mode: ConversationInputMode, binding: Binding<ConversationInputMode>) -> some View {
@@ -105,7 +105,7 @@ struct VoiceConversationView: View {
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(isSelected ? .white : Tokens.Color.textPrimary)
                 .frame(width: 36, height: 36)
-                .background(Circle().fill(isSelected ? Tokens.Color.onyx : .clear))
+                .background(RoundedRectangle(cornerRadius: Tokens.Radius.button - 3).fill(isSelected ? Tokens.Color.onyx : .clear))
         }
         .buttonStyle(.plain)
     }

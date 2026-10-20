@@ -59,7 +59,7 @@ struct DailyBriefView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }
-            .background(Capsule().fill(Tokens.Color.paper))
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(Tokens.Color.paper))
         }
         .padding(24)
         .padding(.top, 12)

@@ -76,7 +76,7 @@ struct ThresholdProposalCard: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .overlay(
-                    Capsule().strokeBorder(Tokens.Color.ochre.opacity(0.7))
+                    RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(Tokens.Color.ochre.opacity(0.7))
                 )
         }
         .buttonStyle(.plain)

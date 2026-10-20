@@ -23,6 +23,6 @@ struct QuickActionButton: View {
         }
         .buttonStyle(.plain)
         .background(Tokens.Color.onyx)
-        .clipShape(Capsule())
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.button))
     }
 }

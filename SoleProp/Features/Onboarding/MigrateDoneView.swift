@@ -122,8 +122,8 @@ private struct MiniButtonStyle: ButtonStyle {
             .padding(.horizontal, 13)
             .padding(.vertical, 8)
             .foregroundStyle(filled ? Tokens.Color.fog : Tokens.Color.ink)
-            .background(Capsule().fill(filled ? Tokens.Color.ink : Color.clear))
-            .overlay(Capsule().strokeBorder(filled ? .clear : Tokens.Color.ink, lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(filled ? Tokens.Color.ink : Color.clear))
+            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(filled ? .clear : Tokens.Color.ink, lineWidth: 1))
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }

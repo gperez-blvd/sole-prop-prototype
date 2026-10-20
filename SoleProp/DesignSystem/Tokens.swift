@@ -65,6 +65,11 @@ enum Tokens {
         static let card: CGFloat = 24
         static let lg: CGFloat = 24
         static let pill: CGFloat = 999
+        /// Every tappable button's corner radius — friendly, not a hard
+        /// square, but deliberately short of the full stadium/capsule
+        /// shape buttons used before. One value, used everywhere a button
+        /// appears, so they all read as the same control.
+        static let button: CGFloat = 16
     }
 
     enum Typography {

@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The reference's `.pbtn` — a full-width capsule button. `.primary` is solid
-/// ink/fog, `.ghost` is ink text with a faint ink border (`.pbtn.ghost`).
+/// A full-width button, softly rounded (`Tokens.Radius.button`) rather than
+/// a full capsule. `.primary` is solid ink/fog, `.ghost` is ink text with a
+/// faint ink border.
 struct PillButton: View {
     enum Style {
         case primary
@@ -22,11 +23,11 @@ struct PillButton: View {
         }
         .foregroundStyle(style == .primary ? Tokens.Color.fog : Tokens.Color.ink)
         .background(
-            Capsule()
+            RoundedRectangle(cornerRadius: Tokens.Radius.button)
                 .fill(style == .primary ? Tokens.Color.ink : Color.clear)
         )
         .overlay(
-            Capsule()
+            RoundedRectangle(cornerRadius: Tokens.Radius.button)
                 .strokeBorder(style == .ghost ? Tokens.Color.ink.opacity(0.4) : .clear, lineWidth: 1)
         )
         .opacity(isDisabled ? 0.4 : 1)
@@ -34,7 +35,8 @@ struct PillButton: View {
     }
 }
 
-/// The reference's `.chip` — a small capsule toggle, filled ink when selected.
+/// A small toggle button, filled ink when selected — same corner radius as
+/// every other button, not a capsule chip.
 struct ChoiceChip: View {
     var title: String
     var isSelected: Bool
@@ -49,10 +51,11 @@ struct ChoiceChip: View {
         }
         .foregroundStyle(isSelected ? Tokens.Color.fog : Tokens.Color.ink)
         .background(
-            Capsule().fill(isSelected ? Tokens.Color.ink : Color.clear)
+            RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isSelected ? Tokens.Color.ink : Color.clear)
         )
         .overlay(
-            Capsule().strokeBorder(isSelected ? .clear : Color.black.opacity(0.3), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Tokens.Radius.button)
+                .strokeBorder(isSelected ? .clear : Color.black.opacity(0.3), lineWidth: 1)
         )
     }
 }

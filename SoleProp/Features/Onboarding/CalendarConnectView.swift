@@ -52,8 +52,8 @@ struct CalendarConnectView: View {
                     .padding(.vertical, 8)
             }
             .foregroundStyle(isConnected ? Tokens.Color.ink : Tokens.Color.fog)
-            .background(Capsule().fill(isConnected ? Color.clear : Tokens.Color.ink))
-            .overlay(Capsule().strokeBorder(isConnected ? Tokens.Color.ink : .clear, lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isConnected ? Color.clear : Tokens.Color.ink))
+            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(isConnected ? Tokens.Color.ink : .clear, lineWidth: 1))
             .disabled(isConnected)
         }
         .padding(.vertical, 12)

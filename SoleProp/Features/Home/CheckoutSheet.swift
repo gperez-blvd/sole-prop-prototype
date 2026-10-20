@@ -63,7 +63,7 @@ struct CheckoutSheet: View {
                             .padding(.vertical, 14)
                     }
                     .background(Tokens.Color.onyx)
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.button))
                 }
                 .padding(24)
             }
