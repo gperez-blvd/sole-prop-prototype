@@ -82,8 +82,6 @@ struct HomeView: View {
                         Text(Self.todayDateString)
                             .font(Tokens.Typography.labelSmall)
                             .foregroundStyle(Tokens.Color.textTertiary)
-                            .textCase(.uppercase)
-                            .kerning(1.2)
                     }
 
                     ForEach(rankedSections) { section in
@@ -273,8 +271,6 @@ struct HomeView: View {
             Text("Next appointment")
                 .font(Tokens.Typography.label)
                 .foregroundStyle(Tokens.Color.textTertiary)
-                .textCase(.uppercase)
-                .kerning(1.4)
 
             if let next = HomeMockData.nextAppointment {
                 NextAppointmentCard(

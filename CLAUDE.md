@@ -153,11 +153,21 @@ Each of these means the principle is slipping:
 - `HANDOFF-SCREENS.md` — the screens, in tiers.
 - `HANDOFF-ADDENDUM-01.md` — products and checkout; supersedes the object counts in the above.
 - The `.html` files are renderings of the two JSONs for humans. Don't parse them.
-- `detail-poc/src/design/tokens.ts` — **the design system.** Color, typography, spacing, radius,
-  shadow, breakpoints — the onyx/ochre/paper/silt palette pulled from the DETAIL onboarding
-  artifact. `SoleProp/DesignSystem/Tokens.swift` is its Swift mirror; use one or the other
-  depending on which side you're building. `BUITokens.swift` is legacy — it predates this
-  decision and still governs screens that haven't been migrated yet, but new work should reach
-  for `Tokens`, not `BUITokens`.
+- `SoleProp/DesignSystem/Tokens.swift` — **the design system.** As of October 2026 this replaced
+  the earlier onyx/ochre/paper/silt palette pulled from the DETAIL onboarding artifact — that
+  system is retired, not just superseded; don't resurrect its look (uppercase tracked mono
+  labels, hairline-bordered cards, off-white backgrounds) in new work. The current system is
+  modern and plain: white surfaces, soft elevation (`Tokens.Shadow`) instead of borders, one
+  sentence-case type family throughout (no uppercase/tracking/monospacing on labels), and a
+  friendly bluegreen accent (`Tokens.Color.ochre` — the name is historical, the color isn't).
+  Token *names* mostly didn't change, only their values, so existing screens re-skin automatically;
+  don't rename tokens just to make the names match their new meaning. `detail-poc/src/design/
+  tokens.ts` is the old system's TS mirror and is now stale — it hasn't been updated to match and
+  shouldn't be treated as current. `BUITokens.swift` has been deleted outright (it had zero
+  references left); don't recreate it.
+- The AI orb (`SoleProp/DesignSystem/Components/VoiceOrb.swift`) is organic/amorphous by
+  deliberate choice — a wobbling blob silhouette, not a sphere — rendered glossy (radial
+  gradient, specular sheen, soft halo) in the same bluegreen accent, evoking the reference's lit
+  3D quality without copying its perfect-sphere shape or its blue hue.
 
 `△` in the JSON marks a proposal rather than a decision. Implement, but report.

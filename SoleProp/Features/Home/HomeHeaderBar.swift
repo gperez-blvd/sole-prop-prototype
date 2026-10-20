@@ -19,8 +19,6 @@ struct HomeHeaderBar: View {
             Text(businessName)
                 .font(Tokens.Typography.label)
                 .foregroundStyle(Tokens.Color.textPrimary)
-                .textCase(.uppercase)
-                .kerning(1.2)
                 .frame(maxWidth: .infinity)
 
             HStack(spacing: 4) {

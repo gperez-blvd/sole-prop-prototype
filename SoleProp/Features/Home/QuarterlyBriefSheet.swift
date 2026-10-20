@@ -79,10 +79,9 @@ struct QuarterlyBriefSheet: View {
             Text(value)
                 .font(.system(size: 28, weight: .semibold))
                 .foregroundStyle(Tokens.Color.paper)
-            Text(label.uppercased())
+            Text(label)
                 .font(Tokens.Typography.labelSmall)
                 .foregroundStyle(Tokens.Color.ink3)
-                .kerning(1.2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -110,10 +109,9 @@ struct QuarterlyBriefSheet: View {
             onSelectIdea(idea)
         } label: {
             VStack(alignment: .leading, spacing: 6) {
-                Text(idea.title.uppercased())
+                Text(idea.title)
                     .font(Tokens.Typography.labelSmall)
                     .foregroundStyle(Tokens.Color.ochre)
-                    .kerning(1.2)
                 Text(idea.teaser)
                     .font(.system(size: 13.5))
                     .foregroundStyle(Tokens.Color.paper)

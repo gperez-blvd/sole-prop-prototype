@@ -13,8 +13,6 @@ struct BookingLinkCard: View {
                 Text("Your booking link")
                     .font(Tokens.Typography.label)
                     .foregroundStyle(Tokens.Color.textTertiary)
-                    .textCase(.uppercase)
-                    .kerning(1.2)
                 Text(link)
                     .font(Tokens.Typography.body)
                     .foregroundStyle(Tokens.Color.textPrimary)

@@ -12,8 +12,6 @@ struct OpeningsCard: View {
             Text("Still open today")
                 .font(Tokens.Typography.label)
                 .foregroundStyle(Tokens.Color.textTertiary)
-                .textCase(.uppercase)
-                .kerning(1.4)
 
             VStack(spacing: 0) {
                 ForEach(openings) { opening in

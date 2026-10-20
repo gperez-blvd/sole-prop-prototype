@@ -1,18 +1,17 @@
 import SwiftUI
 
-/// The voice assistant's entry point / speaking-listening indicator — one
-/// continuous shape that morphs smoothly between two states rather than
-/// swapping between separate view trees. **Paused** (`isActive == false`):
-/// the three strands collapse onto the same plain circle, blending into one
-/// calm, solid-reading ring. **Listening** (`isActive == true`): they
-/// separate out into interwoven, independently-flowing glowing ribbons with
-/// traveling light particles, modeled on the reference art George shared
-/// (dribbble.com/shots/27188223's braided-light-ring look). `progress`
-/// (0...1, animated whenever `isActive` changes) drives that separation —
-/// each strand's wobble amplitude and tilt scale with it, so the geometry
-/// itself animates from circle to braid instead of cross-fading between two
-/// static images. `level` (0...1, live mic amplitude) adds extra energy
-/// once active.
+/// The voice assistant's entry point / speaking-listening indicator.
+///
+/// Replaces the earlier flat line-art braid with a lit, volumetric-reading
+/// blob — modeled on the Figma reference's glossy sphere (soft ambient
+/// glow, specular sheen, bright hot spot) but deliberately not a sphere:
+/// the silhouette itself wobbles continuously (two summed, out-of-phase
+/// sine terms, not one clean periodic wave) so it reads as organic/
+/// amorphous rather than a perfect glass ball, and the palette is a
+/// friendly teal/bluegreen rather than the reference's blue. `level`
+/// (0...1, live mic amplitude) adds extra wobble and glow once listening;
+/// `isActive` just changes how much energy the idle animation already has
+/// — the blob is alive at rest too, never a static frozen image.
 struct VoiceOrb: View {
     /// The one size used everywhere this appears — Home's entry point and
     /// the full conversation screen both use this so the button reads as
@@ -24,111 +23,109 @@ struct VoiceOrb: View {
     var isActive: Bool = false
 
     @State private var time: Double = 0
-    @State private var progress: Double = 0
+    @State private var activeEnergy: Double = 0
 
-    private struct Strand {
-        let waves: Double
-        let speed: Double
-        let tiltDegrees: Double
-        let colors: [Color]
-        let lineWidthFactor: CGFloat
-        let particleOffsets: [Double] // 0...1 positions along the ribbon, at t=0
-    }
-
-    // Bluish/greenish/purplish only — no orange/pink.
-    private static let strands: [Strand] = [
-        Strand(waves: 3, speed: 1.0, tiltDegrees: 0,
-               colors: [Color(hex: "#4C6BFF"), Color(hex: "#22D3AA"), Color(hex: "#4C6BFF")],
-               lineWidthFactor: 0.05, particleOffsets: [0, 0.5]),
-        Strand(waves: 3, speed: -0.7, tiltDegrees: 55,
-               colors: [Color(hex: "#8B5CF6"), Color(hex: "#34D399"), Color(hex: "#8B5CF6")],
-               lineWidthFactor: 0.045, particleOffsets: [0.25, 0.75]),
-        Strand(waves: 4, speed: 0.5, tiltDegrees: 115,
-               colors: [Color(hex: "#22D3EE"), Color(hex: "#8B5CF6"), Color(hex: "#4C6BFF"), Color(hex: "#22D3EE")],
-               lineWidthFactor: 0.035, particleOffsets: [0.1, 0.6]),
-    ]
+    // Friendly bluegreen/teal — ties to Tokens.Color.ochre (the app's new
+    // accent) at the core, lightening toward a cyan-white highlight.
+    private static let deepShadow = Color(hex: "#042F2E")
+    private static let base = Color(hex: "#0D9488")
+    private static let mid = Color(hex: "#2DD4BF")
+    private static let bright = Color(hex: "#99F6E4")
+    private static let hotSpot = Color(hex: "#F0FFFC")
 
     var body: some View {
-        let energy = level * progress
+        let wobble = 0.16 + activeEnergy * 0.14 + level * 0.1
+        let glow = 0.3 + activeEnergy * 0.25 + level * 0.25
 
         ZStack {
+            // Ambient halo — soft glow bleeding onto whatever's behind it.
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color(hex: "#4C6BFF").opacity((0.35 + energy * 0.25) * progress), .clear],
-                        center: .center, startRadius: 0, endRadius: size * 0.75
+                        colors: [Self.mid.opacity(glow * 0.6), Self.mid.opacity(glow * 0.18), .clear],
+                        center: .center, startRadius: 0, endRadius: size * 0.95
                     )
                 )
-                .frame(width: size * 1.7, height: size * 1.7)
-                .blur(radius: size * 0.16)
+                .frame(width: size * 2.2, height: size * 2.2)
+                .blur(radius: size * 0.18)
 
-            ForEach(Array(Self.strands.enumerated()), id: \.offset) { _, strand in
-                let strandPhase = time * strand.speed
-
-                FlowingRibbon(phase: strandPhase, amplitude: progress, waves: strand.waves)
-                    .stroke(
-                        AngularGradient(colors: strand.colors, center: .center),
-                        lineWidth: size * (strand.lineWidthFactor + energy * 0.025)
-                    )
-                    .frame(width: size, height: size)
-                    .opacity(0.88)
-                    .rotationEffect(.degrees(strand.tiltDegrees * progress))
-                    .blur(radius: size * 0.012)
-
-                ForEach(Array(strand.particleOffsets.enumerated()), id: \.offset) { _, startT in
-                    let t = (startT + time * 0.05 * (strand.speed >= 0 ? 1 : -1)).truncatingRemainder(dividingBy: 1)
-                    let local = FlowingRibbon.point(
-                        at: t < 0 ? t + 1 : t, phase: strandPhase, amplitude: progress, waves: strand.waves, radius: size / 2
-                    )
-                    // Rotate the sampled point by the strand's tilt manually — an
-                    // `.offset` this small can't be corrected by `.rotationEffect`
-                    // (that rotates the view around its own center, not the offset).
-                    let tiltRadians = strand.tiltDegrees * progress * .pi / 180
-                    let x = local.x * cos(tiltRadians) - local.y * sin(tiltRadians)
-                    let y = local.x * sin(tiltRadians) + local.y * cos(tiltRadians)
-
-                    Circle()
-                        .fill(strand.colors.first ?? .white)
-                        .frame(width: size * (0.05 + energy * 0.02), height: size * (0.05 + energy * 0.02))
-                        .blur(radius: size * 0.01)
-                        .opacity(progress)
-                        .offset(x: x, y: y)
-                }
-            }
+            blobFill(amplitude: wobble)
+                .overlay(specularSheen(amplitude: wobble))
+                .overlay(hotSpotHighlight)
+                .frame(width: size, height: size)
+                .shadow(color: Self.base.opacity(0.45), radius: size * 0.2, y: size * 0.06)
         }
-        // Always-on slow rotation, independent of `progress` — at idle this
-        // just sweeps the idle ring's gradient around a perfect circle (no
-        // shape change), so the button never reads as a dead, frozen image;
-        // once active it layers on top of each strand's own tilt/wobble.
-        .rotationEffect(.degrees(time * (180 / .pi) * 0.06))
         .compositingGroup()
+        .scaleEffect(1 + level * 0.06)
         .onAppear {
-            progress = isActive ? 1 : 0
-            withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
-                time = 12 * (2 * .pi)
+            activeEnergy = isActive ? 1 : 0
+            withAnimation(.linear(duration: 18).repeatForever(autoreverses: false)) {
+                time = 18 * (2 * .pi)
             }
         }
         .onChange(of: isActive) { _, newValue in
             withAnimation(.easeInOut(duration: 0.6)) {
-                progress = newValue ? 1 : 0
+                activeEnergy = newValue ? 1 : 0
             }
         }
         .animation(.easeInOut(duration: 0.2), value: level)
     }
+
+    private func blobFill(amplitude: Double) -> some View {
+        BlobShape(phase: time, amplitude: amplitude)
+            .fill(
+                RadialGradient(
+                    stops: [
+                        .init(color: Self.bright, location: 0),
+                        .init(color: Self.mid, location: 0.32),
+                        .init(color: Self.base, location: 0.68),
+                        .init(color: Self.deepShadow, location: 1),
+                    ],
+                    center: UnitPoint(x: 0.36, y: 0.32), startRadius: 0, endRadius: size * 0.64
+                )
+            )
+    }
+
+    /// A soft diagonal streak of light across the blob's upper half — the
+    /// reference orb's glass-sheen look — clipped to the same wobbling
+    /// silhouette so it reads as light on the blob's surface, not a shape
+    /// floating on top of it.
+    private func specularSheen(amplitude: Double) -> some View {
+        Ellipse()
+            .fill(
+                LinearGradient(
+                    colors: [Color.white.opacity(0.8), Color.white.opacity(0)],
+                    startPoint: .topLeading, endPoint: .bottomTrailing
+                )
+            )
+            .frame(width: size * 0.62, height: size * 0.3)
+            .rotationEffect(.degrees(-32))
+            .offset(x: -size * 0.06, y: -size * 0.18)
+            .blendMode(.screen)
+            .blur(radius: size * 0.015)
+            .clipShape(BlobShape(phase: time, amplitude: amplitude))
+    }
+
+    private var hotSpotHighlight: some View {
+        Circle()
+            .fill(Self.hotSpot)
+            .frame(width: size * 0.1, height: size * 0.1)
+            .blur(radius: size * 0.02)
+            .offset(x: -size * 0.12, y: -size * 0.1)
+            .blendMode(.screen)
+    }
 }
 
-/// A closed ring whose radius wobbles sinusoidally — scaled by `amplitude`
-/// (0 = a plain circle, 1 = full wobble) so the same shape instance can
-/// animate continuously between "circle" and "wavy ribbon" as part of one
-/// `animatableData` transaction, rather than switching shapes. Distinct wave
-/// counts/speeds/tilts per strand (see `VoiceOrb`) are what make several of
-/// these read as loosely braided flowing ribbons once separated. `point(at:)`
-/// samples the same curve so particles can travel exactly along a strand's
-/// rendered path.
-private struct FlowingRibbon: Shape {
+/// A closed, filled silhouette whose radius wobbles as the sum of two
+/// out-of-phase sine terms at different frequencies — deliberately not a
+/// single clean periodic wave, so the shape reads as an organic, slightly
+/// irregular blob rather than a perfect circle or a uniform flower shape.
+/// `amplitude` scales the wobble continuously (0 ≈ a plain circle), so it
+/// animates smoothly as part of one `animatableData` transaction rather
+/// than switching between discrete shapes.
+private struct BlobShape: Shape {
     var phase: Double
     var amplitude: Double
-    var waves: Double
 
     var animatableData: AnimatablePair<Double, Double> {
         get { AnimatablePair(phase, amplitude) }
@@ -141,13 +138,18 @@ private struct FlowingRibbon: Shape {
     func path(in rect: CGRect) -> Path {
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let radius = min(rect.width, rect.height) / 2
-        let steps = 140
+        let steps = 120
         var path = Path()
 
         for i in 0...steps {
             let t = Double(i) / Double(steps)
-            let offset = Self.point(at: t, phase: phase, amplitude: amplitude, waves: waves, radius: radius)
-            let point = CGPoint(x: center.x + offset.x, y: center.y + offset.y)
+            let theta = t * 2 * .pi
+            let wobble = 1
+                + amplitude * 0.5 * sin(theta * 3 + phase)
+                + amplitude * 0.3 * sin(theta * 5 - phase * 1.4)
+                + amplitude * 0.2 * sin(theta * 2 + phase * 0.7)
+            let r = radius * wobble
+            let point = CGPoint(x: center.x + r * cos(theta), y: center.y + r * sin(theta))
             if i == 0 {
                 path.move(to: point)
             } else {
@@ -157,24 +159,13 @@ private struct FlowingRibbon: Shape {
         path.closeSubpath()
         return path
     }
-
-    /// The ribbon's offset from center at fraction `t` (0...1) around the
-    /// loop, for the given `phase`/`amplitude`/`waves` — a plain function so
-    /// both the `Shape` outline and travelling particles sample identical
-    /// geometry. `amplitude == 0` collapses this to a perfect circle.
-    static func point(at t: Double, phase: Double, amplitude: Double, waves: Double, radius: Double) -> CGPoint {
-        let theta = t * 2 * .pi
-        let wobble = 1 + amplitude * (0.16 * sin(theta * waves + phase) + 0.06 * sin(theta * (waves + 1) - phase * 1.3))
-        let r = radius * wobble
-        return CGPoint(x: r * cos(theta), y: r * sin(theta))
-    }
 }
 
 #Preview {
     VStack(spacing: 40) {
-        VoiceOrb(size: 53, isActive: false)
-        VoiceOrb(size: 53, level: 0.6, isActive: true)
-        VoiceOrb(size: 90, level: 0.6, isActive: true)
+        VoiceOrb(size: 72, isActive: false)
+        VoiceOrb(size: 72, level: 0.6, isActive: true)
+        VoiceOrb(size: 120, level: 0.6, isActive: true)
     }
     .padding()
     .background(Color.black)

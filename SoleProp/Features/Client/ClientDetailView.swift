@@ -127,8 +127,6 @@ struct ClientDetailView: View {
             Text("Visits")
                 .font(Tokens.Typography.labelSmall)
                 .foregroundStyle(Tokens.Color.textTertiary)
-                .textCase(.uppercase)
-                .kerning(1.2)
                 .padding(.bottom, 6)
             ForEach(memory.visits) { visit in
                 HStack {
@@ -153,8 +151,6 @@ struct ClientDetailView: View {
             Text(label)
                 .font(Tokens.Typography.labelSmall)
                 .foregroundStyle(Tokens.Color.textTertiary)
-                .textCase(.uppercase)
-                .kerning(1.2)
             Text(value)
                 .font(Tokens.Typography.body)
                 .foregroundStyle(Tokens.Color.textPrimary)
@@ -206,8 +202,6 @@ struct ClientChartView: View {
             Text(label)
                 .font(Tokens.Typography.labelSmall)
                 .foregroundStyle(Tokens.Color.textTertiary)
-                .textCase(.uppercase)
-                .kerning(1.2)
             Text(value)
                 .font(Tokens.Typography.body)
                 .foregroundStyle(Tokens.Color.textPrimary)

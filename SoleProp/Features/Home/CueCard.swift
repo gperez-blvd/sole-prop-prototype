@@ -26,8 +26,6 @@ struct CueCard: View {
                     Text("What I did")
                         .font(Tokens.Typography.labelSmall)
                         .foregroundStyle(Tokens.Color.ochre)
-                        .textCase(.uppercase)
-                        .kerning(1.2)
                     Text(action.description)
                         .font(Tokens.Typography.caption)
                         .foregroundStyle(Tokens.Color.silt)

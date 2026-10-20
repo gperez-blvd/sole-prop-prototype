@@ -44,8 +44,6 @@ struct AppointmentDetailSheet: View {
                             Text("First time")
                                 .font(Tokens.Typography.labelSmall)
                                 .foregroundStyle(Tokens.Color.ochre)
-                                .textCase(.uppercase)
-                                .kerning(1.2)
                         }
                     }
 
@@ -103,8 +101,6 @@ struct AppointmentDetailSheet: View {
             Text(label)
                 .font(Tokens.Typography.labelSmall)
                 .foregroundStyle(Tokens.Color.textTertiary)
-                .textCase(.uppercase)
-                .kerning(1.2)
             Text(value)
                 .font(Tokens.Typography.body)
                 .foregroundStyle(Tokens.Color.textPrimary)

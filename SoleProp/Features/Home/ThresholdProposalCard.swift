@@ -23,8 +23,6 @@ struct ThresholdProposalCard: View {
                     Text(context)
                         .font(Tokens.Typography.labelSmall)
                         .foregroundStyle(Tokens.Color.ochre)
-                        .textCase(.uppercase)
-                        .kerning(1.2)
                 }
 
                 Text(proposal.spokenFraming)
