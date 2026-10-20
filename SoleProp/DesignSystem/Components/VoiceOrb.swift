@@ -7,11 +7,18 @@ import SwiftUI
 /// glow, specular sheen, bright hot spot) but deliberately not a sphere.
 /// **At rest (`isActive == false`) it is a plain, still circle** — no
 /// wobble, no motion, nothing reading as "alive" while paused. Once
-/// listening it wobbles, but only just: a small constant idle amount plus
-/// a little more riding on `level` (0...1 live mic amplitude), so it
-/// nudges/jumps with what it's hearing rather than performing a visible
-/// animation on its own. Every motion here is deliberately subtle —
-/// this reads as a calm indicator, not a screensaver.
+/// listening it drifts gently, like something floating in water, nudged
+/// a little further by how loud what it's hearing is (`level`, 0...1).
+///
+/// Every number driving its shape is computed directly from elapsed wall
+/// -clock time inside the `TimelineView` tick — deliberately *not* via
+/// SwiftUI's `withAnimation`/`.animation(value:)` system. Mixing that
+/// system with a value that's already changing every frame (the phase)
+/// means every incoming `level` update starts a brand new interpolation
+/// racing against the phase that's already mid-flight, which is exactly
+/// what caused the jittery, stuck-looking motion this replaces — two
+/// animation systems fighting over the same `Shape.animatableData`. Plain
+/// time-based easing can't fight itself.
 struct VoiceOrb: View {
     /// The one size used everywhere this appears — Home's entry point and
     /// the full conversation screen both use this so the button reads as
@@ -22,7 +29,16 @@ struct VoiceOrb: View {
     var level: Double = 0
     var isActive: Bool = false
 
-    @State private var activeEnergy: Double = 0
+    // Smoothly-chased copies of `isActive`/`level`, each computed as a
+    // plain eased function of elapsed time since it last changed — see
+    // `smoothedEnergy`/`smoothedLevel` below.
+    @State private var energyTransitionStart = Date.distantPast
+    @State private var energyTransitionFrom: Double = 0
+    @State private var lastIsActive = false
+
+    @State private var levelTransitionStart = Date.distantPast
+    @State private var levelTransitionFrom: Double = 0
+    @State private var lastLevel: Double = 0
 
     // Friendly bluegreen/teal — ties to Tokens.Color.ochre (the app's new
     // accent) at the core, lightening toward a cyan-white highlight.
@@ -33,30 +49,54 @@ struct VoiceOrb: View {
     private static let hotSpot = Color(hex: "#F0FFFC")
 
     var body: some View {
-        // Driven by the timeline's own clock, not an animated @State var —
-        // a `repeatForever` animation on a plain @State is fragile: any
-        // other state change on this view (like `level`, updated ~16×/sec
-        // while Cue is talking) can interrupt/reset it, which is exactly
-        // why the blob used to freeze into one shape under real use. A
-        // TimelineView can't be interrupted that way.
         TimelineView(.animation) { timeline in
-            let phase = timeline.date.timeIntervalSinceReferenceDate * (2 * .pi / 16)
-            orbContent(phase: phase)
+            let now = timeline.date
+            let phase = now.timeIntervalSinceReferenceDate * (2 * .pi / 16)
+            let energy = smoothedEnergy(at: now)
+            let lvl = smoothedLevel(at: now)
+            orbContent(phase: phase, activeEnergy: energy, level: lvl)
         }
-        .onAppear { activeEnergy = isActive ? 1 : 0 }
+        .onAppear {
+            lastIsActive = isActive
+            lastLevel = level
+            energyTransitionFrom = isActive ? 1 : 0
+            levelTransitionFrom = level
+        }
         .onChange(of: isActive) { _, newValue in
-            withAnimation(.easeInOut(duration: 0.5)) {
-                activeEnergy = newValue ? 1 : 0
-            }
+            energyTransitionFrom = smoothedEnergy(at: Date())
+            energyTransitionStart = Date()
+            lastIsActive = newValue
         }
-        .animation(.easeInOut(duration: 0.15), value: level)
+        .onChange(of: level) { _, newValue in
+            levelTransitionFrom = smoothedLevel(at: Date())
+            levelTransitionStart = Date()
+            lastLevel = newValue
+        }
     }
 
-    private func orbContent(phase: Double) -> some View {
+    /// `isActive` eased smoothly over 0.6s rather than snapped to 0/1 —
+    /// computed fresh from elapsed time, not from an animation transaction.
+    private func smoothedEnergy(at date: Date) -> Double {
+        let target: Double = lastIsActive ? 1 : 0
+        let t = min(1, date.timeIntervalSince(energyTransitionStart) / 0.6)
+        let eased = t * t * (3 - 2 * t) // smoothstep
+        return energyTransitionFrom + (target - energyTransitionFrom) * eased
+    }
+
+    /// `level` chases its latest value over 0.25s instead of jumping on
+    /// every ~60ms metering sample — this (not a SwiftUI animation) is
+    /// what keeps the mic/playback amplitude from reading as jittery.
+    private func smoothedLevel(at date: Date) -> Double {
+        let t = min(1, date.timeIntervalSince(levelTransitionStart) / 0.25)
+        let eased = t * t * (3 - 2 * t)
+        return levelTransitionFrom + (lastLevel - levelTransitionFrom) * eased
+    }
+
+    private func orbContent(phase: Double, activeEnergy: Double, level: Double) -> some View {
         // Zero when at rest — a perfect, still circle. Only once listening
-        // does it wobble at all — kept gentle, not performative, but
-        // enough to actually read as motion rather than disappearing
-        // entirely, nudged further by how loud what it's hearing is.
+        // does it drift at all — kept gentle, not performative, but
+        // enough to actually read as motion, nudged further by how loud
+        // what it's hearing is.
         let wobble = activeEnergy * (0.07 + level * 0.12)
         let glow = 0.22 + activeEnergy * 0.08 + level * 0.15
 
@@ -130,21 +170,13 @@ struct VoiceOrb: View {
 /// A closed, filled silhouette whose radius wobbles as the sum of two
 /// out-of-phase sine terms at different frequencies — deliberately not a
 /// single clean periodic wave, so the shape reads as an organic, slightly
-/// irregular blob rather than a perfect circle or a uniform flower shape.
-/// `amplitude` scales the wobble continuously (0 ≈ a plain circle), so it
-/// animates smoothly as part of one `animatableData` transaction rather
-/// than switching between discrete shapes.
+/// irregular blob rather than a perfect circle. `amplitude` scales the
+/// wobble continuously (0 = a plain circle). Values passed in are always
+/// plain, already-eased numbers (see `VoiceOrb.smoothed*` above) — this
+/// shape is never itself wrapped in a SwiftUI animation.
 private struct BlobShape: Shape {
     var phase: Double
     var amplitude: Double
-
-    var animatableData: AnimatablePair<Double, Double> {
-        get { AnimatablePair(phase, amplitude) }
-        set {
-            phase = newValue.first
-            amplitude = newValue.second
-        }
-    }
 
     func path(in rect: CGRect) -> Path {
         let center = CGPoint(x: rect.midX, y: rect.midY)
@@ -152,10 +184,8 @@ private struct BlobShape: Shape {
         // Coefficients sum to 1, so the biggest possible `wobble` below is
         // `1 + amplitude`. Deflating the base radius by that same factor
         // means the silhouette can never draw outside this shape's own
-        // frame no matter how large `amplitude` gets — which is exactly
-        // what was overlapping the caption above it before: the rendered
-        // blob was growing past its nominal frame size on every outward
-        // peak, since SwiftUI doesn't clip a Shape to its frame on its own.
+        // frame no matter how large `amplitude` gets — SwiftUI doesn't
+        // clip a Shape to its frame on its own.
         let radius = maxRadius / (1 + amplitude)
         let steps = 120
         var path = Path()
