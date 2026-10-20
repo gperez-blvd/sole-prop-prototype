@@ -35,10 +35,11 @@ struct VoiceOrb: View {
 
     var body: some View {
         // Zero when at rest — a perfect, still circle. Only once listening
-        // does it wobble at all, and even then just a hint, nudged further
-        // by how loud what it's hearing is right now.
-        let wobble = activeEnergy * (0.05 + level * 0.09)
-        let glow = 0.22 + activeEnergy * 0.1 + level * 0.18
+        // does it wobble at all — kept gentle, not performative, but
+        // enough to actually read as motion rather than disappearing
+        // entirely, nudged further by how loud what it's hearing is.
+        let wobble = activeEnergy * (0.13 + level * 0.22)
+        let glow = 0.22 + activeEnergy * 0.14 + level * 0.22
 
         ZStack {
             // Ambient halo — soft glow bleeding onto whatever's behind it.
@@ -62,8 +63,8 @@ struct VoiceOrb: View {
         .scaleEffect(1 + level * 0.03)
         .onAppear {
             activeEnergy = isActive ? 1 : 0
-            withAnimation(.linear(duration: 24).repeatForever(autoreverses: false)) {
-                time = 24 * (2 * .pi)
+            withAnimation(.linear(duration: 14).repeatForever(autoreverses: false)) {
+                time = 14 * (2 * .pi)
             }
         }
         .onChange(of: isActive) { _, newValue in
