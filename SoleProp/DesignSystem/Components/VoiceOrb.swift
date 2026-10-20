@@ -148,20 +148,27 @@ private struct BlobShape: Shape {
 
     func path(in rect: CGRect) -> Path {
         let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
+        let maxRadius = min(rect.width, rect.height) / 2
+        // Coefficients sum to 1, so the biggest possible `wobble` below is
+        // `1 + amplitude`. Deflating the base radius by that same factor
+        // means the silhouette can never draw outside this shape's own
+        // frame no matter how large `amplitude` gets — which is exactly
+        // what was overlapping the caption above it before: the rendered
+        // blob was growing past its nominal frame size on every outward
+        // peak, since SwiftUI doesn't clip a Shape to its frame on its own.
+        let radius = maxRadius / (1 + amplitude)
         let steps = 120
         var path = Path()
 
         for i in 0...steps {
             let t = Double(i) / Double(steps)
             let theta = t * 2 * .pi
-            // Coefficients sum to 1 — `amplitude` (already kept small by
-            // the caller) is the actual radius variation, not amplified
-            // further here.
+            // Two gentle, close-frequency terms — not three — so this
+            // reads as a soft, slightly uneven droplet, not a lumpy,
+            // concave blob shape.
             let wobble = 1
-                + amplitude * 0.5 * sin(theta * 3 + phase)
-                + amplitude * 0.3 * sin(theta * 5 - phase * 1.4)
-                + amplitude * 0.2 * sin(theta * 2 + phase * 0.7)
+                + amplitude * 0.7 * sin(theta * 2 + phase)
+                + amplitude * 0.3 * sin(theta * 3 - phase * 1.3)
             let r = radius * wobble
             let point = CGPoint(x: center.x + r * cos(theta), y: center.y + r * sin(theta))
             if i == 0 {
