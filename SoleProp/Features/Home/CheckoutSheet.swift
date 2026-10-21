@@ -58,11 +58,11 @@ struct CheckoutSheet: View {
                     } label: {
                         Text("Charge \(currency(total))")
                             .font(Tokens.Typography.button)
-                            .foregroundStyle(Tokens.Color.paper)
+                            .foregroundStyle(Tokens.Color.onPrimaryFill)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                     }
-                    .background(Tokens.Color.onyx)
+                    .background(Tokens.Color.primaryFill)
                     .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.button))
                 }
                 .padding(24)
@@ -85,11 +85,11 @@ struct CheckoutSheet: View {
     private func lineItem(label: String, value: String, emphasized: Bool = false) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
+                .font(.dmSans(14, weight: emphasized ? .semibold : .regular))
                 .foregroundStyle(Tokens.Color.textPrimary)
             Spacer()
             Text(value)
-                .font(.system(size: 14, weight: emphasized ? .semibold : .regular))
+                .font(.dmSans(14, weight: emphasized ? .semibold : .regular))
                 .foregroundStyle(Tokens.Color.textPrimary)
         }
         .padding(.vertical, 8)
@@ -109,17 +109,17 @@ struct CheckoutSheet: View {
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(Tokens.Color.ochre)
                         Text("Suggested by Cue")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.dmSans(10, weight: .semibold))
                             .foregroundStyle(Tokens.Color.ochre)
                     }
                     Text(recommendation.name)
-                        .font(.system(size: 14, weight: recommendationIncluded ? .regular : .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(recommendationIncluded ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
                         .strikethrough(!recommendationIncluded)
                 }
                 Spacer()
                 Text(currency(recommendation.price))
-                    .font(.system(size: 14))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(recommendationIncluded ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
                     .strikethrough(!recommendationIncluded)
             }
@@ -128,7 +128,7 @@ struct CheckoutSheet: View {
                 recommendationIncluded.toggle()
             } label: {
                 Text(recommendationIncluded ? "Remove" : "Add back")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.dmSans(12, weight: .semibold))
                     .foregroundStyle(recommendationIncluded ? Color.red : Tokens.Color.ochre)
             }
         }

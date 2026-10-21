@@ -7,16 +7,16 @@ struct CalendarConnectView: View {
     var onBack: () -> Void
 
     var body: some View {
-        OnboardingScreen(section: "Calendar") {
+        OnboardingScreen(primaryCTA: .init("Back to home", action: onBack)) {
             Text("Connect your calendar.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
-            Text("Personal events block your book automatically. Boulevard reads busy or free, and never posts to it.")
+            Text("Personal events block your book automatically. Cue reads busy or free, and never posts to it.")
                 .font(Tokens.Typography.bodyRegular)
                 .foregroundStyle(Tokens.Color.textSecondary)
 
-            VStack(spacing: 0) {
+            VStack(spacing: 10) {
                 providerRow(name: "Google Calendar", subtitle: "jazz.bennett@gmail.com", isConnected: state.googleCalendarConnected) {
                     state.googleCalendarConnected = true
                 }
@@ -25,12 +25,9 @@ struct CalendarConnectView: View {
                 }
             }
 
-            Text("Connected calendars stay private. CUE only ever sees that a time is taken.")
-                .font(.system(size: 12.5))
+            Text("Connected calendars stay private. Cue only ever sees that a time is taken.")
+                .font(.dmSans(12.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textTertiary)
-
-            PillButton(title: "Back to home", action: onBack)
-                .padding(.top, Tokens.Spacing.md)
         }
     }
 
@@ -38,28 +35,25 @@ struct CalendarConnectView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(name)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                 Text(subtitle)
-                    .font(.system(size: 12))
+                    .font(.dmSans(12, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
             Spacer(minLength: 12)
             Button(action: connect) {
                 Text(isConnected ? "Connected" : "Connect")
-                    .font(.system(size: 12.5, weight: .semibold))
+                    .font(.dmSans(12.5, weight: .semibold))
                     .padding(.horizontal, 13)
                     .padding(.vertical, 8)
             }
-            .foregroundStyle(isConnected ? Tokens.Color.ink : Tokens.Color.fog)
-            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isConnected ? Color.clear : Tokens.Color.ink))
-            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(isConnected ? Tokens.Color.ink : .clear, lineWidth: 1))
+            .foregroundStyle(isConnected ? Tokens.Color.ochre : Tokens.Color.onPrimaryFill)
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isConnected ? Color.clear : Tokens.Color.primaryFill))
+            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(isConnected ? Tokens.Color.ochre.opacity(0.5) : .clear, lineWidth: 1))
             .disabled(isConnected)
         }
-        .padding(.vertical, 12)
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-        }
+        .cardStyle(padding: 12)
     }
 }
 

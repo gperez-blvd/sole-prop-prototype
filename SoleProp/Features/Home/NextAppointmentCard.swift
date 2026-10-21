@@ -60,12 +60,16 @@ struct InitialsAvatar: View {
 
     var body: some View {
         Circle()
-            .fill(Tokens.Color.silt)
+            // Same solid-fill avatar treatment used everywhere else an
+            // initials circle appears (Found/Live in onboarding) —
+            // one consistent avatar look app-wide, not a lighter one-off
+            // here.
+            .fill(Tokens.Color.primaryFill)
             .frame(width: size, height: size)
             .overlay(
                 Text(initial)
-                    .font(.system(size: size * 0.5, weight: .semibold))
-                    .foregroundStyle(Tokens.Color.textPrimary)
+                    .font(.dmSans(size * 0.5, weight: .semibold))
+                    .foregroundStyle(Tokens.Color.onPrimaryFill)
             )
     }
 }

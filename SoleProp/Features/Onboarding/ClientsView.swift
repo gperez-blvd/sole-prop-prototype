@@ -26,37 +26,25 @@ struct ClientsView: View {
     private var doneImporting: Bool { state.clientsImportRun }
 
     var body: some View {
-        OnboardingScreen(section: "Clients") {
+        OnboardingScreen(
+            primaryCTA: doneImporting
+                ? .init("Continue", action: onContinue)
+                : .init(isRunning ? "Importing…" : "Import selected", isDisabled: !anySelected || isRunning, action: runImports),
+            secondaryCTA: doneImporting ? nil : .init("Skip for now", style: .ghost, action: onContinue)
+        ) {
             Text("Build your client list.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
-            Text("Pick where your clients live today. Boulevard imports them in the background and merges duplicates.")
+            Text("Pick where your clients live today. Cue imports them in the background and merges duplicates.")
                 .font(Tokens.Typography.bodyRegular)
                 .foregroundStyle(Tokens.Color.textSecondary)
 
-            VStack(spacing: 0) {
+            VStack(spacing: 10) {
                 ForEach(rows, id: \.source) { row in
                     sourceRow(row)
                 }
             }
-
-            Group {
-                if doneImporting {
-                    PillButton(title: "Continue", action: onContinue)
-                } else {
-                    VStack(spacing: 10) {
-                        PillButton(
-                            title: isRunning ? "Importing…" : "Import selected",
-                            isDisabled: !anySelected || isRunning
-                        ) {
-                            runImports()
-                        }
-                        PillButton(title: "Skip for now", style: .ghost, action: onContinue)
-                    }
-                }
-            }
-            .padding(.top, Tokens.Spacing.sm)
         }
     }
 
@@ -75,31 +63,31 @@ struct ClientsView: View {
         } label: {
             HStack(alignment: .top, spacing: 12) {
                 RoundedRectangle(cornerRadius: 7)
-                    .fill(isSelected ? Tokens.Color.ink : Color.white)
+                    .fill(isSelected ? Tokens.Color.primaryFill : Tokens.Color.surface)
                     .frame(width: 22, height: 22)
                     .overlay(
                         RoundedRectangle(cornerRadius: 7)
-                            .strokeBorder(isSelected ? Tokens.Color.ink : Color.black.opacity(0.35), lineWidth: 1.5)
+                            .strokeBorder(isSelected ? Tokens.Color.textPrimary : Tokens.Color.textTertiary.opacity(0.5), lineWidth: 1.5)
                     )
                     .overlay {
                         if isSelected {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(Tokens.Color.fog)
+                                .foregroundStyle(Tokens.Color.onPrimaryFill)
                         }
                     }
                     .padding(.top, 1)
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(row.title)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text(row.subtitle)
-                        .font(.system(size: 12))
+                        .font(.dmSans(12, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                     if let later = row.later, !isImported {
                         Text(later)
-                            .font(.system(size: 11))
+                            .font(.dmSans(11, weight: .regular))
                             .italic()
                             .foregroundStyle(Tokens.Color.textTertiary)
                     }
@@ -108,7 +96,7 @@ struct ClientsView: View {
                             TrackedLabel(
                                 text: isImported ? row.doneLabel : "Importing…",
                                 font: Tokens.Typography.labelSmall,
-                                color: isImported ? Color(hex: "#8A6F3F") : Tokens.Color.textSecondary
+                                color: isImported ? Tokens.Color.ochre : Tokens.Color.textSecondary
                             )
                             Spacer()
                         }
@@ -117,18 +105,10 @@ struct ClientsView: View {
                 }
                 Spacer(minLength: 0)
             }
-            .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
         .disabled(doneImporting || isRunning)
-        .overlay(alignment: .top) {
-            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-        }
-        .overlay(alignment: .bottom) {
-            if row.source == rows.last?.source {
-                Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-            }
-        }
+        .cardStyle(padding: 12)
     }
 
     private func runImports() {

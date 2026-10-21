@@ -14,41 +14,45 @@ struct LiveView: View {
 
     var body: some View {
         ZStack {
-            OnboardingScreen(section: "Home") {
-                // The first time Cue itself appears in the flow — paired
-                // with "we're live," this is the moment it's introduced as
-                // the thing that's now switched on, not just a setup step
-                // finishing.
-                HStack {
-                    Spacer()
-                    VoiceOrb(size: 64)
-                    Spacer()
-                }
-                .padding(.vertical, Tokens.Spacing.sm)
-
+            OnboardingScreen(
+                primaryCTA: .init(
+                    state.bookingLinkShared ? "Booking link shared" : "Share your booking link",
+                    isDisabled: state.bookingLinkShared,
+                    action: shareBookingLink
+                ),
+                secondaryCTA: .init("Continue", style: .ghost, action: onContinue)
+            ) {
                 Circle()
-                    .fill(Tokens.Color.ink)
+                    .fill(Tokens.Color.primaryFill)
                     .frame(width: 44, height: 44)
                     .overlay(
                         Text(initials)
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundStyle(Tokens.Color.fog)
+                            .font(.dmSans(13, weight: .semibold))
+                            .foregroundStyle(Tokens.Color.onPrimaryFill)
                     )
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Your Secret Service is set up.")
-                        .font(.system(size: 15))
-                        .foregroundStyle(Tokens.Color.textSecondary)
-                    Text("And we're live!")
-                        .font(.system(size: 30, weight: .semibold))
-                        .foregroundStyle(Tokens.Color.textPrimary)
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Your secret service is set up.")
+                            .font(.dmSans(15, weight: .regular))
+                            .foregroundStyle(Tokens.Color.textSecondary)
+                        Text("And we're live!")
+                            .font(Tokens.Typography.largeTitle)
+                            .foregroundStyle(Tokens.Color.textPrimary)
+                    }
+                    Spacer(minLength: 12)
+                    // Same spot as the Daily Brief's "Morning, Jazz."
+                    // row — next to the title, right-aligned — so the
+                    // orb's placement reads as one consistent pattern
+                    // rather than screen-specific.
+                    VoiceOrb(size: 44)
                 }
 
                 Text("bookjazz.blvd.com")
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.dmSans(12, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
 
-                VStack(spacing: 0) {
+                VStack(spacing: 10) {
                     actionRow(
                         title: "Book an appointment",
                         subtitle: bookSubtitle,
@@ -65,25 +69,6 @@ struct LiveView: View {
                         done: state.migrationDone
                     ) { onOpen(state.migrationDone ? .migrateDone : .migrate) }
                 }
-                .overlay(alignment: .bottom) {
-                    Rectangle().fill(Color.black.opacity(0.13)).frame(height: 1)
-                }
-
-                VStack(spacing: 10) {
-                    PillButton(
-                        title: state.bookingLinkShared ? "Booking Link Shared" : "Share Your Booking Link",
-                        isDisabled: state.bookingLinkShared
-                    ) {
-                        state.bookingLinkShared = true
-                        showShareToast = true
-                        Task {
-                            try? await Task.sleep(for: .seconds(2.2))
-                            showShareToast = false
-                        }
-                    }
-                    PillButton(title: "Continue", style: .ghost, action: onContinue)
-                }
-                .padding(.top, Tokens.Spacing.sm)
             }
 
             ConfettiView(trigger: confettiTrigger)
@@ -92,11 +77,11 @@ struct LiveView: View {
                 VStack {
                     Spacer()
                     Text("Booking link texted to your imported clients.")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Tokens.Color.fog)
+                        .font(.dmSans(13, weight: .regular))
+                        .foregroundStyle(Tokens.Color.onPrimaryFill)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 12)
-                        .background(Tokens.Color.ink)
+                        .background(Tokens.Color.primaryFill)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .padding(.horizontal, 16)
                         .padding(.bottom, 20)
@@ -139,28 +124,34 @@ struct LiveView: View {
         return "Clients, appointments and history from your last system."
     }
 
+    private func shareBookingLink() {
+        state.bookingLinkShared = true
+        showShareToast = true
+        Task {
+            try? await Task.sleep(for: .seconds(2.2))
+            showShareToast = false
+        }
+    }
+
     private func actionRow(title: String, subtitle: String, done: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text(subtitle)
-                        .font(.system(size: 11.5))
+                        .font(.dmSans(11.5, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                 }
                 Spacer(minLength: 12)
                 Text(done ? "✓" : "→")
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundStyle(done ? Color(hex: "#8A6F3F") : Tokens.Color.textTertiary)
+                    .font(.dmSans(13, weight: .semibold))
+                    .foregroundStyle(done ? Tokens.Color.ochre : Tokens.Color.textTertiary)
             }
-            .padding(.vertical, 10)
         }
         .buttonStyle(.plain)
-        .overlay(alignment: .top) {
-            Rectangle().fill(Color.black.opacity(0.13)).frame(height: 1)
-        }
+        .cardStyle(padding: 12)
     }
 
     private var initials: String {

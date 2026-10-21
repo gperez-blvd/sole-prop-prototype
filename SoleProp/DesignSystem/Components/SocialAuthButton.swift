@@ -30,10 +30,10 @@ struct SocialAuthButton: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
         }
-        .foregroundStyle(Tokens.Color.ink)
+        .foregroundStyle(Tokens.Color.textPrimary)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.button)
-                .strokeBorder(Tokens.Color.ink.opacity(0.4), lineWidth: 1)
+                .strokeBorder(Tokens.Color.textPrimary.opacity(0.4), lineWidth: 1)
         )
         .opacity(isDisabled ? 0.4 : 1)
         .disabled(isDisabled)

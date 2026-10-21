@@ -33,10 +33,24 @@ struct BookAppointmentView: View {
     private var isReady: Bool { client != nil && service != nil && slot != nil }
 
     var body: some View {
-        OnboardingScreen(section: "Book") {
-            if booked {
+        if booked {
+            OnboardingScreen(
+                primaryCTA: .init("Book another", action: {
+                    booked = false; client = nil; service = nil; slot = nil; query = ""
+                }),
+                secondaryCTA: .init("Back to home", style: .ghost, action: onBack)
+            ) {
                 confirmation
-            } else {
+            }
+        } else {
+            OnboardingScreen(
+                primaryCTA: .init(bookButtonTitle, isDisabled: !isReady, action: {
+                    booked = true
+                    let label = "\(client ?? "") · \(service ?? "") · \(days[dayIndex].0) at \(slot ?? "")"
+                    state.bookedAppointments.append(label)
+                }),
+                secondaryCTA: .init("Back to home", style: .ghost, action: onBack)
+            ) {
                 Text("Book an appointment.")
                     .font(Tokens.Typography.title)
                     .foregroundStyle(Tokens.Color.textPrimary)
@@ -61,15 +75,6 @@ struct BookAppointmentView: View {
                         slotTile(time)
                     }
                 }
-
-                PillButton(title: bookButtonTitle, isDisabled: !isReady) {
-                    booked = true
-                    let label = "\(client ?? "") · \(service ?? "") · \(days[dayIndex].0) at \(slot ?? "")"
-                    state.bookedAppointments.append(label)
-                }
-                .padding(.top, Tokens.Spacing.md)
-
-                PillButton(title: "Back to home", style: .ghost, action: onBack)
             }
         }
     }
@@ -83,12 +88,12 @@ struct BookAppointmentView: View {
             VStack(alignment: .leading, spacing: 6) {
                 TrackedLabel(text: "Appointment")
                 Text(client ?? "")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.dmSans(16, weight: .semibold))
                 Text("\(service ?? "") · \(days[dayIndex].0) \(days[dayIndex].1) at \(slot ?? "")")
-                    .font(.system(size: 12.5))
+                    .font(.dmSans(12.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 Text("Confirmation texted. Deposit link sent. Reminder set for the day before.")
-                    .font(.system(size: 12.5))
+                    .font(.dmSans(12.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
             .padding(16)
@@ -97,20 +102,15 @@ struct BookAppointmentView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("Want to change how I sound?")
-                    .font(.system(size: 13.5, weight: .semibold))
+                    .font(.dmSans(13.5, weight: .semibold))
                 Text("Let's customize your Cues.")
-                    .font(.system(size: 12.5))
+                    .font(.dmSans(12.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 PillButton(title: "Customize your Cues", action: onOpenPersona)
             }
             .padding(14)
             .background(Tokens.Color.silt)
             .clipShape(RoundedRectangle(cornerRadius: 14))
-
-            PillButton(title: "Book another") {
-                booked = false; client = nil; service = nil; slot = nil; query = ""
-            }
-            PillButton(title: "Back to home", style: .ghost, action: onBack)
         }
     }
 
@@ -131,17 +131,17 @@ struct BookAppointmentView: View {
         let isSelected = dayIndex == index
         return Button { dayIndex = index; slot = nil } label: {
             VStack(spacing: 2) {
-                TrackedLabel(text: days[index].0, font: Tokens.Typography.labelSmall, color: isSelected ? Tokens.Color.fog.opacity(0.6) : Tokens.Color.textTertiary)
+                TrackedLabel(text: days[index].0, font: Tokens.Typography.labelSmall, color: isSelected ? Tokens.Color.onPrimaryFill.opacity(0.6) : Tokens.Color.textTertiary)
                 Text(days[index].1)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(isSelected ? Tokens.Color.fog : Tokens.Color.textPrimary)
+                    .font(.dmSans(15, weight: .semibold))
+                    .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
         }
         .buttonStyle(.plain)
-        .background(isSelected ? Tokens.Color.ink : Color.clear)
-        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.black.opacity(0.25), lineWidth: 1))
+        .background(isSelected ? Tokens.Color.primaryFill : Color.clear)
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Tokens.Color.textTertiary.opacity(0.4), lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -159,9 +159,9 @@ struct BookAppointmentView: View {
                 .padding(.vertical, 8)
         }
         .buttonStyle(.plain)
-        .foregroundStyle(isSelected ? Tokens.Color.fog : (isTaken ? Tokens.Color.textTertiary : Tokens.Color.textPrimary))
-        .background(isSelected ? Tokens.Color.ink : Color.clear)
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.black.opacity(0.25), lineWidth: 1))
+        .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : (isTaken ? Tokens.Color.textTertiary : Tokens.Color.textPrimary))
+        .background(isSelected ? Tokens.Color.primaryFill : Color.clear)
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Tokens.Color.textTertiary.opacity(0.4), lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .opacity(isTaken ? 0.4 : 1)
         .disabled(isTaken)

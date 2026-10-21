@@ -21,10 +21,10 @@ struct QuarterlyBriefSheet: View {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("You had a great 3 months.")
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.dmSans(24, weight: .semibold))
                             .foregroundStyle(Tokens.Color.textPrimary)
                         Text("Here's a recap.")
-                            .font(.system(size: 15))
+                            .font(.dmSans(15, weight: .regular))
                             .foregroundStyle(Tokens.Color.textTertiary)
                     }
 
@@ -39,12 +39,12 @@ struct QuarterlyBriefSheet: View {
                     }
 
                     Text("Based on your ratings and reviews from those customers, I think we can safely say they're about to be your regulars!")
-                        .font(.system(size: 13.5))
+                        .font(.dmSans(13.5, weight: .regular))
                         .foregroundStyle(Tokens.Color.textTertiary)
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("I have a few ideas for next quarter. Which one would you like to hear more about?")
-                            .font(.system(size: 13.5, weight: .medium))
+                            .font(.dmSans(13.5, weight: .medium))
                             .foregroundStyle(Tokens.Color.textPrimary)
 
                         ForEach(brief.ideas) { idea in
@@ -73,7 +73,7 @@ struct QuarterlyBriefSheet: View {
     private func stat(value: String, label: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(value)
-                .font(.system(size: 28, weight: .semibold))
+                .font(.dmSans(28, weight: .semibold))
                 .foregroundStyle(Tokens.Color.textPrimary)
             Text(label)
                 .font(Tokens.Typography.labelSmall)
@@ -85,7 +85,7 @@ struct QuarterlyBriefSheet: View {
     private func row(label: String, value: String, highlighted: Bool = false) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 14))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textPrimary)
             Spacer()
             Text(value)
@@ -109,12 +109,12 @@ struct QuarterlyBriefSheet: View {
                     .font(Tokens.Typography.labelSmall)
                     .foregroundStyle(Tokens.Color.ochre)
                 Text(idea.teaser)
-                    .font(.system(size: 13.5))
+                    .font(.dmSans(13.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textPrimary)
                     .multilineTextAlignment(.leading)
                 if isSelected {
                     Text(idea.elaboration)
-                        .font(.system(size: 12.5))
+                        .font(.dmSans(12.5, weight: .regular))
                         .foregroundStyle(Tokens.Color.textTertiary)
                         .padding(.top, 4)
                 }

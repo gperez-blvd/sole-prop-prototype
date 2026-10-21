@@ -22,6 +22,13 @@ struct RootView: View {
     // resetting while already on "Steady" wouldn't otherwise change
     // `lifecycleStageRawValue`, so nothing would rebuild on its own).
     @AppStorage("prototype.resetToken") private var resetToken = 0
+    /// The app's real (non-prototype) display setting — see `MenuSheet`'s
+    /// Appearance section and `AppearanceSetting`.
+    @AppStorage("settings.appearance") private var appearanceRawValue = AppearanceSetting.dark.rawValue
+
+    private var appearance: AppearanceSetting {
+        AppearanceSetting(rawValue: appearanceRawValue) ?? .system
+    }
 
     var body: some View {
         Group {
@@ -69,5 +76,6 @@ struct RootView: View {
                 .id("\(lifecycleStageRawValue)_\(resetToken)")
             }
         }
+        .preferredColorScheme(appearance.colorScheme)
     }
 }

@@ -28,12 +28,12 @@ struct MigrateSourceView: View {
     private let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
 
     var body: some View {
-        OnboardingScreen(section: "Bring data") {
+        OnboardingScreen(primaryCTA: .init("Back to home", style: .ghost, action: onBack)) {
             Text("Where does your history live?")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
-            Text("Pick the system you use now. Boulevard brings your clients, appointments and history over while your booking link stays live.")
+            Text("Pick the system you use now. Cue brings your clients, appointments and history over while your booking link stays live.")
                 .font(Tokens.Typography.bodyRegular)
                 .foregroundStyle(Tokens.Color.textSecondary)
 
@@ -42,9 +42,6 @@ struct MigrateSourceView: View {
                     tile(provider)
                 }
             }
-
-            PillButton(title: "Back to home", style: .ghost, action: onBack)
-                .padding(.top, Tokens.Spacing.md)
         }
     }
 
@@ -59,26 +56,24 @@ struct MigrateSourceView: View {
         } label: {
             VStack(alignment: .leading, spacing: 7) {
                 Text(provider.name)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                 Text(provider.data)
-                    .font(.system(size: 10.5))
+                    .font(.dmSans(10.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 HStack(spacing: 6) {
-                    Circle().fill(Color(hex: "#8A6F3F")).frame(width: 6, height: 6)
-                    TrackedLabel(text: "Instant import", font: Tokens.Typography.labelSmall, color: Color(hex: "#8A6F3F"))
+                    Circle().fill(Tokens.Color.ochre).frame(width: 6, height: 6)
+                    TrackedLabel(text: "Instant import", font: Tokens.Typography.labelSmall, color: Tokens.Color.ochre)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
+            .cardStyle(padding: 12)
         }
         .buttonStyle(.plain)
-        .background(Color.white)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(isSelected ? Tokens.Color.ink : Tokens.Color.hairline, lineWidth: isSelected ? 1.5 : 1)
+            RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                .strokeBorder(isSelected ? Tokens.Color.textPrimary : .clear, lineWidth: 1.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
 

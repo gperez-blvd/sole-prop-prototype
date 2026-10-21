@@ -69,14 +69,17 @@ struct HomeView: View {
                         onMessagesTap: { router.push(.messages) },
                         onNotificationsTap: { router.push(.notifications) }
                     )
+                    .staggerAppear(0)
 
                     Text("Good morning \(HomeMockData.ownerFirstName).")
                         .font(Tokens.Typography.largeTitle)
                         .foregroundStyle(Tokens.Color.textPrimary)
+                        .staggerAppear(1)
 
-                    ForEach(rankedSections) { section in
+                    ForEach(Array(rankedSections.enumerated()), id: \.element.id) { index, section in
                         sectionView(section)
                             .transition(.opacity)
+                            .staggerAppear(index + 2)
                     }
                 }
                 .padding(.horizontal, 28)
@@ -107,10 +110,13 @@ struct HomeView: View {
                 }
                 .padding(.bottom, VoiceOrb.standardBottomInset)
                 .frame(maxHeight: .infinity, alignment: .bottom)
-                // Without this, "bottom" is measured from the safe area
-                // (above the home indicator), not the literal screen edge
-                // — the 4pt inset then sits well higher up than intended.
-                .ignoresSafeArea(edges: .bottom)
+                // Deliberately NOT ignoring the safe area here — this
+                // needs to land at the same height as the conversation
+                // screen's orb (`VoiceConversationView`), which also
+                // measures its bottom inset from the safe area, not the
+                // literal screen edge. Ignoring it pushes the orb below
+                // the home indicator's safe inset, noticeably lower than
+                // the conversation screen's.
 
             // Drawn last (on top of the orb, not behind it) — a long reply
             // sits well clear of the orb's own glow rather than risking an
@@ -128,17 +134,20 @@ struct HomeView: View {
                     .truncationMode(.tail)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(Tokens.Color.white, in: Capsule())
+                    .background(Tokens.Color.surface, in: Capsule())
                     .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, y: Tokens.Shadow.medium.y)
                     .padding(.horizontal, 28)
-                    // Same literal-bottom-edge basis as the orb above (see
-                    // its `ignoresSafeArea`) — otherwise this gap is being
-                    // measured from a different zero point than the orb
-                    // it's supposed to clear, and the two inset changes
-                    // stop lining up.
-                    .padding(.bottom, VoiceOrb.standardBottomInset + VoiceOrb.standardSize + 12 + 24)
+                    // Same safe-area-respecting basis as the orb above —
+                    // otherwise this gap is being measured from a
+                    // different zero point than the orb it's supposed to
+                    // clear, and the two inset changes stop lining up.
+                    // Now that the orb's glow is properly bounded to a
+                    // real layout frame (it was ballooning to ~4x its
+                    // nominal size and rendering straight through this
+                    // gap regardless of padding), a fixed 48px clearance
+                    // from its nominal top edge is actually enough.
+                    .padding(.bottom, VoiceOrb.standardBottomInset + VoiceOrb.standardSize + 48)
                     .frame(maxHeight: .infinity, alignment: .bottom)
-                    .ignoresSafeArea(edges: .bottom)
                     .transition(.opacity)
             }
         }

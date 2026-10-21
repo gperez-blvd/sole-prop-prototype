@@ -30,8 +30,9 @@ struct DailyBriefView: View {
 
             HStack(alignment: .center, spacing: 12) {
                 Text(brief.greeting)
-                    .font(.system(size: 30, weight: .semibold))
+                    .font(.dmSans(30, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
+                    .lineLimit(1)
                 Spacer(minLength: 12)
                 VoiceOrb(size: 44, level: voiceAssistant.orbLevel, isActive: voiceAssistant.orbIsActive)
             }
@@ -56,12 +57,12 @@ struct DailyBriefView: View {
 
             Button(action: onContinue) {
                 Text("Okay")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Tokens.Color.white)
+                    .font(.dmSans(15, weight: .semibold))
+                    .foregroundStyle(Tokens.Color.onPrimaryFill)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }
-            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(Tokens.Color.onyx))
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(Tokens.Color.primaryFill))
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

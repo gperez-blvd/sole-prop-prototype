@@ -21,8 +21,11 @@ struct MigrateDoneView: View {
     ]
 
     var body: some View {
-        OnboardingScreen(section: "Imported") {
-            Text("Your history is in Boulevard.")
+        OnboardingScreen(primaryCTA: .init("Back to home", action: {
+            state.migrationDone = true
+            onBack()
+        })) {
+            Text("Your history is in Cue.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
@@ -34,23 +37,20 @@ struct MigrateDoneView: View {
                 ForEach(cards, id: \.1) { card in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(card.0)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.dmSans(20, weight: .semibold))
                             .foregroundStyle(Tokens.Color.textPrimary)
                         TrackedLabel(text: card.1, font: Tokens.Typography.labelSmall)
                         Text(card.2)
-                            .font(.system(size: 11))
+                            .font(.dmSans(11, weight: .regular))
                             .foregroundStyle(Tokens.Color.textSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
-                    .background(Color.white)
-                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Tokens.Color.hairline, lineWidth: 1))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .cardStyle(padding: 12)
                 }
             }
 
             (Text("Imported, not client-facing. ").fontWeight(.semibold) + Text("Nobody was texted. \(providerName) still sends its own reminders until you switch them off."))
-                .font(.system(size: 12.5))
+                .font(.dmSans(12.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -65,12 +65,6 @@ struct MigrateDoneView: View {
                     reviewCard(item)
                 }
             }
-
-            PillButton(title: "Back to home", action: {
-                state.migrationDone = true
-                onBack()
-            })
-            .padding(.top, Tokens.Spacing.md)
         }
         .onAppear { state.migrationDone = true }
     }
@@ -83,18 +77,18 @@ struct MigrateDoneView: View {
         let isDone = state.acceptedReviewIDs.contains(item.id)
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TrackedLabel(text: item.category, font: Tokens.Typography.labelSmall, color: isDone ? Tokens.Color.ink : Color(hex: "#8A6F3F"))
+                TrackedLabel(text: item.category, font: Tokens.Typography.labelSmall, color: isDone ? Tokens.Color.textPrimary : Tokens.Color.ochre)
                 Spacer()
-                TrackedLabel(text: isDone ? "Done" : "Needs review", font: Tokens.Typography.labelSmall, color: isDone ? Tokens.Color.ink : Color(hex: "#8A6F3F"))
+                TrackedLabel(text: isDone ? "Done" : "Needs review", font: Tokens.Typography.labelSmall, color: isDone ? Tokens.Color.textPrimary : Tokens.Color.ochre)
             }
             Text(item.title)
-                .font(.system(size: 13.5, weight: .semibold))
+                .font(.dmSans(13.5, weight: .semibold))
                 .foregroundStyle(Tokens.Color.textPrimary)
             Text(item.detail)
-                .font(.system(size: 12))
+                .font(.dmSans(12, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
             Text("Suggested: \(item.suggestion)")
-                .font(.system(size: 12))
+                .font(.dmSans(12, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
 
             if !isDone {
@@ -108,9 +102,8 @@ struct MigrateDoneView: View {
                 }
             }
         }
-        .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(isDone ? Tokens.Color.ink : Tokens.Color.hairline, lineWidth: 1))
+        .cardStyle(padding: 12)
     }
 }
 
@@ -118,12 +111,12 @@ private struct MiniButtonStyle: ButtonStyle {
     var filled: Bool
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12.5, weight: .semibold))
+            .font(.dmSans(12.5, weight: .semibold))
             .padding(.horizontal, 13)
             .padding(.vertical, 8)
-            .foregroundStyle(filled ? Tokens.Color.fog : Tokens.Color.ink)
-            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(filled ? Tokens.Color.ink : Color.clear))
-            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(filled ? .clear : Tokens.Color.ink, lineWidth: 1))
+            .foregroundStyle(filled ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(filled ? Tokens.Color.primaryFill : Color.clear))
+            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(filled ? .clear : Tokens.Color.textPrimary, lineWidth: 1))
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }

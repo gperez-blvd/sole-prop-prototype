@@ -42,6 +42,8 @@ final class OnboardingState {
     var name: String = "Jazz Aesthetics"
     var instagram: String = "@jazzaesthetics"
     var phone: String = "(615) 555-0148"
+    var email: String = "jazz@jazzaesthetics.com"
+    var city: String = "Nashville, TN"
 
     // Clients
     var selectedClientSources: Set<ClientSource> = [.instagram]

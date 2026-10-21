@@ -6,7 +6,17 @@ import SwiftUI
 struct PillButton: View {
     enum Style {
         case primary
+        /// Same solid-fill treatment as `.primary`, inverted to a fog
+        /// fill/ink text — `.primary`'s near-black fill is nearly
+        /// invisible against a dark background like the auth landing
+        /// screen's dark atmosphere, where this should be used instead.
+        case primaryLight
         case ghost
+        /// Same outline treatment as `.ghost`, inverted to white text/
+        /// border — for a ghost button sitting on a dark background
+        /// (e.g. the auth landing screen's dark atmosphere), where
+        /// `.ghost`'s ink-on-ink outline would be invisible.
+        case ghostLight
     }
 
     var title: String
@@ -21,14 +31,18 @@ struct PillButton: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
         }
-        .foregroundStyle(style == .primary ? Tokens.Color.fog : Tokens.Color.ink)
+        .foregroundStyle(style == .primary ? Tokens.Color.onPrimaryFill : style == .primaryLight ? Tokens.Color.ink : style == .ghostLight ? Tokens.Color.fog : Tokens.Color.textPrimary)
         .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.button)
-                .fill(style == .primary ? Tokens.Color.ink : Color.clear)
+                .fill(style == .primary ? Tokens.Color.primaryFill : style == .primaryLight ? Tokens.Color.fog : Color.clear)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.button)
-                .strokeBorder(style == .ghost ? Tokens.Color.ink.opacity(0.4) : .clear, lineWidth: 1)
+                .strokeBorder(
+                    style == .ghost ? Tokens.Color.textPrimary.opacity(0.35)
+                        : style == .ghostLight ? Tokens.Color.fog.opacity(0.45) : .clear,
+                    lineWidth: 1
+                )
         )
         .opacity(isDisabled ? 0.4 : 1)
         .disabled(isDisabled)
@@ -45,17 +59,17 @@ struct ChoiceChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 13, weight: .medium))
+                .font(.dmSans(13, weight: .medium))
                 .padding(.horizontal, 13)
                 .padding(.vertical, 8)
         }
-        .foregroundStyle(isSelected ? Tokens.Color.fog : Tokens.Color.ink)
+        .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
         .background(
-            RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isSelected ? Tokens.Color.ink : Color.clear)
+            RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isSelected ? Tokens.Color.primaryFill : Color.clear)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.button)
-                .strokeBorder(isSelected ? .clear : Color.black.opacity(0.3), lineWidth: 1)
+                .strokeBorder(isSelected ? .clear : Tokens.Color.textPrimary.opacity(0.3), lineWidth: 1)
         )
     }
 }

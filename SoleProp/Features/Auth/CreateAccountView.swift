@@ -10,7 +10,7 @@ struct CreateAccountView: View {
     @State private var isAuthenticating = false
 
     var body: some View {
-        OnboardingScreen(section: "Create account") {
+        OnboardingScreen(secondaryCTA: .init("Back", style: .ghost, isDisabled: isAuthenticating, action: onBack)) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Create your account")
                     .font(Tokens.Typography.largeTitle)
@@ -30,9 +30,6 @@ struct CreateAccountView: View {
                 }
             }
             .padding(.top, Tokens.Spacing.md)
-
-            PillButton(title: "Back", style: .ghost, isDisabled: isAuthenticating, action: onBack)
-                .padding(.top, Tokens.Spacing.sm)
         }
     }
 

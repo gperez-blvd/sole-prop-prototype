@@ -11,9 +11,8 @@ struct HomeHeaderBar: View {
             Button(action: onMenuTap) {
                 Image(systemName: "line.3.horizontal")
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Tokens.Color.white)
+                    .foregroundStyle(Tokens.Color.textPrimary)
                     .frame(width: 36, height: 36)
-                    .background(Tokens.Color.onyx, in: Circle())
             }
             .buttonStyle(.plain)
 

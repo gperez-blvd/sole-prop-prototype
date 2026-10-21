@@ -21,6 +21,13 @@ struct VoiceConversationView: View {
                     }
                     ForEach(viewModel.messages) { message in
                         messageBubble(message)
+                            // A fresh message animates in once, the
+                            // moment its own view first appears — since
+                            // each message keeps the same identity after
+                            // that (`ForEach` keys on `message.id`), this
+                            // never re-fires for messages already on
+                            // screen when the list re-renders.
+                            .staggerAppear(0, duration: 0.3, distance: 6)
                     }
                 }
                 .padding(24)
@@ -111,9 +118,9 @@ struct VoiceConversationView: View {
         } label: {
             Image(systemName: systemImage)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(isSelected ? .white : Tokens.Color.textPrimary)
+                .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
                 .frame(width: 36, height: 36)
-                .background(RoundedRectangle(cornerRadius: Tokens.Radius.button - 3).fill(isSelected ? Tokens.Color.onyx : .clear))
+                .background(RoundedRectangle(cornerRadius: Tokens.Radius.button - 3).fill(isSelected ? Tokens.Color.primaryFill : .clear))
         }
         .buttonStyle(.plain)
     }
@@ -128,12 +135,12 @@ struct VoiceConversationView: View {
             if message.role == .user { Spacer(minLength: 40) }
             Text(message.text)
                 .font(Tokens.Typography.bodyRegular)
-                .foregroundStyle(message.role == .user ? Tokens.Color.paper : Tokens.Color.textPrimary)
+                .foregroundStyle(message.role == .user ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(message.role == .user ? Tokens.Color.onyx : Tokens.Color.white)
+                        .fill(message.role == .user ? Tokens.Color.primaryFill : Tokens.Color.surface)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)

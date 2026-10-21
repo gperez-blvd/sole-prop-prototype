@@ -65,7 +65,7 @@ struct ThresholdProposalCard: View {
             select(option)
         } label: {
             Text(option.label)
-                .font(.system(size: 13, weight: .medium))
+                .font(.dmSans(13, weight: .medium))
                 .foregroundStyle(Tokens.Color.ochre)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)

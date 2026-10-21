@@ -64,6 +64,16 @@ struct VoiceOrb: View {
             let energy = smoothedEnergy(at: now)
             let lvl = smoothedLevel(at: now)
             orbContent(phase: phase, activeEnergy: energy, level: lvl)
+                // Pins the *layout* size to exactly `size x size`,
+                // regardless of how far the glow visually bleeds beyond
+                // it (blur/offset rendering can paint outside a view's
+                // frame without affecting layout — but only once
+                // something actually declares that frame; nothing did
+                // here before, so every parent layout (an HStack next to
+                // the greeting text, Home's padding-based placement) was
+                // sizing this view by its *biggest* child, the glow,
+                // which is ~4x the nominal size).
+                .frame(width: size, height: size)
         }
         .onAppear {
             lastIsActive = isActive
@@ -108,9 +118,14 @@ struct VoiceOrb: View {
         let constantFlow = 0.1
         // The pulse — zero at rest, rides on top of the constant flow the
         // moment there's real sound (hearing you, or Cue's own voice).
+        // Weighted well above the constant flow on every term (wobble,
+        // glow, scale) so it unmistakably reads as "reacting to sound"
+        // rather than blending into the ambient motion — the original
+        // coefficients here (0.1 / 0.3 / 0.07 on scale below) were too
+        // close to the idle baseline to notice at a glance.
         let pulse = level
-        let wobble = constantFlow + pulse * 0.1
-        let glow = 0.22 + activeEnergy * 0.08 + pulse * 0.3
+        let wobble = constantFlow + pulse * 0.45
+        let glow = 0.22 + activeEnergy * 0.08 + pulse * 0.55
 
         return ZStack {
             // A much wider, very faint second layer underneath the main
@@ -132,11 +147,11 @@ struct VoiceOrb: View {
                             .init(color: Self.mid.opacity(glow * 0.08), location: 0.85),
                             .init(color: .clear, location: 1),
                         ],
-                        center: .center, startRadius: 0, endRadius: size * 1.9
+                        center: .center, startRadius: 0, endRadius: size * 0.95
                     )
                 )
-                .frame(width: size * 3.8, height: size * 3.8)
-                .blur(radius: size * 0.22)
+                .frame(width: size * 1.9, height: size * 1.9)
+                .blur(radius: size * 0.15)
 
             // The main, somewhat tighter halo — lightened (lower peak
             // opacity than before) so it reads as a soft bloom rather
@@ -151,11 +166,11 @@ struct VoiceOrb: View {
                             .init(color: Self.mid.opacity(glow * 0.25), location: 0.7),
                             .init(color: .clear, location: 1),
                         ],
-                        center: .center, startRadius: 0, endRadius: size * 1.05
+                        center: .center, startRadius: 0, endRadius: size * 0.62
                     )
                 )
-                .frame(width: size * 2.3, height: size * 2.3)
-                .blur(radius: size * 0.16)
+                .frame(width: size * 1.4, height: size * 1.4)
+                .blur(radius: size * 0.1)
 
             // The core itself stays sharp — blurring the whole fill (what
             // was here before) softened away exactly the edge detail the
@@ -185,7 +200,7 @@ struct VoiceOrb: View {
             .frame(width: size, height: size)
         }
         .compositingGroup()
-        .scaleEffect(1 + pulse * 0.07)
+        .scaleEffect(1 + pulse * 0.22)
     }
 
     private func blobFill(phase: Double, amplitude: Double) -> some View {

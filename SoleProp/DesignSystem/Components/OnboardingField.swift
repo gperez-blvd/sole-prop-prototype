@@ -1,7 +1,17 @@
 import SwiftUI
 
-/// The reference's `.field` — a tracked label above a borderless, bottom-hairline
-/// text input. Used on the Welcome screen for name/Instagram/phone.
+/// A labeled text field — a soft filled surface rather than a bottom
+/// hairline, matching the rest of the app's "elevation, not borders"
+/// treatment (see `Tokens.swift`). Used on the Welcome screen for
+/// name/Instagram/phone, and elsewhere in onboarding.
+///
+/// The fill is a very low-opacity wash of the brand accent rather than
+/// `Tokens.Color.silt`'s neutral gray — enough to read as "this app's
+/// own input," not enough to read as a tappable button (no border, no
+/// shadow, no saturation anywhere near button-strength). `ochre` itself
+/// is fixed-brightness in both appearances, so this same low opacity
+/// reads as a pale mint wash on light and a deep teal-tinted glass on
+/// dark without needing separate light/dark values.
 struct OnboardingField: View {
     var label: String
     @Binding var text: String
@@ -18,11 +28,8 @@ struct OnboardingField: View {
                 .textContentType(textContentType)
                 .autocorrectionDisabled()
         }
-        .padding(.vertical, 8)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Tokens.Color.hairline)
-                .frame(height: 1)
-        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Tokens.Color.ochre.opacity(0.12), in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
     }
 }

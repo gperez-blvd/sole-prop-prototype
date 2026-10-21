@@ -62,6 +62,10 @@ struct MenuSheet: View {
                     }
                 }
 
+                AppearanceSection()
+                    .padding(.top, 20)
+                    .padding(.horizontal, 24)
+
                 PrototypeLifecycleSection()
                     .padding(.top, 24)
                     .padding(.horizontal, 24)
@@ -72,6 +76,32 @@ struct MenuSheet: View {
         .background(Tokens.Color.background)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+    }
+}
+
+/// A real (non-prototype) setting — unlike `PrototypeLifecycleSection`
+/// below it, this one's meant for Jazz herself, so it reads like the rest
+/// of the menu rather than the demo-only monospace treatment.
+private struct AppearanceSection: View {
+    @AppStorage("settings.appearance") private var appearanceRawValue = AppearanceSetting.dark.rawValue
+
+    private var appearance: AppearanceSetting {
+        AppearanceSetting(rawValue: appearanceRawValue) ?? .system
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Appearance")
+                .font(Tokens.Typography.label)
+                .foregroundStyle(Tokens.Color.textSecondary)
+
+            Picker("Appearance", selection: $appearanceRawValue) {
+                ForEach(AppearanceSetting.allCases) { option in
+                    Text(option.label).tag(option.rawValue)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
     }
 }
 

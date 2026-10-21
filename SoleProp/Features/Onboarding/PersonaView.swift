@@ -14,7 +14,7 @@ struct PersonaView: View {
     ]
 
     var body: some View {
-        OnboardingScreen(section: "Cues") {
+        OnboardingScreen(primaryCTA: .init("Sounds right", action: onDone)) {
             Text("Customize your Cues.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
@@ -34,17 +34,11 @@ struct PersonaView: View {
             VStack(alignment: .leading, spacing: 6) {
                 TrackedLabel(text: "Sample · 1:38 PM")
                 Text(sample[state.persona] ?? "")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.dmSans(15, weight: .medium))
                     .foregroundStyle(Tokens.Color.textPrimary)
             }
-            .padding(14)
-            .background(Color.white)
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Tokens.Color.hairline, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .cardStyle(padding: 14)
             .padding(.top, Tokens.Spacing.sm)
-
-            PillButton(title: "Sounds right", action: onDone)
-                .padding(.top, Tokens.Spacing.md)
         }
     }
 }

@@ -17,7 +17,7 @@ struct BadgedIconButton: View {
 
                 if count > 0 {
                     Text(count > 9 ? "9+" : "\(count)")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.dmSans(10, weight: .semibold))
                         .foregroundStyle(Tokens.Color.white)
                         .padding(.horizontal, count > 9 ? 4 : 0)
                         .frame(minWidth: 16, minHeight: 16)

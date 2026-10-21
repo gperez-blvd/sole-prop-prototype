@@ -13,22 +13,24 @@ struct MigrateConnectView: View {
     private let whatComesOver = ["Clients and visit history", "Services and pricing", "Gift cards and packages", "Upcoming appointments"]
 
     var body: some View {
-        OnboardingScreen(section: "Connect") {
+        OnboardingScreen(
+            primaryCTA: .init(isConnecting ? "Connecting…" : "Connect securely", isDisabled: password.isEmpty || isConnecting, action: connect)
+        ) {
             Text("Connect your \(providerName) account.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
-            Text("Sign in the way you always do. Boulevard opens a secure, read-only connection. Nothing in your \(providerName) account changes.")
+            Text("Sign in the way you always do. Cue opens a secure, read-only connection. Nothing in your \(providerName) account changes.")
                 .font(Tokens.Typography.bodyRegular)
                 .foregroundStyle(Tokens.Color.textSecondary)
 
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 OnboardingField(label: "Email", text: .constant("jazz@jazzaesthetics.com"), keyboardType: .emailAddress)
                 OnboardingField(label: "Password", text: $password, textContentType: .password)
             }
 
             Text("We never store your password. It's used once to open the connection, then discarded.")
-                .font(.system(size: 12))
+                .font(.dmSans(12, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
 
             TrackedLabel(text: "What comes over")
@@ -37,23 +39,15 @@ struct MigrateConnectView: View {
                 ForEach(whatComesOver, id: \.self) { item in
                     HStack(alignment: .top, spacing: 8) {
                         Text("✓")
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundStyle(Tokens.Color.textPrimary)
+                            .font(.dmSans(12, weight: .semibold))
+                            .foregroundStyle(Tokens.Color.ochre)
                         Text(item)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.dmSans(13, weight: .medium))
                             .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }
             }
             .padding(.top, 6)
-
-            PillButton(
-                title: isConnecting ? "Connecting…" : "Connect securely",
-                isDisabled: password.isEmpty || isConnecting
-            ) {
-                connect()
-            }
-            .padding(.top, Tokens.Spacing.md)
         }
     }
 

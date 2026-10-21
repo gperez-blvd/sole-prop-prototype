@@ -22,6 +22,10 @@
 	<string>Sole Prop uses your microphone so you can talk to your voice assistant.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Sole Prop uses on-device speech recognition to turn what you say to your voice assistant into text.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>DMSans.ttf</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

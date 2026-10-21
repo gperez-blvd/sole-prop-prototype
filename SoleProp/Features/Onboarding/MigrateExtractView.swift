@@ -33,8 +33,12 @@ struct MigrateExtractView: View {
     ]
 
     var body: some View {
-        OnboardingScreen(section: "Import") {
-            Text("Bringing your history into Boulevard.")
+        OnboardingScreen(
+            primaryCTA: finished
+                ? .init("See what came over", action: onDone)
+                : .init("Reading your account…", isDisabled: true, action: {})
+        ) {
+            Text("Bringing your history into Cue.")
                 .font(Tokens.Typography.title)
                 .foregroundStyle(Tokens.Color.textPrimary)
 
@@ -54,23 +58,18 @@ struct MigrateExtractView: View {
                     .fill(Tokens.Color.silt)
                     .overlay(alignment: .leading) {
                         Capsule()
-                            .fill(Tokens.Color.ink)
+                            .fill(Tokens.Color.primaryFill)
                             .frame(width: geo.size.width * CGFloat(progressPercent) / 100)
                     }
             }
             .frame(height: 3)
 
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 10) {
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     if index < visibleCount {
                         extractRow(item)
                     }
                 }
-            }
-
-            if finished {
-                PillButton(title: "See what came over", action: onDone)
-                    .padding(.top, Tokens.Spacing.md)
             }
         }
         .task {
@@ -93,17 +92,14 @@ struct MigrateExtractView: View {
     private func extractRow(_ item: ExtractRow) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text(item.count)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(item.flagged ? Color(hex: "#8A6F3F") : Tokens.Color.textPrimary)
+                .font(.dmSans(13, weight: .semibold))
+                .foregroundStyle(item.flagged ? Tokens.Color.ochre : Tokens.Color.textPrimary)
             Spacer(minLength: 10)
             Text(item.detail)
-                .font(.system(size: 12.5))
+                .font(.dmSans(12.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
         }
-        .padding(.vertical, 9)
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-        }
+        .padding(.vertical, 4)
     }
 }
 

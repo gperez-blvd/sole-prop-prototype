@@ -26,7 +26,7 @@ struct BookingLinkCard: View {
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                         .frame(width: 36, height: 36)
-                        .background(Tokens.Color.fog)
+                        .background(Tokens.Color.silt)
                         .clipShape(Circle())
                 }
             }

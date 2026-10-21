@@ -12,7 +12,14 @@ struct LogInView: View {
     @State private var isAuthenticating = false
 
     var body: some View {
-        OnboardingScreen(section: "Log in") {
+        OnboardingScreen(
+            primaryCTA: .init(
+                isAuthenticating ? "Logging in…" : "Log in",
+                isDisabled: username.isEmpty || password.isEmpty || isAuthenticating,
+                action: authenticate
+            ),
+            secondaryCTA: .init("Back", style: .ghost, isDisabled: isAuthenticating, action: onBack)
+        ) {
             Text("Log in")
                 .font(Tokens.Typography.largeTitle)
                 .foregroundStyle(Tokens.Color.textPrimary)
@@ -27,28 +34,16 @@ struct LogInView: View {
                 }
             }
 
-            HStack(spacing: 10) {
-                Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-                TrackedLabel(text: "or")
-                Rectangle().fill(Tokens.Color.hairline).frame(height: 1)
-            }
-            .padding(.vertical, Tokens.Spacing.xs)
+            Text("or")
+                .font(Tokens.Typography.label)
+                .foregroundStyle(Tokens.Color.textTertiary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, Tokens.Spacing.xs)
 
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 OnboardingField(label: "Username", text: $username, textContentType: .username)
                 OnboardingField(label: "Password", text: $password, textContentType: .password)
             }
-
-            PillButton(
-                title: isAuthenticating ? "Logging in…" : "Log in",
-                isDisabled: username.isEmpty || password.isEmpty || isAuthenticating
-            ) {
-                authenticate()
-            }
-            .padding(.top, Tokens.Spacing.md)
-
-            PillButton(title: "Back", style: .ghost, isDisabled: isAuthenticating, action: onBack)
-                .padding(.top, Tokens.Spacing.sm)
         }
     }
 
