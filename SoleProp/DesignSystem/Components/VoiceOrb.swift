@@ -113,16 +113,45 @@ struct VoiceOrb: View {
         let glow = 0.22 + activeEnergy * 0.08 + pulse * 0.3
 
         return ZStack {
-            // Ambient halo — soft glow bleeding onto whatever's behind it.
+            // A much wider, very faint second layer underneath the main
+            // halo — many gradient stops easing out gently rather than
+            // two stops dropping to clear, so the light appears to just
+            // dissolve into the background with no point where a visible
+            // "edge of the glow" ring would otherwise show.
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Self.mid.opacity(glow * 0.6), Self.mid.opacity(glow * 0.18), .clear],
-                        center: .center, startRadius: 0, endRadius: size * 0.95
+                        stops: [
+                            .init(color: Self.mid.opacity(glow * 0.16), location: 0),
+                            .init(color: Self.mid.opacity(glow * 0.1), location: 0.35),
+                            .init(color: Self.mid.opacity(glow * 0.045), location: 0.65),
+                            .init(color: Self.mid.opacity(glow * 0.015), location: 0.85),
+                            .init(color: .clear, location: 1),
+                        ],
+                        center: .center, startRadius: 0, endRadius: size * 1.9
                     )
                 )
-                .frame(width: size * 2.2, height: size * 2.2)
-                .blur(radius: size * 0.18)
+                .frame(width: size * 3.8, height: size * 3.8)
+                .blur(radius: size * 0.32)
+
+            // The main, somewhat tighter halo — lightened (lower peak
+            // opacity than before) so it reads as a soft bloom rather
+            // than a saturated ring, and blended by the wider layer above
+            // instead of ending on its own hard blur boundary.
+            Circle()
+                .fill(
+                    RadialGradient(
+                        stops: [
+                            .init(color: Self.mid.opacity(glow * 0.4), location: 0),
+                            .init(color: Self.mid.opacity(glow * 0.22), location: 0.4),
+                            .init(color: Self.mid.opacity(glow * 0.08), location: 0.7),
+                            .init(color: .clear, location: 1),
+                        ],
+                        center: .center, startRadius: 0, endRadius: size * 1.05
+                    )
+                )
+                .frame(width: size * 2.3, height: size * 2.3)
+                .blur(radius: size * 0.2)
 
             // The core itself stays sharp — blurring the whole fill (what
             // was here before) softened away exactly the edge detail the
