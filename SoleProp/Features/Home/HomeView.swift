@@ -107,6 +107,10 @@ struct HomeView: View {
                 }
                 .padding(.bottom, VoiceOrb.standardBottomInset)
                 .frame(maxHeight: .infinity, alignment: .bottom)
+                // Without this, "bottom" is measured from the safe area
+                // (above the home indicator), not the literal screen edge
+                // — the 4pt inset then sits well higher up than intended.
+                .ignoresSafeArea(edges: .bottom)
 
             // Drawn last (on top of the orb, not behind it) — a long reply
             // sits well clear of the orb's own glow rather than risking an
@@ -127,13 +131,14 @@ struct HomeView: View {
                     .background(Tokens.Color.white, in: Capsule())
                     .shadow(color: Tokens.Shadow.medium.color, radius: Tokens.Shadow.medium.radius, y: Tokens.Shadow.medium.y)
                     .padding(.horizontal, 28)
-                    // 12px clear of the orb's own top edge, not touching it.
-                    // 12px clear of the orb's nominal frame wasn't enough
-                    // once its glow/blurred edge is accounted for — the
-                    // halo reaches visually further than the frame alone,
-                    // so bumped up another 24px of clearance.
+                    // Same literal-bottom-edge basis as the orb above (see
+                    // its `ignoresSafeArea`) — otherwise this gap is being
+                    // measured from a different zero point than the orb
+                    // it's supposed to clear, and the two inset changes
+                    // stop lining up.
                     .padding(.bottom, VoiceOrb.standardBottomInset + VoiceOrb.standardSize + 12 + 24)
                     .frame(maxHeight: .infinity, alignment: .bottom)
+                    .ignoresSafeArea(edges: .bottom)
                     .transition(.opacity)
             }
         }

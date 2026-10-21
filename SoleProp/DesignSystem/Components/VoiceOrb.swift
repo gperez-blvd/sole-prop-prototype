@@ -118,21 +118,25 @@ struct VoiceOrb: View {
             // two stops dropping to clear, so the light appears to just
             // dissolve into the background with no point where a visible
             // "edge of the glow" ring would otherwise show.
+            // (Opacities here read much fainter than they look in a
+            // black-background preview — this sits on a white/light page,
+            // which needs noticeably more opacity for the same visible
+            // effect, not less.)
             Circle()
                 .fill(
                     RadialGradient(
                         stops: [
-                            .init(color: Self.mid.opacity(glow * 0.16), location: 0),
-                            .init(color: Self.mid.opacity(glow * 0.1), location: 0.35),
-                            .init(color: Self.mid.opacity(glow * 0.045), location: 0.65),
-                            .init(color: Self.mid.opacity(glow * 0.015), location: 0.85),
+                            .init(color: Self.mid.opacity(glow * 0.8), location: 0),
+                            .init(color: Self.mid.opacity(glow * 0.45), location: 0.35),
+                            .init(color: Self.mid.opacity(glow * 0.22), location: 0.65),
+                            .init(color: Self.mid.opacity(glow * 0.08), location: 0.85),
                             .init(color: .clear, location: 1),
                         ],
                         center: .center, startRadius: 0, endRadius: size * 1.9
                     )
                 )
                 .frame(width: size * 3.8, height: size * 3.8)
-                .blur(radius: size * 0.32)
+                .blur(radius: size * 0.22)
 
             // The main, somewhat tighter halo — lightened (lower peak
             // opacity than before) so it reads as a soft bloom rather
@@ -142,16 +146,16 @@ struct VoiceOrb: View {
                 .fill(
                     RadialGradient(
                         stops: [
-                            .init(color: Self.mid.opacity(glow * 0.4), location: 0),
-                            .init(color: Self.mid.opacity(glow * 0.22), location: 0.4),
-                            .init(color: Self.mid.opacity(glow * 0.08), location: 0.7),
+                            .init(color: Self.mid.opacity(glow * 1.1), location: 0),
+                            .init(color: Self.mid.opacity(glow * 0.6), location: 0.4),
+                            .init(color: Self.mid.opacity(glow * 0.25), location: 0.7),
                             .init(color: .clear, location: 1),
                         ],
                         center: .center, startRadius: 0, endRadius: size * 1.05
                     )
                 )
                 .frame(width: size * 2.3, height: size * 2.3)
-                .blur(radius: size * 0.2)
+                .blur(radius: size * 0.16)
 
             // The core itself stays sharp — blurring the whole fill (what
             // was here before) softened away exactly the edge detail the
