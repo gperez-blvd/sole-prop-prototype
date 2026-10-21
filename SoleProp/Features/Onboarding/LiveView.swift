@@ -49,7 +49,7 @@ struct LiveView: View {
                 }
 
                 Text("bookjazz.blvd.com")
-                    .font(.dmSans(12, weight: .regular))
+                    .font(.dmSans(13.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
 
                 VStack(spacing: 10) {
@@ -141,7 +141,7 @@ struct LiveView: View {
                         .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text(subtitle)
-                        .font(.dmSans(11.5, weight: .regular))
+                        .font(.dmSans(13, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                 }
                 Spacer(minLength: 12)

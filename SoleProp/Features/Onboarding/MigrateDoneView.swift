@@ -41,7 +41,7 @@ struct MigrateDoneView: View {
                             .foregroundStyle(Tokens.Color.textPrimary)
                         TrackedLabel(text: card.1, font: Tokens.Typography.labelSmall)
                         Text(card.2)
-                            .font(.dmSans(11, weight: .regular))
+                            .font(.dmSans(12.5, weight: .regular))
                             .foregroundStyle(Tokens.Color.textSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -50,7 +50,7 @@ struct MigrateDoneView: View {
             }
 
             (Text("Imported, not client-facing. ").fontWeight(.semibold) + Text("Nobody was texted. \(providerName) still sends its own reminders until you switch them off."))
-                .font(.dmSans(12.5, weight: .regular))
+                .font(.dmSans(13.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -85,10 +85,10 @@ struct MigrateDoneView: View {
                 .font(.dmSans(13.5, weight: .semibold))
                 .foregroundStyle(Tokens.Color.textPrimary)
             Text(item.detail)
-                .font(.dmSans(12, weight: .regular))
+                .font(.dmSans(13.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
             Text("Suggested: \(item.suggestion)")
-                .font(.dmSans(12, weight: .regular))
+                .font(.dmSans(13.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
 
             if !isDone {
@@ -111,7 +111,7 @@ private struct MiniButtonStyle: ButtonStyle {
     var filled: Bool
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.dmSans(12.5, weight: .semibold))
+            .font(.dmSans(13.5, weight: .semibold))
             .padding(.horizontal, 13)
             .padding(.vertical, 8)
             .foregroundStyle(filled ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)

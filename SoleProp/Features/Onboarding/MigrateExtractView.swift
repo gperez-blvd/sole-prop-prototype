@@ -96,7 +96,7 @@ struct MigrateExtractView: View {
                 .foregroundStyle(item.flagged ? Tokens.Color.ochre : Tokens.Color.textPrimary)
             Spacer(minLength: 10)
             Text(item.detail)
-                .font(.dmSans(12.5, weight: .regular))
+                .font(.dmSans(13.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
         }
         .padding(.vertical, 4)

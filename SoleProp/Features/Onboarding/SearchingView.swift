@@ -55,7 +55,7 @@ struct SearchingView: View {
                 Text(source.name)
                     .font(.dmSans(13.5, weight: .semibold))
                 Text(source.detail)
-                    .font(.dmSans(12, weight: .regular))
+                    .font(.dmSans(13.5, weight: .regular))
             }
             .foregroundStyle(isOn || isDone ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
         }

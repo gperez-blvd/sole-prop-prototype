@@ -128,7 +128,7 @@ struct CheckoutSheet: View {
                 recommendationIncluded.toggle()
             } label: {
                 Text(recommendationIncluded ? "Remove" : "Add back")
-                    .font(.dmSans(12, weight: .semibold))
+                    .font(.dmSans(13.5, weight: .semibold))
                     .foregroundStyle(recommendationIncluded ? Color.red : Tokens.Color.ochre)
             }
         }

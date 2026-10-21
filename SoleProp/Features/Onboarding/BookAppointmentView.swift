@@ -90,10 +90,10 @@ struct BookAppointmentView: View {
                 Text(client ?? "")
                     .font(.dmSans(16, weight: .semibold))
                 Text("\(service ?? "") · \(days[dayIndex].0) \(days[dayIndex].1) at \(slot ?? "")")
-                    .font(.dmSans(12.5, weight: .regular))
+                    .font(.dmSans(13.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 Text("Confirmation texted. Deposit link sent. Reminder set for the day before.")
-                    .font(.dmSans(12.5, weight: .regular))
+                    .font(.dmSans(13.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
             .padding(16)
@@ -104,7 +104,7 @@ struct BookAppointmentView: View {
                 Text("Want to change how I sound?")
                     .font(.dmSans(13.5, weight: .semibold))
                 Text("Let's customize your Cues.")
-                    .font(.dmSans(12.5, weight: .regular))
+                    .font(.dmSans(13.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 PillButton(title: "Customize your Cues", action: onOpenPersona)
             }

@@ -124,20 +124,29 @@ enum Tokens {
     /// `largeTitle` only) is the heaviest weight anywhere in this list.
     /// Everything else sits on `.regular`/`.medium` so no screen reaches
     /// for bold to stand out.
+    ///
+    /// Sizes sit on a modular scale in the same spirit as Airbnb's
+    /// Cereal type scale: a 12px floor for anything that's still real
+    /// content (not a bare icon glyph), body copy at 16px rather than
+    /// the 13–15px range most of the app had drifted to, and each step
+    /// up by roughly the same ~1.1–1.15× ratio rather than arbitrary
+    /// per-screen numbers. This is one notch larger across the board,
+    /// not a redesign — the same roles, just legible at a glance instead
+    /// of needing to lean in.
     enum Typography {
-        static let largeTitle = Font.dmSans(28, weight: .semibold)
-        static let title = Font.dmSans(20, weight: .medium)
-        static let body = Font.dmSans(15, weight: .medium)
-        static let bodyRegular = Font.dmSans(13.5, weight: .regular)
-        static let value = Font.dmSans(16, weight: .medium)
-        static let button = Font.dmSans(15, weight: .medium)
-        static let caption = Font.dmSans(13, weight: .regular)
+        static let largeTitle = Font.dmSans(30, weight: .semibold)
+        static let title = Font.dmSans(22, weight: .medium)
+        static let body = Font.dmSans(16, weight: .medium)
+        static let bodyRegular = Font.dmSans(15, weight: .regular)
+        static let value = Font.dmSans(17, weight: .medium)
+        static let button = Font.dmSans(16, weight: .medium)
+        static let caption = Font.dmSans(14, weight: .regular)
 
         // Plain sentence-case labels — same family as everything else, no
         // uppercase/tracking/monospacing. Replaces the old IBM-Plex-Mono
         // -style tracked caps used for section headers throughout.
-        static let label = Font.dmSans(13, weight: .regular)
-        static let labelSmall = Font.dmSans(12, weight: .regular)
+        static let label = Font.dmSans(14, weight: .regular)
+        static let labelSmall = Font.dmSans(13.5, weight: .regular)
     }
 }
 

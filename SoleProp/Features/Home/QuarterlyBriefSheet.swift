@@ -114,7 +114,7 @@ struct QuarterlyBriefSheet: View {
                     .multilineTextAlignment(.leading)
                 if isSelected {
                     Text(idea.elaboration)
-                        .font(.dmSans(12.5, weight: .regular))
+                        .font(.dmSans(13.5, weight: .regular))
                         .foregroundStyle(Tokens.Color.textTertiary)
                         .padding(.top, 4)
                 }

@@ -83,11 +83,11 @@ struct ClientsView: View {
                         .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text(row.subtitle)
-                        .font(.dmSans(12, weight: .regular))
+                        .font(.dmSans(13.5, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                     if let later = row.later, !isImported {
                         Text(later)
-                            .font(.dmSans(11, weight: .regular))
+                            .font(.dmSans(12.5, weight: .regular))
                             .italic()
                             .foregroundStyle(Tokens.Color.textTertiary)
                     }

@@ -57,7 +57,7 @@ struct FoundView: View {
             }
 
             Text("Tap any line to edit it.")
-                .font(.dmSans(12.5, weight: .regular))
+                .font(.dmSans(13.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textTertiary)
         }
         .task {
@@ -90,7 +90,7 @@ struct FoundView: View {
                         .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text("Medical Spa · Aesthetic Injector")
-                        .font(.dmSans(11.5, weight: .regular))
+                        .font(.dmSans(13, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                         .lineLimit(1)
                 }

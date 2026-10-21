@@ -59,7 +59,7 @@ struct MigrateSourceView: View {
                     .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                 Text(provider.data)
-                    .font(.dmSans(10.5, weight: .regular))
+                    .font(.dmSans(12.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 HStack(spacing: 6) {
                     Circle().fill(Tokens.Color.ochre).frame(width: 6, height: 6)

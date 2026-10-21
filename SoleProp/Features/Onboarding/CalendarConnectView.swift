@@ -26,7 +26,7 @@ struct CalendarConnectView: View {
             }
 
             Text("Connected calendars stay private. Cue only ever sees that a time is taken.")
-                .font(.dmSans(12.5, weight: .regular))
+                .font(.dmSans(13.5, weight: .regular))
                 .foregroundStyle(Tokens.Color.textTertiary)
         }
     }
@@ -38,13 +38,13 @@ struct CalendarConnectView: View {
                     .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                 Text(subtitle)
-                    .font(.dmSans(12, weight: .regular))
+                    .font(.dmSans(13.5, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
             Spacer(minLength: 12)
             Button(action: connect) {
                 Text(isConnected ? "Connected" : "Connect")
-                    .font(.dmSans(12.5, weight: .semibold))
+                    .font(.dmSans(13.5, weight: .semibold))
                     .padding(.horizontal, 13)
                     .padding(.vertical, 8)
             }

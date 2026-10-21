@@ -4,25 +4,36 @@ import SwiftUI
 /// (walks into Day 0 onboarding) or log in (drops straight into Home).
 ///
 /// The one screen in the app that gets a hero entrance rather than the
-/// shared `.staggerAppear` cascade alone: "Cue" — in the app's own DM
-/// Sans, not a script face — draws itself on left-to-right behind a
-/// soft-edged wipe with a thin accent "pen tip" leading the reveal and a
-/// light defocus that sharpens as it resolves, so it reads as a clean,
-/// modern draw-on rather than a plain fade. Everything else on the
-/// screen (tagline, buttons, footer) still uses the same ordinary
-/// staggered fade used everywhere else — this one moment is special-cased
-/// on purpose, not a new pattern to repeat per screen.
+/// shared `.staggerAppear` cascade alone: "Cue" draws on using its real
+/// DM Sans glyph outlines (`GlyphPathShape`, extracted via CoreText — an
+/// actual vector path, the same as an SVG `<text>` turned into a
+/// `<path>`) traced with `.trim(from:to:)`, the same technique an
+/// animated SVG stroke-dasharray reveal uses. The traced line hands off
+/// to the normal solid-filled wordmark as it finishes, then fades away.
+/// Everything else on the screen (tagline, buttons, footer) still uses
+/// the ordinary staggered fade used everywhere else — this one moment is
+/// special-cased on purpose, not a new pattern to repeat per screen.
 struct AuthLandingView: View {
     var onCreateAccount: () -> Void
     var onLogIn: () -> Void
 
-    /// 0 = nothing drawn yet, 1 = fully revealed.
-    @State private var titleReveal: CGFloat = 0
+    /// 0 = nothing traced yet, 1 = the full word is traced.
+    @State private var traceProgress: CGFloat = 0
+    /// The solid wordmark underneath fades in as the trace finishes
+    /// rather than snapping on, so the hand-off doesn't look like a cut.
+    @State private var fillOpacity: Double = 0
+    /// The traced line itself fades away once the fill has fully taken
+    /// over, so it doesn't linger as a stray outline.
+    @State private var traceOpacity: Double = 1
 
-    private let titleDrawDuration: Double = 1.1
+    private let titleDrawDuration: Double = 1.4
     /// Everything below the title starts cascading in only once the
     /// title has mostly finished drawing, not at the same moment.
-    private var contentStartDelay: Double { titleDrawDuration * 0.65 }
+    private var contentStartDelay: Double { titleDrawDuration * 0.7 }
+
+    private var titleFont: UIFont {
+        UIFont(name: "DMSans-9ptRegular", size: 100) ?? .systemFont(ofSize: 100, weight: .semibold)
+    }
 
     var body: some View {
         ZStack {
@@ -32,12 +43,19 @@ struct AuthLandingView: View {
                 Spacer()
 
                 VStack(spacing: 8) {
-                    Text("Cue")
-                        .font(.dmSans(72, weight: .semibold))
-                        .foregroundStyle(Tokens.Color.fog)
-                        .blur(radius: (1 - titleReveal) * 3)
-                        .mask(penWipeMask)
-                        .overlay(alignment: .leading) { penTip }
+                    ZStack {
+                        GlyphPathShape(text: "Cue", font: titleFont)
+                            .trim(from: 0, to: traceProgress)
+                            .stroke(Tokens.Color.ochre, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                            .opacity(traceOpacity)
+
+                        Text("Cue")
+                            .font(.dmSans(72, weight: .semibold))
+                            .foregroundStyle(Tokens.Color.fog)
+                            .opacity(fillOpacity)
+                    }
+                    .frame(width: 220, height: 100)
+
                     Text("The Secret Behind Your Service")
                         .font(Tokens.Typography.body)
                         .foregroundStyle(Tokens.Color.fog.opacity(0.65))
@@ -56,7 +74,7 @@ struct AuthLandingView: View {
                     }
 
                     Text("powered by Boulevard")
-                        .font(.dmSans(11, weight: .medium))
+                        .font(.dmSans(12.5, weight: .medium))
                         .foregroundStyle(Tokens.Color.fog.opacity(0.45))
                         .staggerAppear(3, baseDelay: 0.12, startDelay: contentStartDelay)
                 }
@@ -66,44 +84,15 @@ struct AuthLandingView: View {
         }
         .onAppear {
             withAnimation(.easeInOut(duration: titleDrawDuration)) {
-                titleReveal = 1
+                traceProgress = 1
+            }
+            withAnimation(.easeIn(duration: titleDrawDuration * 0.4).delay(titleDrawDuration * 0.55)) {
+                fillOpacity = 1
+            }
+            withAnimation(.easeOut(duration: 0.35).delay(titleDrawDuration + 0.05)) {
+                traceOpacity = 0
             }
         }
-    }
-
-    /// A soft-edged left-to-right wipe — solid through most of the
-    /// reveal, then a short gradient falloff right at the leading edge
-    /// of `titleReveal` — rather than a hard clip, so the word's edge
-    /// looks like it's resolving into focus rather than a window shade
-    /// snapping open.
-    private var penWipeMask: some View {
-        GeometryReader { geo in
-            LinearGradient(
-                stops: [
-                    .init(color: .white, location: 0),
-                    .init(color: .white, location: max(0, titleReveal - 0.1)),
-                    .init(color: .clear, location: min(1, titleReveal + 0.02)),
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .frame(width: geo.size.width, height: geo.size.height)
-        }
-    }
-
-    /// A thin accent bar riding right at the reveal's leading edge — the
-    /// one deliberate "being drawn" cue, since DM Sans itself has no
-    /// stroke path to literally trace. Fades out once the word is fully
-    /// revealed so it doesn't linger as a stray mark.
-    private var penTip: some View {
-        GeometryReader { geo in
-            Capsule()
-                .fill(Tokens.Color.ochre)
-                .frame(width: 3, height: geo.size.height * 0.7)
-                .position(x: geo.size.width * titleReveal, y: geo.size.height / 2)
-                .opacity(titleReveal < 0.97 ? 1 : 0)
-        }
-        .allowsHitTesting(false)
     }
 }
 
