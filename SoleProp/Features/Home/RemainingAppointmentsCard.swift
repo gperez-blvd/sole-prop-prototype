@@ -22,21 +22,27 @@ struct RemainingAppointmentsCard: View {
     }
 
     var body: some View {
-        HStack(spacing: 6) {
-            ForEach(Array(Self.businessHours), id: \.self) { hour in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(bookedHours.contains(hour) ? Self.bookedColor : Self.openColor)
-                    .frame(width: 20, height: 20)
-            }
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Appointments")
+                .font(Tokens.Typography.label)
+                .foregroundStyle(Tokens.Color.textTertiary)
 
-            Spacer(minLength: 8)
+            HStack(spacing: 6) {
+                ForEach(Array(Self.businessHours), id: \.self) { hour in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(bookedHours.contains(hour) ? Self.bookedColor : Self.openColor)
+                        .frame(width: 20, height: 20)
+                }
 
-            Button(action: onViewFullDay) {
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Tokens.Color.textTertiary)
+                Spacer(minLength: 8)
+
+                Button(action: onViewFullDay) {
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Tokens.Color.textTertiary)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .cardStyle()
     }

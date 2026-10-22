@@ -55,7 +55,7 @@ struct RootView: View {
                                 ClientDetailView(memory: memory)
                                     .backIconButton { router.pop() }
                             case .schedule:
-                                PlaceholderScreen(title: "Schedule")
+                                ScheduleView()
                             case .wallet:
                                 PlaceholderScreen(title: "Wallet")
                             case .logs:

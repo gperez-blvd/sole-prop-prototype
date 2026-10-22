@@ -61,32 +61,42 @@ struct HomeView: View {
     @ViewBuilder
     private var homeContent: some View {
         ZStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 40) {
-                    HomeHeaderBar(
-                        businessName: HomeMockData.businessName,
-                        onMenuTap: { showMenu = true },
-                        onMessagesTap: { router.push(.messages) },
-                        onNotificationsTap: { router.push(.notifications) }
-                    )
-                    .staggerAppear(0)
-
-                    Text("Good morning \(HomeMockData.ownerFirstName).")
-                        .font(Tokens.Typography.largeTitle)
-                        .foregroundStyle(Tokens.Color.textPrimary)
-                        .staggerAppear(1)
-
-                    ForEach(Array(rankedSections.enumerated()), id: \.element.id) { index, section in
-                        sectionView(section)
-                            .transition(.opacity)
-                            .staggerAppear(index + 2)
-                    }
-                }
+            VStack(spacing: 0) {
+                // Fixed — only the dashboard content below scrolls. A
+                // solid background behind it (not just the bar itself)
+                // so scrolled content passing underneath doesn't show
+                // through the gaps around the icons.
+                HomeHeaderBar(
+                    businessName: HomeMockData.businessName,
+                    onMenuTap: { showMenu = true },
+                    onMessagesTap: { router.push(.messages) },
+                    onNotificationsTap: { router.push(.notifications) }
+                )
+                .staggerAppear(0)
                 .padding(.horizontal, 28)
                 .padding(.top, 19)
-                // Reserves room below the last card for the fixed orb
-                // overlay, so scrolled content never sits underneath it.
-                .padding(.bottom, 120)
+                .padding(.bottom, 12)
+                .background(Tokens.Color.background)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 40) {
+                        Text("Good morning \(HomeMockData.ownerFirstName).")
+                            .font(Tokens.Typography.largeTitle)
+                            .foregroundStyle(Tokens.Color.textPrimary)
+                            .staggerAppear(1)
+
+                        ForEach(Array(rankedSections.enumerated()), id: \.element.id) { index, section in
+                            sectionView(section)
+                                .transition(.opacity)
+                                .staggerAppear(index + 2)
+                        }
+                    }
+                    .padding(.horizontal, 28)
+                    .padding(.top, 8)
+                    // Reserves room below the last card for the fixed orb
+                    // overlay, so scrolled content never sits underneath it.
+                    .padding(.bottom, 120)
+                }
             }
 
             // Dims the whole page while Cue is listening or talking —
