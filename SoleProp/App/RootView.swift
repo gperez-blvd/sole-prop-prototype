@@ -48,7 +48,7 @@ struct RootView: View {
                         .navigationDestination(for: Route.self) { route in
                             switch route {
                             case .profile:
-                                PlaceholderScreen(title: "Profile / Settings")
+                                ProfileView()
                             case .clients:
                                 ClientListView()
                             case .client(let memory):
@@ -57,15 +57,15 @@ struct RootView: View {
                             case .schedule:
                                 ScheduleView()
                             case .wallet:
-                                PlaceholderScreen(title: "Wallet")
+                                WalletView()
                             case .logs:
-                                PlaceholderScreen(title: "Logs")
+                                LogsView()
                             case .help:
-                                PlaceholderScreen(title: "Help")
+                                HelpView()
                             case .notifications:
-                                PlaceholderScreen(title: "Notifications")
+                                NotificationsView()
                             case .messages:
-                                PlaceholderScreen(title: "Messages")
+                                MessagesView()
                             case .voiceConversation:
                                 VoiceConversationView()
                             }

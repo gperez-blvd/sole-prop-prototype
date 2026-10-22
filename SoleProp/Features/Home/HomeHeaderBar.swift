@@ -22,8 +22,8 @@ struct HomeHeaderBar: View {
                 .frame(maxWidth: .infinity)
 
             HStack(spacing: 4) {
-                BadgedIconButton(systemImage: "message", count: 0, action: onMessagesTap)
-                BadgedIconButton(systemImage: "bell", count: HomeMockData.unreadNotificationCount, action: onNotificationsTap)
+                HeaderIconButton(systemImage: "message", action: onMessagesTap)
+                HeaderIconButton(systemImage: "bell", action: onNotificationsTap)
             }
         }
     }

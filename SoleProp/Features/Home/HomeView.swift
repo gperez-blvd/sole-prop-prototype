@@ -13,7 +13,23 @@ struct HomeView: View {
     @Environment(VoiceConversationViewModel.self) private var voiceAssistant
 
     @State private var showMenu = false
+    /// Set right before pushing a route chosen from the menu, so that
+    /// coming back here (via `.onAppear`, which fires again once this
+    /// becomes the top of the stack) re-presents the menu instead of
+    /// leaving her back at a bare Home — she picked a destination out
+    /// of a list, backing out of it should land her back in that list,
+    /// not force a second tap on the hamburger to get there again.
+    /// Left `false` for every other kind of navigation (the header's
+    /// own message/notification icons, a client row, a card), which
+    /// should land on plain Home the way they always have.
+    @State private var reopenMenuOnReturn = false
     @State private var selectedAppointment: Appointment?
+    /// Which appointment the blocks row has browsed to — `nil` means
+    /// "hasn't touched a block yet," which always falls back to the
+    /// real next appointment, not just whichever happened to render
+    /// first. Distinct from `selectedAppointment`, which opens the full
+    /// detail sheet when the surfaced card itself is tapped.
+    @State private var browsedAppointment: Appointment?
     @State private var clientPage: ClientMemory?
     @State private var checkoutAppointment: Appointment?
     @State private var checkoutRecommendation: RecommendedItem?
@@ -53,6 +69,10 @@ struct HomeView: View {
         .onAppear {
             if showDailyBrief {
                 voiceAssistant.announceDailyBrief(HomeMockData.dailyBrief)
+            }
+            if reopenMenuOnReturn {
+                reopenMenuOnReturn = false
+                showMenu = true
             }
         }
         .navigationBarHidden(true)
@@ -178,6 +198,7 @@ struct HomeView: View {
         .sheet(isPresented: $showMenu) {
             MenuSheet { route in
                 showMenu = false
+                reopenMenuOnReturn = true
                 router.push(route)
             }
         }
@@ -296,20 +317,35 @@ struct HomeView: View {
         }
     }
 
+    /// The appointment the card below should show — whichever block she
+    /// last tapped, or the real next appointment until she's touched
+    /// one at all. Always defaults forward, never to whatever happens
+    /// to be first in the list.
+    private var displayedAppointment: Appointment? {
+        browsedAppointment ?? HomeMockData.nextAppointment
+    }
+
     @ViewBuilder
     private var appointmentsSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Next appointment")
-                .font(Tokens.Typography.label)
-                .foregroundStyle(Tokens.Color.textTertiary)
+        let today = HomeMockData.todaysAppointments
 
-            if let next = HomeMockData.nextAppointment {
+        VStack(alignment: .leading, spacing: 14) {
+            if !today.isEmpty {
+                AppointmentBlocksRow(
+                    appointments: today,
+                    selected: displayedAppointment,
+                    onSelect: { browsedAppointment = $0 },
+                    onViewFullDay: { router.push(.schedule) }
+                )
+            }
+
+            if let shown = displayedAppointment {
                 NextAppointmentCard(
-                    appointment: next,
-                    onTap: { selectedAppointment = next },
+                    appointment: shown,
+                    onTap: { selectedAppointment = shown },
                     onEdit: { placeholderMessage = "Edit — not designed yet." },
                     onClientInfo: {
-                        if let memory = HomeMockData.clientMemory(for: next) {
+                        if let memory = HomeMockData.clientMemory(for: shown) {
                             clientPage = memory
                         } else {
                             placeholderMessage = "Client info — not designed yet."
@@ -318,16 +354,9 @@ struct HomeView: View {
                     onMessage: { placeholderMessage = "Message — not designed yet." },
                     onCheckout: {
                         checkoutRecommendation = nil
-                        checkoutAppointment = next
+                        checkoutAppointment = shown
                     }
                 )
-            }
-
-            let today = HomeMockData.todaysAppointments
-            if !today.isEmpty {
-                RemainingAppointmentsCard(appointments: today) {
-                    router.push(.schedule)
-                }
             }
         }
     }

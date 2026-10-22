@@ -140,6 +140,13 @@ Each of these means the principle is slipping:
 
 ## Where truth lives
 
+- **`ENGINEERING_LESSONS.md` — read this before animation, custom `Shape`s, scrollable rows with
+  selection state, or anything reused across a forced-dark/forced-light screen.** Hand-maintained
+  (never generated): recurring bugs and misuse patterns, each as a rule + why + how to apply.
+  Platform-general rules are meant to hold for the Android build too; a second section covers
+  Swift/SwiftUI-only mechanics, and a third covers simulator/tooling gotchas (e.g. tap coordinates
+  are in device points, not screenshot pixels). Add to it whenever something costs real time —
+  don't let a lesson live only in one session's context.
 - **`OBJECTS.md` — read this first.** The Object Guide: every object, what it *is*, what it's
   for, what it's called in her words, where it appears nested, its attributes, its relationships
   and its actions. Start here when you need to understand a concept. Generated — never edit it;

@@ -246,7 +246,7 @@ private struct AppointmentBlock: View {
 /// hour-grid positioning. At week width there isn't room to show time
 /// -of-day geometrically anyway; a glanceable "here's roughly how full
 /// each day is" is the right amount of detail for this level, same as
-/// `RemainingAppointmentsCard`'s own hour strip on Home.
+/// `AppointmentBlocksRow`'s own blocks on Home.
 private struct WeekTimelineView: View {
     var weekStart: Date
     var onSelect: (Appointment) -> Void

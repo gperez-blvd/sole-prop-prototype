@@ -71,6 +71,23 @@ enum Tokens {
         /// The accent as an emphasized outline — a selected/active
         /// state's border, one step stronger than `accentBorder`.
         static let accentBorderStrong = SwiftUI.Color(hex: "#14B8A6").opacity(0.7)
+        /// A softened, lower-saturation accent for decorative icon
+        /// strokes and small status dots — a notification's type icon,
+        /// an unread mark — where the raw `ochre`/`accentText` hue
+        /// reads neon rather than calm. A self-care/luxury vibe keeps
+        /// its accent muted even when it's the only color on the
+        /// screen; this token is that muting, kept separate from
+        /// `accentText` so `accentText`'s own contrast-driven values
+        /// (checkmarks, "Connected"-style labels) aren't touched by it.
+        /// Rule of thumb: full-saturation `ochre`/`accentText` for a
+        /// card's primary fill/border emphasis or anything conveying
+        /// state through color; `accentSoft` for small decorative icon
+        /// chips and dots that just need to feel "on brand," not loud.
+        static let accentSoft = adaptive("AccentSoft")
+        /// The quiet wash `accentSoft` sits on — a pale mint wash in
+        /// light mode, a muted teal-charcoal (never pure black) in
+        /// dark mode. Pairs with `accentSoft`, not with `accentText`.
+        static let accentSoftTint = adaptive("AccentSoftTint")
         /// Page/card surface — pure white, not an off-white.
         static let fog = SwiftUI.Color(hex: "#FFFFFF")
         static let paper = fog

@@ -32,8 +32,6 @@ enum HomeMockData {
     static var capabilityLimitationNote: String? { dataset(for: currentStage).capabilityLimitationNote }
     static var handledCount: Int { dataset(for: currentStage).handledCount }
     static var handledExamples: [String] { dataset(for: currentStage).handledExamples }
-    static var unreadNotificationCount: Int { dataset(for: currentStage).unreadNotificationCount }
-    static var unreadMessageCount: Int { dataset(for: currentStage).unreadMessageCount }
 
     static var nextAppointment: Appointment? {
         let now = Date()
@@ -90,8 +88,6 @@ enum HomeMockData {
         let capabilityLimitationNote: String?
         let handledCount: Int
         let handledExamples: [String]
-        let unreadNotificationCount: Int
-        let unreadMessageCount: Int
     }
 
     private static func dataset(for stage: LifecycleStage) -> Dataset {
@@ -142,9 +138,7 @@ enum HomeMockData {
         openings: [],
         capabilityLimitationNote: "I can't collect payment on my own yet — you'll still need to run cards yourself until that's connected.",
         handledCount: 0,
-        handledExamples: [],
-        unreadNotificationCount: 1,
-        unreadMessageCount: 1
+        handledExamples: []
     )
 
     /// Year 1. The canonical Tuesday from HANDOFF.md — kept as the baseline.
@@ -183,9 +177,7 @@ enum HomeMockData {
         handledExamples: [
             "Moved Priya's cleanup window so Tasha's checkout wasn't rushed",
             "Sent Dani's delay notice as soon as the rain forecast came in",
-        ],
-        unreadNotificationCount: 2,
-        unreadMessageCount: 3
+        ]
     )
 
     /// Year 2+. A full day, high-confidence thresholds, and a growth
@@ -230,9 +222,7 @@ enum HomeMockData {
             "Rebooked Corey automatically off her usual six-week cadence",
             "Applied Maya's loyalty pricing without being asked",
             "Sent Dani's delay notice as soon as the rain forecast came in",
-        ],
-        unreadNotificationCount: 4,
-        unreadMessageCount: 2
+        ]
     )
 
     /// The "how have we been doing the last 3 months" demo scenario — Cue's

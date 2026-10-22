@@ -18,6 +18,13 @@ everything below describes what's already there and why.
 > sources disagree with each other in places. Treat those claims as "the
 > most consistent story across several teardowns," not ground truth.
 
+> **See also `ENGINEERING_LESSONS.md`** for the recurring implementation mistakes this system
+> has already caught once — asymmetric easing vs. stretched `easeInOut`, scroll containers
+> clipping a `.scaleEffect`'d selection state, gradient-masking a truncated scroll row, and
+> forcing `.environment(\.colorScheme, .dark)` on screens that reuse adaptive tokens but are
+> always dark by design. Read it alongside this file, not instead of it: this document is what
+> the tokens and patterns *are*, that one is what goes wrong if they're misused.
+
 ---
 
 ## 1. Spacing
@@ -78,6 +85,15 @@ Tokens.Color.accentTint         // ochre @ 12% — selected-state washes
 Tokens.Color.accentBorder       // ochre @ 50% — secondary outlines
 Tokens.Color.accentBorderStrong // ochre @ 70% — emphasized outlines
 ```
+
+**Rule: decorative icon chips and status dots use `accentSoft`/`accentSoftTint`, not the raw accent.** `ochre` at full saturation — especially its dark-mode value, which is the raw hue unadjusted — reads vivid/neon once it's filling a small icon circle or a status dot rather than a hairline border or a single hero glow. That's wrong for this app's vibe: self-care and luxury read as muted and considered, not bright. `accentSoft` is a genuinely lightened/desaturated variant (not just the same hue at lower opacity — over a dark surface, opacity alone makes a hue muddier, not softer), paired with `accentSoftTint`'s own quiet wash:
+
+```swift
+Tokens.Color.accentSoft      // muted sage (light) / pale seafoam (dark) — decorative icon strokes, unread dots
+Tokens.Color.accentSoftTint  // pale mint wash (light) / muted teal-charcoal, never black (dark) — the chip behind it
+```
+
+`accentText`/`ochre` stay reserved for things actually conveying state through color at small sizes where contrast matters (a checkmark, a "Connected" label, a selected pill's fill) — `accentSoft` is for everything else that just wants to feel on-brand without shouting. First applied to `NotificationsView`'s type icons and the unread dot shared with `MessagesView`; reach for it by default on any new decorative icon treatment rather than `accentText`/`ochre`.
 
 **The one real accessibility finding in this whole audit:** `ochre` sits
 at roughly **2.5:1 contrast against a white surface** — it fails even
@@ -231,6 +247,10 @@ so far to the landing screen (paired with its own hero draw-on), Home,
 the chat stream, and onboarding's Welcome screen as a worked example —
 the rest of onboarding still has its own ad hoc reveal timing from
 before this convention existed, and hasn't been converted over.
+
+For the landing screen's draw-on specifically — and the asymmetric-easing rule it led to for
+any "considered, high-quality" motion — see `ENGINEERING_LESSONS.md`'s platform-general motion
+entry rather than re-deriving it per screen.
 
 ---
 

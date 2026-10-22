@@ -19,7 +19,7 @@ struct NextAppointmentCard: View {
                             .foregroundStyle(Tokens.Color.textPrimary)
                     }
                     HStack(spacing: 8) {
-                        Image(systemName: "calendar")
+                        Image(systemName: appointment.serviceIcon)
                             .font(.system(size: 15))
                             .foregroundStyle(Tokens.Color.textPrimary)
                             .frame(width: 24, height: 24)
