@@ -21,10 +21,10 @@ struct QuarterlyBriefSheet: View {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("You had a great 3 months.")
-                            .font(.dmSans(24, weight: .semibold))
+                            .font(.dmSans(22, weight: .semibold))
                             .foregroundStyle(Tokens.Color.textPrimary)
                         Text("Here's a recap.")
-                            .font(.dmSans(15, weight: .regular))
+                            .font(.dmSans(16, weight: .regular))
                             .foregroundStyle(Tokens.Color.textTertiary)
                     }
 
@@ -39,12 +39,12 @@ struct QuarterlyBriefSheet: View {
                     }
 
                     Text("Based on your ratings and reviews from those customers, I think we can safely say they're about to be your regulars!")
-                        .font(.dmSans(13.5, weight: .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(Tokens.Color.textTertiary)
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("I have a few ideas for next quarter. Which one would you like to hear more about?")
-                            .font(.dmSans(13.5, weight: .medium))
+                            .font(.dmSans(14, weight: .medium))
                             .foregroundStyle(Tokens.Color.textPrimary)
 
                         ForEach(brief.ideas) { idea in
@@ -90,7 +90,7 @@ struct QuarterlyBriefSheet: View {
             Spacer()
             Text(value)
                 .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                .foregroundStyle(highlighted ? Tokens.Color.ochre : Tokens.Color.textPrimary)
+                .foregroundStyle(highlighted ? Tokens.Color.accentText : Tokens.Color.textPrimary)
         }
         .padding(.vertical, 10)
         .overlay(alignment: .bottom) {
@@ -107,14 +107,14 @@ struct QuarterlyBriefSheet: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(idea.title)
                     .font(Tokens.Typography.labelSmall)
-                    .foregroundStyle(Tokens.Color.ochre)
+                    .foregroundStyle(Tokens.Color.accentText)
                 Text(idea.teaser)
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textPrimary)
                     .multilineTextAlignment(.leading)
                 if isSelected {
                     Text(idea.elaboration)
-                        .font(.dmSans(13.5, weight: .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(Tokens.Color.textTertiary)
                         .padding(.top, 4)
                 }
@@ -124,8 +124,8 @@ struct QuarterlyBriefSheet: View {
         }
         .buttonStyle(.plain)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(isSelected ? Tokens.Color.ochre.opacity(0.6) : Tokens.Color.hairline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Tokens.Radius.card)
+                .strokeBorder(isSelected ? Tokens.Color.accentBorderStrong : Tokens.Color.hairline, lineWidth: 1)
         )
     }
 }

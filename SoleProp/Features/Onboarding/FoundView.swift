@@ -57,18 +57,18 @@ struct FoundView: View {
             }
 
             Text("Tap any line to edit it.")
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textTertiary)
         }
         .task {
             isSpeaking = true
             for index in facts.indices {
-                withAnimation(.easeOut(duration: 0.3)) {
+                withAnimation(Tokens.Motion.standard) {
                     visibleCount = index + 1
                 }
                 try? await Task.sleep(for: .milliseconds(110))
             }
-            withAnimation(.easeOut(duration: 0.3)) {
+            withAnimation(Tokens.Motion.standard) {
                 isSpeaking = false
             }
         }
@@ -77,20 +77,13 @@ struct FoundView: View {
     private var brandCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
-                Circle()
-                    .fill(Tokens.Color.primaryFill)
-                    .frame(width: 52, height: 52)
-                    .overlay(
-                        Text(initials)
-                            .font(.dmSans(15, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.onPrimaryFill)
-                    )
+                Avatar(name: state.name, size: 52)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(state.firstName) Aesthetics")
                         .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text("Medical Spa · Aesthetic Injector")
-                        .font(.dmSans(13, weight: .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                         .lineLimit(1)
                 }
@@ -109,22 +102,12 @@ struct FoundView: View {
         HStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.system(size: 12))
-                .foregroundStyle(Tokens.Color.ochre)
+                .foregroundStyle(Tokens.Color.accentText)
                 .frame(width: 16)
             Text(text)
                 .font(.dmSans(12, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
         }
-    }
-
-    private var initials: String {
-        state.name
-            .split(separator: " ")
-            .prefix(2)
-            .compactMap { $0.first }
-            .map(String.init)
-            .joined()
-            .uppercased()
     }
 
     private func factRow(_ fact: FoundFact) -> some View {
@@ -139,13 +122,13 @@ struct FoundView: View {
                         set: { overrides[fact.id] = $0 }
                     )
                 )
-                .font(.dmSans(13, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textPrimary)
                 .textFieldStyle(.plain)
                 .onSubmit { editingID = nil }
             } else {
                 Text(overrides[fact.id] ?? fact.text)
-                    .font(.dmSans(13, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -153,7 +136,7 @@ struct FoundView: View {
             Spacer(minLength: 0)
 
             HStack(spacing: 6) {
-                TrackedLabel(text: fact.source, color: fact.isHighlighted ? Tokens.Color.ochre : Tokens.Color.textTertiary)
+                TrackedLabel(text: fact.source, color: fact.isHighlighted ? Tokens.Color.accentText : Tokens.Color.textTertiary)
                 Image(systemName: isEditing ? "checkmark" : "pencil")
                     .font(.system(size: 10.5))
                     .foregroundStyle(Tokens.Color.textTertiary)

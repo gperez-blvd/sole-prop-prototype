@@ -22,7 +22,7 @@ struct ThresholdProposalCard: View {
                 if let context = proposal.context {
                     Text(context)
                         .font(Tokens.Typography.labelSmall)
-                        .foregroundStyle(Tokens.Color.ochre)
+                        .foregroundStyle(Tokens.Color.accentText)
                 }
 
                 Text(proposal.spokenFraming)
@@ -65,12 +65,12 @@ struct ThresholdProposalCard: View {
             select(option)
         } label: {
             Text(option.label)
-                .font(.dmSans(13, weight: .medium))
-                .foregroundStyle(Tokens.Color.ochre)
+                .font(.dmSans(14, weight: .medium))
+                .foregroundStyle(Tokens.Color.accentText)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .overlay(
-                    RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(Tokens.Color.ochre.opacity(0.7))
+                    RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(Tokens.Color.accentBorderStrong)
                 )
         }
         .buttonStyle(.plain)

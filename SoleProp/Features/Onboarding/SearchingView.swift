@@ -53,9 +53,9 @@ struct SearchingView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(source.name)
-                    .font(.dmSans(13.5, weight: .semibold))
+                    .font(.dmSans(14, weight: .semibold))
                 Text(source.detail)
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
             }
             .foregroundStyle(isOn || isDone ? Tokens.Color.textPrimary : Tokens.Color.textTertiary)
         }

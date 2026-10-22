@@ -43,7 +43,7 @@ struct AppointmentDetailSheet: View {
                         if appointment.isFirstTime {
                             Text("First time")
                                 .font(Tokens.Typography.labelSmall)
-                                .foregroundStyle(Tokens.Color.ochre)
+                                .foregroundStyle(Tokens.Color.accentText)
                         }
                     }
 

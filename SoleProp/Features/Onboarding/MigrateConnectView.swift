@@ -30,7 +30,7 @@ struct MigrateConnectView: View {
             }
 
             Text("We never store your password. It's used once to open the connection, then discarded.")
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
 
             TrackedLabel(text: "What comes over")
@@ -39,10 +39,10 @@ struct MigrateConnectView: View {
                 ForEach(whatComesOver, id: \.self) { item in
                     HStack(alignment: .top, spacing: 8) {
                         Text("✓")
-                            .font(.dmSans(13.5, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.ochre)
+                            .font(.dmSans(14, weight: .semibold))
+                            .foregroundStyle(Tokens.Color.accentText)
                         Text(item)
-                            .font(.dmSans(13, weight: .medium))
+                            .font(.dmSans(14, weight: .medium))
                             .foregroundStyle(Tokens.Color.textPrimary)
                     }
                 }

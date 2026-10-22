@@ -153,6 +153,13 @@ Each of these means the principle is slipping:
 - `HANDOFF-SCREENS.md` — the screens, in tiers.
 - `HANDOFF-ADDENDUM-01.md` — products and checkout; supersedes the object counts in the above.
 - The `.html` files are renderings of the two JSONs for humans. Don't parse them.
+- **`DESIGN_SYSTEM.md` — read this before touching colors, type, spacing, radius, motion, or a
+  shared component.** The write-up: what each token scale is, why it's shaped that way (an
+  explicit, cited Airbnb-pattern audit — scale/ratio/contrast discipline, never Airbnb's literal
+  colors or sizes), and the honest list of what's still unfinished (Dynamic Type's residual
+  risks, a couple of un-migrated status colors, onboarding screens still on pre-`StaggerAppear`
+  timing). `Tokens.swift` is still the source of truth for the actual values; this is why they're
+  what they are.
 - `SoleProp/DesignSystem/Tokens.swift` — **the design system.** As of October 2026 this replaced
   the earlier onyx/ochre/paper/silt palette pulled from the DETAIL onboarding artifact — that
   system is retired, not just superseded; don't resurrect its look (uppercase tracked mono

@@ -30,6 +30,6 @@ struct OnboardingField: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Tokens.Color.ochre.opacity(0.12), in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
+        .background(Tokens.Color.accentTint, in: RoundedRectangle(cornerRadius: Tokens.Radius.md))
     }
 }

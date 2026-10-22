@@ -22,19 +22,12 @@ struct LiveView: View {
                 ),
                 secondaryCTA: .init("Continue", style: .ghost, action: onContinue)
             ) {
-                Circle()
-                    .fill(Tokens.Color.primaryFill)
-                    .frame(width: 44, height: 44)
-                    .overlay(
-                        Text(initials)
-                            .font(.dmSans(13, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.onPrimaryFill)
-                    )
+                Avatar(name: state.name, size: 44)
 
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your secret service is set up.")
-                            .font(.dmSans(15, weight: .regular))
+                            .font(.dmSans(16, weight: .regular))
                             .foregroundStyle(Tokens.Color.textSecondary)
                         Text("And we're live!")
                             .font(Tokens.Typography.largeTitle)
@@ -49,7 +42,7 @@ struct LiveView: View {
                 }
 
                 Text("bookjazz.blvd.com")
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
 
                 VStack(spacing: 10) {
@@ -77,19 +70,19 @@ struct LiveView: View {
                 VStack {
                     Spacer()
                     Text("Booking link texted to your imported clients.")
-                        .font(.dmSans(13, weight: .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(Tokens.Color.onPrimaryFill)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 12)
                         .background(Tokens.Color.primaryFill)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
                         .padding(.horizontal, 16)
                         .padding(.bottom, 20)
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.easeOut(duration: 0.25), value: showShareToast)
+        .animation(Tokens.Motion.quick, value: showShareToast)
         .onAppear {
             guard !state.helloSpoken else { return }
             state.helloSpoken = true
@@ -141,28 +134,19 @@ struct LiveView: View {
                         .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text(subtitle)
-                        .font(.dmSans(13, weight: .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                 }
                 Spacer(minLength: 12)
                 Text(done ? "✓" : "→")
-                    .font(.dmSans(13, weight: .semibold))
-                    .foregroundStyle(done ? Tokens.Color.ochre : Tokens.Color.textTertiary)
+                    .font(.dmSans(14, weight: .semibold))
+                    .foregroundStyle(done ? Tokens.Color.accentText : Tokens.Color.textTertiary)
             }
         }
         .buttonStyle(.plain)
         .cardStyle(padding: 12)
     }
 
-    private var initials: String {
-        state.name
-            .split(separator: " ")
-            .prefix(2)
-            .compactMap { $0.first }
-            .map(String.init)
-            .joined()
-            .uppercased()
-    }
 }
 
 #Preview {

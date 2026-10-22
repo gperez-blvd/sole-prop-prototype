@@ -30,7 +30,7 @@ struct DailyBriefView: View {
 
             HStack(alignment: .center, spacing: 12) {
                 Text(brief.greeting)
-                    .font(.dmSans(30, weight: .semibold))
+                    .font(.dmSans(32, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                     .lineLimit(1)
                 Spacer(minLength: 12)
@@ -57,7 +57,7 @@ struct DailyBriefView: View {
 
             Button(action: onContinue) {
                 Text("Okay")
-                    .font(.dmSans(15, weight: .semibold))
+                    .font(.dmSans(16, weight: .semibold))
                     .foregroundStyle(Tokens.Color.onPrimaryFill)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
@@ -77,7 +77,7 @@ struct DailyBriefView: View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: row.icon)
                 .font(.system(size: 15))
-                .foregroundStyle(row.isHighlighted ? Tokens.Color.ochre : Tokens.Color.textSecondary)
+                .foregroundStyle(row.isHighlighted ? Tokens.Color.accentText : Tokens.Color.textSecondary)
                 .frame(width: 20, alignment: .center)
                 .padding(.top, 1)
 
@@ -89,7 +89,7 @@ struct DailyBriefView: View {
 
             Text(row.value)
                 .font(Tokens.Typography.bodyRegular)
-                .foregroundStyle(row.isHighlighted ? Tokens.Color.ochre : Tokens.Color.textSecondary)
+                .foregroundStyle(row.isHighlighted ? Tokens.Color.accentText : Tokens.Color.textSecondary)
         }
     }
 }

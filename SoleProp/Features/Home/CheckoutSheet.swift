@@ -107,10 +107,10 @@ struct CheckoutSheet: View {
                     HStack(spacing: 6) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.ochre)
+                            .foregroundStyle(Tokens.Color.accentText)
                         Text("Suggested by Cue")
-                            .font(.dmSans(10, weight: .semibold))
-                            .foregroundStyle(Tokens.Color.ochre)
+                            .font(.dmSans(12, weight: .semibold))
+                            .foregroundStyle(Tokens.Color.accentText)
                     }
                     Text(recommendation.name)
                         .font(.dmSans(14, weight: .regular))
@@ -128,7 +128,7 @@ struct CheckoutSheet: View {
                 recommendationIncluded.toggle()
             } label: {
                 Text(recommendationIncluded ? "Remove" : "Add back")
-                    .font(.dmSans(13.5, weight: .semibold))
+                    .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(recommendationIncluded ? Color.red : Tokens.Color.ochre)
             }
         }

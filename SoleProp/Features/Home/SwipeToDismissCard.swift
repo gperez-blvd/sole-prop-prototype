@@ -66,7 +66,7 @@ struct SwipeToDismissCard<Content: View>: View {
 
     private func animateOff(direction: CGFloat) {
         isDismissing = true
-        withAnimation(.easeOut(duration: 0.22)) {
+        withAnimation(Tokens.Motion.quick) {
             dragOffset.width = direction * flyOutDistance
         }
         Task {

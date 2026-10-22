@@ -47,7 +47,7 @@ extension View {
     ///   - startDelay: a flat offset added before the cascade begins —
     ///     for when something else (a hero title drawing itself in, a
     ///     splash) needs to finish first.
-    func staggerAppear(_ index: Int, baseDelay: Double = 0.06, startDelay: Double = 0, duration: Double = 0.42, distance: CGFloat = 10) -> some View {
+    func staggerAppear(_ index: Int, baseDelay: Double = 0.06, startDelay: Double = 0, duration: Double = Tokens.Motion.Duration.moderate, distance: CGFloat = 10) -> some View {
         modifier(StaggerAppearModifier(index: index, baseDelay: baseDelay, startDelay: startDelay, duration: duration, distance: distance))
     }
 }

@@ -13,7 +13,7 @@ struct NextAppointmentCard: View {
             Button(action: onTap) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
-                        InitialsAvatar(name: appointment.clientName, size: 24)
+                        Avatar(name: appointment.clientName, size: 24)
                         Text(appointment.clientName)
                             .font(Tokens.Typography.body)
                             .foregroundStyle(Tokens.Color.textPrimary)
@@ -45,31 +45,5 @@ struct NextAppointmentCard: View {
             }
         }
         .cardStyle()
-    }
-}
-
-/// Text-initials placeholder avatar — the BUI `Avatar` component's `Text`
-/// variant, used until real client photos are wired up.
-struct InitialsAvatar: View {
-    var name: String
-    var size: CGFloat
-
-    private var initial: String {
-        String(name.first ?? "?")
-    }
-
-    var body: some View {
-        Circle()
-            // Same solid-fill avatar treatment used everywhere else an
-            // initials circle appears (Found/Live in onboarding) —
-            // one consistent avatar look app-wide, not a lighter one-off
-            // here.
-            .fill(Tokens.Color.primaryFill)
-            .frame(width: size, height: size)
-            .overlay(
-                Text(initial)
-                    .font(.dmSans(size * 0.5, weight: .semibold))
-                    .foregroundStyle(Tokens.Color.onPrimaryFill)
-            )
     }
 }

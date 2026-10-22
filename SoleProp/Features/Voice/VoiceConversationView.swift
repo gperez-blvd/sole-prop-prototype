@@ -27,7 +27,7 @@ struct VoiceConversationView: View {
                             // that (`ForEach` keys on `message.id`), this
                             // never re-fires for messages already on
                             // screen when the list re-renders.
-                            .staggerAppear(0, duration: 0.3, distance: 6)
+                            .staggerAppear(0, duration: Tokens.Motion.Duration.standard, distance: 6)
                     }
                 }
                 .padding(24)
@@ -139,13 +139,13 @@ struct VoiceConversationView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: Tokens.Radius.card)
                         .fill(message.role == .user ? Tokens.Color.primaryFill : Tokens.Color.surface)
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: Tokens.Radius.card)
                         .strokeBorder(
-                            message.role == .system ? Tokens.Color.ochre.opacity(0.55)
+                            message.role == .system ? Tokens.Color.accentBorder
                                 : message.role == .user ? .clear : Tokens.Color.hairline
                         )
                 )

@@ -37,11 +37,11 @@ struct MigrateDoneView: View {
                 ForEach(cards, id: \.1) { card in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(card.0)
-                            .font(.dmSans(20, weight: .semibold))
+                            .font(.dmSans(22, weight: .semibold))
                             .foregroundStyle(Tokens.Color.textPrimary)
                         TrackedLabel(text: card.1, font: Tokens.Typography.labelSmall)
                         Text(card.2)
-                            .font(.dmSans(12.5, weight: .regular))
+                            .font(.dmSans(14, weight: .regular))
                             .foregroundStyle(Tokens.Color.textSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -50,12 +50,12 @@ struct MigrateDoneView: View {
             }
 
             (Text("Imported, not client-facing. ").fontWeight(.semibold) + Text("Nobody was texted. \(providerName) still sends its own reminders until you switch them off."))
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Tokens.Color.silt)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
 
             TrackedLabel(text: "Needs your review · \(openCount) of \(state.migrationReviewItems.count) open")
                 .padding(.top, Tokens.Spacing.sm)
@@ -82,13 +82,13 @@ struct MigrateDoneView: View {
                 TrackedLabel(text: isDone ? "Done" : "Needs review", font: Tokens.Typography.labelSmall, color: isDone ? Tokens.Color.textPrimary : Tokens.Color.ochre)
             }
             Text(item.title)
-                .font(.dmSans(13.5, weight: .semibold))
+                .font(.dmSans(14, weight: .semibold))
                 .foregroundStyle(Tokens.Color.textPrimary)
             Text(item.detail)
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
             Text("Suggested: \(item.suggestion)")
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
 
             if !isDone {
@@ -96,28 +96,14 @@ struct MigrateDoneView: View {
                     Button("Accept") {
                         state.acceptedReviewIDs.insert(item.id)
                     }
-                    .buttonStyle(MiniButtonStyle(filled: true))
+                    .buttonStyle(CompactButtonStyle(filled: true))
                     Button("Later") {}
-                        .buttonStyle(MiniButtonStyle(filled: false))
+                        .buttonStyle(CompactButtonStyle(filled: false))
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle(padding: 12)
-    }
-}
-
-private struct MiniButtonStyle: ButtonStyle {
-    var filled: Bool
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.dmSans(13.5, weight: .semibold))
-            .padding(.horizontal, 13)
-            .padding(.vertical, 8)
-            .foregroundStyle(filled ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
-            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(filled ? Tokens.Color.primaryFill : Color.clear))
-            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(filled ? .clear : Tokens.Color.textPrimary, lineWidth: 1))
-            .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
 

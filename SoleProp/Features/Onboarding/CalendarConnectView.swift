@@ -26,7 +26,7 @@ struct CalendarConnectView: View {
             }
 
             Text("Connected calendars stay private. Cue only ever sees that a time is taken.")
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textTertiary)
         }
     }
@@ -38,19 +38,19 @@ struct CalendarConnectView: View {
                     .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                 Text(subtitle)
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
             Spacer(minLength: 12)
             Button(action: connect) {
                 Text(isConnected ? "Connected" : "Connect")
-                    .font(.dmSans(13.5, weight: .semibold))
+                    .font(.dmSans(14, weight: .semibold))
                     .padding(.horizontal, 13)
                     .padding(.vertical, 8)
             }
-            .foregroundStyle(isConnected ? Tokens.Color.ochre : Tokens.Color.onPrimaryFill)
+            .foregroundStyle(isConnected ? Tokens.Color.accentText : Tokens.Color.onPrimaryFill)
             .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(isConnected ? Color.clear : Tokens.Color.primaryFill))
-            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(isConnected ? Tokens.Color.ochre.opacity(0.5) : .clear, lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(isConnected ? Tokens.Color.accentBorder : .clear, lineWidth: 1))
             .disabled(isConnected)
         }
         .cardStyle(padding: 12)

@@ -59,11 +59,11 @@ struct MigrateSourceView: View {
                     .font(.dmSans(14, weight: .semibold))
                     .foregroundStyle(Tokens.Color.textPrimary)
                 Text(provider.data)
-                    .font(.dmSans(12.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 HStack(spacing: 6) {
                     Circle().fill(Tokens.Color.ochre).frame(width: 6, height: 6)
-                    TrackedLabel(text: "Instant import", font: Tokens.Typography.labelSmall, color: Tokens.Color.ochre)
+                    TrackedLabel(text: "Instant import", font: Tokens.Typography.labelSmall, color: Tokens.Color.accentText)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

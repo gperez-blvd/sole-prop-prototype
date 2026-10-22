@@ -34,7 +34,7 @@ struct PersonaView: View {
             VStack(alignment: .leading, spacing: 6) {
                 TrackedLabel(text: "Sample · 1:38 PM")
                 Text(sample[state.persona] ?? "")
-                    .font(.dmSans(15, weight: .medium))
+                    .font(.dmSans(16, weight: .medium))
                     .foregroundStyle(Tokens.Color.textPrimary)
             }
             .cardStyle(padding: 14)

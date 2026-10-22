@@ -62,11 +62,11 @@ struct ClientsView: View {
             }
         } label: {
             HStack(alignment: .top, spacing: 12) {
-                RoundedRectangle(cornerRadius: 7)
+                RoundedRectangle(cornerRadius: Tokens.Radius.sm)
                     .fill(isSelected ? Tokens.Color.primaryFill : Tokens.Color.surface)
                     .frame(width: 22, height: 22)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 7)
+                        RoundedRectangle(cornerRadius: Tokens.Radius.sm)
                             .strokeBorder(isSelected ? Tokens.Color.textPrimary : Tokens.Color.textTertiary.opacity(0.5), lineWidth: 1.5)
                     )
                     .overlay {
@@ -83,11 +83,11 @@ struct ClientsView: View {
                         .font(.dmSans(14, weight: .semibold))
                         .foregroundStyle(Tokens.Color.textPrimary)
                     Text(row.subtitle)
-                        .font(.dmSans(13.5, weight: .regular))
+                        .font(.dmSans(14, weight: .regular))
                         .foregroundStyle(Tokens.Color.textSecondary)
                     if let later = row.later, !isImported {
                         Text(later)
-                            .font(.dmSans(12.5, weight: .regular))
+                            .font(.dmSans(14, weight: .regular))
                             .italic()
                             .foregroundStyle(Tokens.Color.textTertiary)
                     }
@@ -96,7 +96,7 @@ struct ClientsView: View {
                             TrackedLabel(
                                 text: isImported ? row.doneLabel : "Importing…",
                                 font: Tokens.Typography.labelSmall,
-                                color: isImported ? Tokens.Color.ochre : Tokens.Color.textSecondary
+                                color: isImported ? Tokens.Color.accentText : Tokens.Color.textSecondary
                             )
                             Spacer()
                         }

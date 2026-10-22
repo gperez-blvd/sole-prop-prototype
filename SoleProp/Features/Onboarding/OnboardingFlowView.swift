@@ -65,7 +65,7 @@ struct OnboardingFlowView: View {
             ))
             .id(step)
         }
-        .animation(.easeInOut(duration: 0.3), value: step)
+        .animation(Tokens.Motion.standardSymmetric, value: step)
     }
 
     private func go(_ next: OnboardingStep) {

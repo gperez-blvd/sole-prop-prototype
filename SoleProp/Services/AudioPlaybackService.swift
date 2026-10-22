@@ -55,9 +55,7 @@ final class AudioPlaybackService: NSObject {
     }
 
     private func play(_ player: AVAudioPlayer) async throws {
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playback, mode: .default, options: [.duckOthers])
-        try session.setActive(true)
+        AudioSession.activate()
 
         player.delegate = self
         player.isMeteringEnabled = true

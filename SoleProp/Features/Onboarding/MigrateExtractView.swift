@@ -75,7 +75,7 @@ struct MigrateExtractView: View {
         .task {
             for index in items.indices {
                 try? await Task.sleep(for: .milliseconds(500))
-                withAnimation(.easeOut(duration: 0.3)) {
+                withAnimation(Tokens.Motion.standard) {
                     visibleCount = index + 1
                 }
             }
@@ -92,11 +92,11 @@ struct MigrateExtractView: View {
     private func extractRow(_ item: ExtractRow) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text(item.count)
-                .font(.dmSans(13, weight: .semibold))
-                .foregroundStyle(item.flagged ? Tokens.Color.ochre : Tokens.Color.textPrimary)
+                .font(.dmSans(14, weight: .semibold))
+                .foregroundStyle(item.flagged ? Tokens.Color.accentText : Tokens.Color.textPrimary)
             Spacer(minLength: 10)
             Text(item.detail)
-                .font(.dmSans(13.5, weight: .regular))
+                .font(.dmSans(14, weight: .regular))
                 .foregroundStyle(Tokens.Color.textSecondary)
         }
         .padding(.vertical, 4)

@@ -42,7 +42,7 @@ struct HomeView: View {
             if showDailyBrief {
                 DailyBriefView(brief: HomeMockData.dailyBrief) {
                     voiceAssistant.skipDailyBriefAudio()
-                    withAnimation(.easeOut(duration: 0.5)) {
+                    withAnimation(Tokens.Motion.relaxed) {
                         showDailyBrief = false
                     }
                 }
@@ -96,7 +96,7 @@ struct HomeView: View {
                 .opacity(voiceAssistant.orbIsActive ? 0.25 : 0)
                 .allowsHitTesting(false)
                 .ignoresSafeArea()
-                .animation(.easeInOut(duration: 0.35), value: voiceAssistant.orbIsActive)
+                .animation(Tokens.Motion.standardSymmetric, value: voiceAssistant.orbIsActive)
 
             OrbBackdropFade()
 
@@ -158,11 +158,11 @@ struct HomeView: View {
         .onChange(of: voiceAssistant.messages.count) { _, _ in
             guard let last = voiceAssistant.messages.last, last.role != .user else { return }
             captionHideTask?.cancel()
-            withAnimation(.easeOut(duration: 0.25)) { captionText = last.text }
+            withAnimation(Tokens.Motion.quick) { captionText = last.text }
             captionHideTask = Task {
                 try? await Task.sleep(for: .seconds(5))
                 guard !Task.isCancelled else { return }
-                withAnimation(.easeOut(duration: 0.25)) { captionText = nil }
+                withAnimation(Tokens.Motion.quick) { captionText = nil }
             }
         }
         .sheet(isPresented: $showMenu) {

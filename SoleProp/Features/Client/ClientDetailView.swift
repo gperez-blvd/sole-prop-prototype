@@ -89,7 +89,7 @@ struct ClientDetailView: View {
     private func cadenceRow(days: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Button {
-                withAnimation(.easeOut(duration: 0.2)) { showingHowIKnow.toggle() }
+                withAnimation(Tokens.Motion.quick) { showingHowIKnow.toggle() }
             } label: {
                 HStack(alignment: .firstTextBaseline) {
                     factRow(label: "Rebooks", value: "About every \(ClientMemory.weeksPhrase(days))")
@@ -108,7 +108,7 @@ struct ClientDetailView: View {
                         .font(Tokens.Typography.bodyRegular)
                         .foregroundStyle(Tokens.Color.textSecondary)
                     Button("That's not right") {
-                        withAnimation(.easeOut(duration: 0.2)) {
+                        withAnimation(Tokens.Motion.quick) {
                             memory.cadenceBelief = nil
                             showingHowIKnow = false
                         }
@@ -155,7 +155,7 @@ struct ClientDetailView: View {
             }
             if memory.visits.count > Self.collapsedVisitCount {
                 Button {
-                    withAnimation(.easeOut(duration: 0.2)) { showAllVisits.toggle() }
+                    withAnimation(Tokens.Motion.quick) { showAllVisits.toggle() }
                 } label: {
                     Text(showAllVisits ? "Show less" : "See all \(memory.visits.count)")
                         .font(Tokens.Typography.caption)

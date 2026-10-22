@@ -1,11 +1,18 @@
 import SwiftUI
 
+/// A compact icon+label pill — the "quick action" button used in the
+/// chat composer bar (Book/Sale) and anywhere else a secondary action
+/// needs to sit inline rather than take the full-width `PillButton`
+/// treatment. Relocated here (it used to live inside `Features/Home`)
+/// because a reusable button variant belongs in the shared catalog
+/// alongside `PillButton`/`ChoiceChip`, not in whichever feature folder
+/// happened to need it first.
 struct QuickActionButton: View {
     var title: String
     var systemImage: String
-    /// Smaller footprint for the conversation screen's bottom bar, where it
-    /// sits alongside the input toggle and orb rather than as a standalone
-    /// Home control.
+    /// Smaller footprint for the conversation screen's bottom bar, where
+    /// it sits alongside the input toggle and orb rather than as a
+    /// standalone Home control.
     var isCompact: Bool = false
     var action: () -> Void
 
@@ -15,7 +22,7 @@ struct QuickActionButton: View {
                 Image(systemName: systemImage)
                     .font(.system(size: isCompact ? 12 : 15, weight: .medium))
                 Text(title)
-                    .font(.dmSans(isCompact ? 12.5 : 14, weight: .medium))
+                    .font(.dmSans(isCompact ? 12 : 14, weight: .medium))
             }
             .foregroundStyle(Tokens.Color.onPrimaryFill)
             .padding(.horizontal, isCompact ? 14 : 20)

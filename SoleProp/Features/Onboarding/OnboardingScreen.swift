@@ -76,7 +76,7 @@ struct OnboardingScreen<Content: View>: View {
                 // than appearing at the same moment as the content —
                 // this is the one footer every onboarding/auth screen
                 // shares, so it's the one place this fires for free.
-                .staggerAppear(0, startDelay: 0.2, duration: 0.3, distance: 6)
+                .staggerAppear(0, startDelay: Tokens.Motion.Duration.quick, duration: Tokens.Motion.Duration.standard, distance: 6)
             }
         }
     }

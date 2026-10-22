@@ -98,9 +98,7 @@ final class SpeechRecognitionService: NSObject {
         request.shouldReportPartialResults = true
         self.request = request
 
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
-        try session.setActive(true)
+        AudioSession.activate()
 
         let input = audioEngine.inputNode
         let format = input.outputFormat(forBus: 0)

@@ -90,27 +90,27 @@ struct BookAppointmentView: View {
                 Text(client ?? "")
                     .font(.dmSans(16, weight: .semibold))
                 Text("\(service ?? "") · \(days[dayIndex].0) \(days[dayIndex].1) at \(slot ?? "")")
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 Text("Confirmation texted. Deposit link sent. Reminder set for the day before.")
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
             }
             .padding(16)
             .background(Tokens.Color.silt)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("Want to change how I sound?")
-                    .font(.dmSans(13.5, weight: .semibold))
+                    .font(.dmSans(14, weight: .semibold))
                 Text("Let's customize your Cues.")
-                    .font(.dmSans(13.5, weight: .regular))
+                    .font(.dmSans(14, weight: .regular))
                     .foregroundStyle(Tokens.Color.textSecondary)
                 PillButton(title: "Customize your Cues", action: onOpenPersona)
             }
             .padding(14)
             .background(Tokens.Color.silt)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.card))
         }
     }
 
@@ -133,7 +133,7 @@ struct BookAppointmentView: View {
             VStack(spacing: 2) {
                 TrackedLabel(text: days[index].0, font: Tokens.Typography.labelSmall, color: isSelected ? Tokens.Color.onPrimaryFill.opacity(0.6) : Tokens.Color.textTertiary)
                 Text(days[index].1)
-                    .font(.dmSans(15, weight: .semibold))
+                    .font(.dmSans(16, weight: .semibold))
                     .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
             }
             .frame(maxWidth: .infinity)
@@ -141,8 +141,8 @@ struct BookAppointmentView: View {
         }
         .buttonStyle(.plain)
         .background(isSelected ? Tokens.Color.primaryFill : Color.clear)
-        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Tokens.Color.textTertiary.opacity(0.4), lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.md).strokeBorder(Tokens.Color.textTertiary.opacity(0.4), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.md))
     }
 
     private func slotTile(_ time: String) -> some View {
@@ -161,46 +161,10 @@ struct BookAppointmentView: View {
         .buttonStyle(.plain)
         .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : (isTaken ? Tokens.Color.textTertiary : Tokens.Color.textPrimary))
         .background(isSelected ? Tokens.Color.primaryFill : Color.clear)
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Tokens.Color.textTertiary.opacity(0.4), lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.md).strokeBorder(Tokens.Color.textTertiary.opacity(0.4), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.md))
         .opacity(isTaken ? 0.4 : 1)
         .disabled(isTaken)
-    }
-}
-
-/// Minimal flow layout for chip rows (SwiftUI has no built-in wrap HStack).
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? .infinity
-        var x: CGFloat = 0, y: CGFloat = 0, lineHeight: CGFloat = 0
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
-            if x + size.width > width, x > 0 {
-                x = 0
-                y += lineHeight + spacing
-                lineHeight = 0
-            }
-            x += size.width + spacing
-            lineHeight = max(lineHeight, size.height)
-        }
-        return CGSize(width: width.isFinite ? width : x, height: y + lineHeight)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var x: CGFloat = bounds.minX, y: CGFloat = bounds.minY, lineHeight: CGFloat = 0
-        for view in subviews {
-            let size = view.sizeThatFits(.unspecified)
-            if x + size.width > bounds.maxX, x > bounds.minX {
-                x = bounds.minX
-                y += lineHeight + spacing
-                lineHeight = 0
-            }
-            view.place(at: CGPoint(x: x, y: y), proposal: .unspecified)
-            x += size.width + spacing
-            lineHeight = max(lineHeight, size.height)
-        }
     }
 }
 

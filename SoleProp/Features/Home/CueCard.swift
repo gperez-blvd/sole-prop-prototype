@@ -13,7 +13,7 @@ struct CueCard: View {
                 if cue.isMilestone {
                     Image(systemName: "sparkle")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Tokens.Color.ochre)
+                        .foregroundStyle(Tokens.Color.accentText)
                         .padding(.top, 2)
                 }
                 Text(cue.spokenText)
@@ -25,7 +25,7 @@ struct CueCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("What I did")
                         .font(Tokens.Typography.labelSmall)
-                        .foregroundStyle(Tokens.Color.ochre)
+                        .foregroundStyle(Tokens.Color.accentText)
                     Text(action.description)
                         .font(Tokens.Typography.caption)
                         .foregroundStyle(Tokens.Color.textSecondary)

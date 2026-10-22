@@ -12,7 +12,7 @@ struct WelcomeView: View {
                     .foregroundStyle(Tokens.Color.textPrimary)
                     .staggerAppear(0)
                 Text("The secret behind your service")
-                    .font(.dmSans(15, weight: .medium))
+                    .font(.dmSans(16, weight: .medium))
                     .foregroundStyle(Tokens.Color.textSecondary)
                     .tracking(-0.2)
                     .staggerAppear(1)

@@ -74,7 +74,7 @@ struct AuthLandingView: View {
                     }
 
                     Text("powered by Boulevard")
-                        .font(.dmSans(12.5, weight: .medium))
+                        .font(.dmSans(14, weight: .medium))
                         .foregroundStyle(Tokens.Color.fog.opacity(0.45))
                         .staggerAppear(3, baseDelay: 0.12, startDelay: contentStartDelay)
                 }

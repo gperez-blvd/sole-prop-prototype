@@ -49,6 +49,28 @@ struct PillButton: View {
     }
 }
 
+/// An inline, compact button for a tight context inside a card (accept/
+/// dismiss a review item, a secondary action riding alongside other
+/// content) — `PillButton`'s full-width treatment doesn't fit here, but
+/// it's the same two-state (filled/outline) language, just sized down.
+/// Used to be a private, one-off `MiniButtonStyle` duplicated inside
+/// `MigrateDoneView`; promoted here so any screen needing this same
+/// small-filled/small-outline pair reaches for one shared style.
+struct CompactButtonStyle: ButtonStyle {
+    var filled: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.dmSans(14, weight: .semibold))
+            .padding(.horizontal, 13)
+            .padding(.vertical, 8)
+            .foregroundStyle(filled ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
+            .background(RoundedRectangle(cornerRadius: Tokens.Radius.button).fill(filled ? Tokens.Color.primaryFill : Color.clear))
+            .overlay(RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(filled ? .clear : Tokens.Color.textPrimary, lineWidth: 1))
+            .opacity(configuration.isPressed ? 0.7 : 1)
+    }
+}
+
 /// A small toggle button, filled ink when selected — same corner radius as
 /// every other button, not a capsule chip.
 struct ChoiceChip: View {
@@ -59,7 +81,7 @@ struct ChoiceChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.dmSans(13, weight: .medium))
+                .font(.dmSans(14, weight: .medium))
                 .padding(.horizontal, 13)
                 .padding(.vertical, 8)
         }
