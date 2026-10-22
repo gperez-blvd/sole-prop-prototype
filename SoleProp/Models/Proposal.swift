@@ -17,7 +17,6 @@ struct Proposal: Identifiable, Hashable {
     /// late" — so the proposal reads as a follow-up, not a cold question.
     var context: String?
     var spokenFraming: String
-    var finding: String
     var options: [ThresholdOption]
     var threshold: Threshold
 }

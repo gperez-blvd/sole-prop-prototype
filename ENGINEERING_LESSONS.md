@@ -6,19 +6,36 @@ conversation's context, and a few weeks later the same shape of bug shows up aga
 different file name. Writing the rule down here is cheaper than re-discovering it.
 
 **How to use this file:**
-- Read it before touching animation, custom `Shape`s, scrollable rows with selection state, or
-  anything that reuses a component across a forced-dark / forced-light context.
+- Read it before touching animation, custom `Shape`s, scrollable rows with selection state,
+  stacked/layered cards, or anything that reuses a component across a forced-dark /
+  forced-light context.
 - When you (Claude or anyone) hit something that wasted real time — a bug, a bad pattern, a
-  tooling gotcha — add an entry here before moving on. Lead with the rule, then **Why**, then
-  **How to apply**. Keep entries platform-general when the lesson isn't actually iOS-specific;
-  split out a "Swift/SwiftUI-specific" section only for the mechanics that really don't
-  translate.
-- This is the intended baseline for the Android build too. Section one is written to survive
-  the platform switch as-is; section two is where the iOS-only mechanics live.
+  tooling gotcha, a design decision that had to be walked back — add an entry here before
+  moving on, filed under whichever of the two categories below actually fits. Lead with the
+  rule, then **Why**, then **How to apply**.
+- This is the intended baseline for the Android build too. Sections 1 and 2 are written to
+  survive the platform switch as-is; sections 3 and 4 are where the iOS-only mechanics and
+  tooling notes live.
+
+**The two categories, and why they're kept separate:**
+- **§1 Bugs & Errors** — something that was factually broken, independent of taste: a
+  rendering defect, a value computed wrong, a stuck UI state, a direct violation of an
+  explicit written rule (CLAUDE.md). Nobody would defend the old behavior as "a reasonable
+  choice that didn't work out" — it was simply incorrect.
+- **§2 Unoptimized / Suboptimal Design Choices** — something that worked exactly as coded, and
+  wasn't *wrong*, but turned out to be the weaker call once it was actually seen: an
+  inconsistent visual language between two sibling components, a pattern that invited drift,
+  a feature that over-built a card past what it needed. These are worth recording separately
+  from bugs because the fix isn't "find the defect," it's "recognize the same weaker pattern
+  before choosing it again."
+
+When adding an entry, ask: *if nobody had ever looked at this, would it have stayed wrong
+forever (bug), or would it have kept working, just not as well as the alternative (design
+choice)?* That answer decides which section it goes in.
 
 ---
 
-## 1. Platform-general rules (apply on iOS today, and on Android when we get there)
+## 1. Bugs & Errors
 
 ### Never render the "same" visual as two independent layout systems
 **Rule:** if two things need to look like one coherent shape (an outline trace and its own
@@ -34,18 +51,6 @@ other. The fix was to fill *and* stroke the exact same shape value.
 what the single shared value is that both treatments read from. If there isn't one, that's the
 bug, not a rendering detail to debug later. On Android this is the same question for
 `Path`/`Canvas` + `Text`, or any Compose `Modifier.drawWithContent` pairing.
-
-### Slow, deliberate motion needs an asymmetric curve, not `easeInOut` stretched longer
-**Rule:** a "considered, high-quality" animation (a hero reveal, a splash wordmark) should use a
-strong deceleration curve — fast start, long confident settle — not a symmetric ease-in-ease-out
-stretched to a longer duration.
-**Why:** our first pass at the "Cue" draw-on animation used `.easeInOut` at 1.4s; lengthening the
-duration alone made it read as *slow*, not *expressive* — it still had the mechanical,
-start-stop-start-stop quality of a loading spinner. Switching to a cubic-bezier deceleration
-curve (`timingCurve(0.16, 1, 0.3, 1, duration:)`) at 2.6s is what actually read as "handwriting."
-**How to apply:** for anything meant to feel crafted rather than functional, reach for an
-asymmetric/deceleration curve before reaching for a longer duration. Duration and easing are not
-substitutes for each other.
 
 ### A scrollable row with a "lifts when selected" state needs room to lift in
 **Rule:** if an item inside a scroll container scales or translates on selection, the container
@@ -63,25 +68,28 @@ before the feature is considered done — not after QA catches the clipping.
 "See more" affordance sits at the end, or the row is simply narrower than its content), mask the
 truncated edge with a gradient fade rather than letting content end in a hard, mid-shape cut.
 **Why:** a pill sliced cleanly in half at the container's edge reads as a layout bug even when
-it's "working as intended" (there's more to scroll to). A soft fade signals "there's more here"
-instead of "something broke."
+it's "working as intended" (there's more to scroll to) — it is genuinely indistinguishable from
+a defect without reading the code.
 **How to apply:** default to a trailing (or both-edge, if the row doesn't start at the content's
 true beginning) alpha gradient mask on any horizontally-scrolling row that sits next to a fixed
 affordance or a card edge. This is a `Modifier.graphicsLayer` + `Brush` fade on Android — same
 rule, different API.
 
-### Prefer one continuous, state-driven screen over multiple navigated screens for one flow
-**Rule:** when several "screens" are really one task with different stages (log in vs. sign up,
-a multi-step form), model it as a single view switching on a state enum, not as separate view
-types pushed/popped on a navigation stack.
-**Why:** separate screens for log-in and create-account forced a back-button/navigation
-affordance to exist purely to move between two things that are conceptually one door. Collapsing
-them into one `Step`-driven view removed the need for that navigation chrome entirely and made
-the transition between stages animatable as state, not as a screen cut.
-**How to apply:** before building a second screen for a flow, ask whether it's actually a
-different task or just a different state of the same task. If it's the latter, it's a `switch`
-on an enum inside one view, not a new file in the navigation graph. This applies identically to
-Android (one Composable + a sealed-class state, not a second Fragment/destination).
+### Stacking `.opacity()` on an already-translucent color token is accidental transparency
+**Rule:** before calling `.opacity(x)` on a color, check whether that color is itself already
+partially transparent (e.g. a token like `accentTint` defined as `ochre.opacity(0.12)`). If so,
+the two opacities multiply, not average — `accentTint.opacity(0.14)` isn't "a slightly fainter
+accentTint," it's ~0.017 alpha, which reads as "this part of the view is just see-through."
+**Why:** `CueCard`'s background used to be a `LinearGradient` from `Tokens.Color.surface` to
+`Tokens.Color.accentTint.opacity(0.14)`. In a stacked-card layout (`DetailMomentStack`), the
+nearly-invisible gradient stop let the card sitting behind it bleed straight through the front
+card's own body — not peeking around its edges, visible *inside* its rounded rect. It looked
+exactly like a transparency bug because it was one.
+**How to apply:** a gradient or overlay that needs to fade to "nothing" should fade to `.clear`
+(or to the page's own background color) layered *on top of* an already fully-opaque base — never
+let the base fill itself be, or blend toward, a color with alpha < 1. A sheen/highlight effect
+belongs in a separate `overlay()` that fades to `.clear` over an opaque base; it should never be
+baked into the base fill's own gradient stops.
 
 ### A nav icon's badge count is a product-principle violation, not a style choice
 **Rule:** a top-bar/nav icon (bell, message, tab) never renders a live count on itself — no
@@ -93,13 +101,92 @@ CLAUDE.md's "Counts are never badges... It is never a number on an icon" and its
 which names "a badge, an unread dot, a notification tray" outright. This wasn't a deliberate,
 documented exception (compare the PROTOTYPE section, which *is* one) — it was a leftover from
 before that rule was internalized, sitting in otherwise-compliant code for multiple sessions
-without anyone noticing it violated the project's own stated principle.
+without anyone noticing it violated the project's own stated principle. A written rule being
+violated in shipped code is a bug, not a matter of opinion about badges.
 **How to apply:** before adding any new icon with a presence signal attached, check the
 product's own stated rules first, not just visual taste. A plain icon button
 (`HeaderIconButton`) replaced it; the underlying mock-data counts were deleted outright rather
 than left unused, per this repo's own no-vestigial-code convention. On Android, apply the same
-check before reaching for a `BadgeDrawable` or notification-dot composable — the rule is about
-the product's restraint principle, not a SwiftUI-specific API.
+check before reaching for a `BadgeDrawable` or notification-dot composable.
+
+### A system `Divider()` over a translucent/material background renders unpredictably
+**Rule:** don't use SwiftUI's native `Divider()` on top of a `.presentationBackground` material,
+a blurred backdrop, or any non-opaque-flat-color surface. Either draw an explicit hairline
+(`Rectangle().fill(Tokens.Color.hairline).frame(height: 1)`, the pattern already used in
+`ClientListView`/`NotificationsView`/etc.) or remove the divider altogether if row height alone
+gives enough separation.
+**Why:** `MenuSheet`'s rows used `Divider()` once the sheet's backdrop became a soft frosted
+material (`.ultraThinMaterial` + a tint). The system control's separator color is computed per
+-context and does not render predictably over a material — the dividers visibly faded/looked
+broken rather than reading as a clean hairline. This was reported as "the dividers are fading
+strangely," and it was: `Divider()`'s automatic color resolution is simply not designed for
+that backdrop.
+**How to apply:** treat `Divider()` as safe only over a flat, fully-opaque `Tokens.Color`
+background. Anywhere a material/blur/gradient backdrop is in play, use an explicit hairline
+`Rectangle` (full control over its exact color and opacity) or, as we did here, remove the
+divider in favor of generous fixed row height.
+
+### Measuring a sheet's content height at runtime to set its own detent does not work
+**Rule:** don't measure a view's real height with `GeometryReader` + `PreferenceKey` and feed
+that measurement back into `.presentationDetents` on the same sheet. Compute the height
+analytically instead — fixed per-row `.frame(height:)` (not `minHeight`) times a known row
+count, plus known padding/divider constants — so `.presentationDetents([.height(exactValue)])`
+is correct on the very first frame.
+**Why:** the measured value starts at `0` before the first layout pass, so the sheet opens at
+whatever fallback detent was given (e.g. `.medium`, ~50% of the screen). Updating
+`presentationDetents` on an *already-presented* sheet does not reliably resize it afterward, so
+the sheet was visibly stuck at that oversized fallback with real content floating inside a
+mostly-empty sheet — not a temporary flash on first open, a persistent wrong state for as long
+as the sheet stayed up. This is exactly the "this menu still looks very tall" bug reported
+against `MenuSheet`.
+**How to apply:** know the height up front. If the content is dynamic enough that it truly
+can't be computed analytically, don't use a custom `.height()` detent at all — fall back to
+`.medium`/`.large` and accept the imprecision, rather than attempting runtime measurement that
+SwiftUI won't act on in time.
+
+### A sheet's own background must be set via `presentationBackground`, not `.background()` on its content
+**Rule:** `.background(_:)` applied to a sheet's root content view only paints that content's own
+laid-out area. Any extra space the system sheet reserves around it (most commonly the
+home-indicator safe-area sliver at the bottom) is not part of that view and falls back to the
+sheet's default system material. Use `.presentationBackground { ... }` to set the backdrop for
+the whole sheet, content and reserved space alike.
+**Why:** `MenuSheet` painted its rows with `.background(Tokens.Color.background)`, but the
+sliver below the last row (reserved for the home indicator) kept showing the system's default
+blurred material — a visible seam between "our background" and "the system's," reported as
+"extremely strange... spacing at the top and bottom."
+**How to apply:** for any sheet with a custom background — solid, tinted, or a frosted
+material — set it with `.presentationBackground`, not a content-level `.background()`.
+
+---
+
+## 2. Unoptimized / Suboptimal Design Choices
+
+### Slow, deliberate motion needs an asymmetric curve, not `easeInOut` stretched longer
+**Rule:** a "considered, high-quality" animation (a hero reveal, a splash wordmark) should use a
+strong deceleration curve — fast start, long confident settle — not a symmetric ease-in-ease-out
+stretched to a longer duration.
+**Why:** our first pass at the "Cue" draw-on animation used `.easeInOut` at 1.4s; lengthening the
+duration alone made it read as *slow*, not *expressive* — it still had the mechanical,
+start-stop-start-stop quality of a loading spinner. Nothing was broken — the animation ran
+exactly as coded — it just wasn't the right feel. Switching to a cubic-bezier deceleration curve
+(`timingCurve(0.16, 1, 0.3, 1, duration:)`) at 2.6s is what actually read as "handwriting."
+**How to apply:** for anything meant to feel crafted rather than functional, reach for an
+asymmetric/deceleration curve before reaching for a longer duration. Duration and easing are not
+substitutes for each other.
+
+### Prefer one continuous, state-driven screen over multiple navigated screens for one flow
+**Rule:** when several "screens" are really one task with different stages (log in vs. sign up,
+a multi-step form), model it as a single view switching on a state enum, not as separate view
+types pushed/popped on a navigation stack.
+**Why:** separate screens for log-in and create-account forced a back-button/navigation
+affordance to exist purely to move between two things that are conceptually one door. Both
+screens worked correctly — this wasn't a bug — but collapsing them into one `Step`-driven view
+removed the need for that navigation chrome entirely and made the transition between stages
+animatable as state, not as a screen cut.
+**How to apply:** before building a second screen for a flow, ask whether it's actually a
+different task or just a different state of the same task. If it's the latter, it's a `switch`
+on an enum inside one view, not a new file in the navigation graph. This applies identically to
+Android (one Composable + a sealed-class state, not a second Fragment/destination).
 
 ### A decorative accent at full saturation reads neon, not luxurious
 **Rule:** small decorative icon chips and status dots should use a softened, desaturated variant
@@ -107,16 +194,15 @@ of the brand accent — never the raw hue at full saturation, and never that hue
 over a dark surface (opacity alone makes a hue muddier on dark backgrounds, not lighter).
 **Why:** `Tokens.Color.ochre`/`accentText` is tuned for contrast-critical small text and
 checkmarks, and on dark surfaces that tuning makes it *identical to the raw, fully-saturated
-hue* — correct for a checkmark, wrong once that same value fills a notification's icon circle or
-an unread dot. It read as neon, which fights the self-care/luxury tone the rest of the app is
-going for.
+hue* — correct for a checkmark, a defensible-looking choice, but wrong in effect once that same
+value filled a notification's icon circle or an unread dot. It read as neon, which fights the
+self-care/luxury tone the rest of the app is going for. Nothing here was incorrect code; it was
+the wrong token reused in the wrong context.
 **How to apply:** keep a second, genuinely-lightened token (we added `Tokens.Color.accentSoft` /
 `accentSoftTint`, backed by their own asset-catalog colorsets, not a computed opacity) for
 decorative icon treatments and status dots. Reserve the raw accent for things actually conveying
-state through color at a size where contrast matters. This is a product-tone rule as much as a
-technical one — re-apply it on Android with whatever that platform's equivalent of a muted
-secondary-accent token is, rather than reaching for the primary brand color at full strength on
-every small icon.
+state through color at a size where contrast matters. Re-apply this on Android with whatever
+that platform's equivalent of a muted secondary-accent token is.
 
 ### A back action belongs where the user's hands already are, named for what it does
 **Rule:** when a multi-step flow needs to go back, that control should go back **one step**, be
@@ -124,21 +210,54 @@ visibly labeled as a back action, and live right above the content it affects �
 implicit side-effect of tapping an unrelated element (a logo, a title), and not jump all the way
 to the start regardless of how many steps were taken.
 **Why:** our first instinct was tap-the-wordmark-to-reset-everything, both because the logo was
-already shrinking there and because it removed the need for a literal label. In practice this
-hid a real action behind an element that didn't look interactive, and it over-corrected by
-always resetting to the very first step instead of just undoing the most recent one.
+already shrinking there and because it removed the need for a literal label. It worked, in the
+sense that it did take you back — but it hid a real action behind an element that didn't look
+interactive, and it over-corrected by always resetting to the very first step instead of just
+undoing the most recent one.
 **How to apply:** a back control is cheap to make explicit (a small chevron + "Back"/"All"
 label). Don't fold it into an unrelated element's tap target for the sake of visual minimalism,
 and make sure it steps back one stage, clearing only that stage's own fields.
 
+### A shared button/CTA style must be decided once, not reinvented per card
+**Rule:** when a family of sibling components (here, Home's stacked `DetailMoment` cards —
+`CueCard`, `ThresholdProposalCard`) each need an actionable button, define that treatment as one
+shared component and have every card use it — never let each card's button evolve its own look
+independently.
+**Why:** `CueCard`'s "Got it" started as a neutral filled pill while `ThresholdProposalCard`'s
+option chips were teal-outlined — both individually reasonable-looking choices, made at
+different times without either one referencing the other. Sitting next to each other in the same
+stack, they read as inconsistent: "this card's actions matter enough to be teal, that one's
+don't." Neither version was broken; they just hadn't been decided *together*.
+**How to apply:** the fix was `CardChoiceButton`, one shared component both cards now call for
+their actionable buttons. Before giving a new card its own button styling, check whether a
+sibling component in the same family already has one — reuse it rather than inventing a
+visually-plausible-on-its-own variant.
+
+### Don't bolt a disclosure-and-decline path onto every actionable card by default
+**Rule:** a card built around one decision (pick option A or B) doesn't automatically need a
+"why are you asking?" reasoning disclosure or a "not now" decline action just because those are
+easy to add. Add them only when there's a real need to explain or defer the decision — not as a
+default feature of "a card that asks something."
+**Why:** `ThresholdProposalCard` shipped with both a `showReasoning` toggle ("Why are you
+asking?" / "Hide why") and a "Not now" decline button, in addition to its two real options. Nothing
+about this was incorrect — it worked, the toggle toggled, the decline declined — but it made a
+one-question card into a four-path card (option A, option B, show reasoning, decline), which
+is more surface than the actual decision needed. CLAUDE.md's own "Behind" tier already covers
+reasoning-on-demand as a separate, deliberate disclosure level — bolting a miniature version of
+it onto every proposal card duplicates that without being asked to.
+**How to apply:** when designing a card around a decision, count the real paths out of it before
+adding affordances. If the only two sane outcomes are "pick A" or "pick B," those are the only
+two controls the card needs. Add a decline/defer path only when there's a concrete reason she'd
+need one, not preemptively because the pattern is easy to copy from elsewhere.
+
 ---
 
-## 2. Swift / SwiftUI-specific mechanics
+## 3. Swift / SwiftUI-specific mechanics
 
 - **`GlyphPathShape` (CoreText path) + `.trim`/`.stroke`/`.fill`:** always construct the shape
   value once conceptually and apply both `.fill` and `.stroke` to it (two `View`s built from the
   same `Shape` call is fine; two *different* `Shape`/`Text` types claiming to represent the same
-  word is not). See rule above.
+  word is not). See §1.
 - **`.scaleEffect` inside a `ScrollView`:** the scroll container clips to its content's laid-out
   bounds, not to the post-transform bounds. Add `.padding(.vertical, n)` (or horizontal, matching
   the scroll axis's cross-dimension) to the `HStack`/`VStack` *inside* the `ScrollView`, sized to
@@ -152,22 +271,19 @@ and make sure it steps back one stage, clearing only that stage's own fields.
   differently in light/dark) will otherwise risk resolving to the *app's* current setting, not
   the screen's own fixed design — e.g. ink-on-ink text if the user's app-wide setting is Light
   while the screen itself is designed as permanently dark.
-- **Sizing a sheet to fit its own content exactly:** don't measure content height at runtime
-  (`GeometryReader` + `PreferenceKey`) and feed that back into `.presentationDetents` on the same
-  view — the measurement starts at 0 before the first layout pass, so the sheet opens at whatever
-  fallback detent you gave it (e.g. `.medium`), and updating `presentationDetents` on an
-  already-presented sheet does not reliably resize it afterward. The result is a sheet visibly
-  stuck at the oversized fallback with real content floating inside a mostly-empty sheet — not a
-  temporary flash, a persistent wrong state. Compute the height analytically instead: fixed
-  per-row `.frame(height:)` (not `minHeight`) times a known row count, plus known padding/divider
-  constants, so `.presentationDetents([.height(exactValue)])` is correct on the very first frame.
+- **Sizing a sheet to fit its own content exactly:** see §1's measure-then-resize entry — compute
+  the height analytically, never via runtime `GeometryReader` measurement fed back into
+  `presentationDetents`.
+- **A sheet's background:** see §1 — `.presentationBackground`, not a content-level `.background()`.
+- **Dividers over materials:** see §1 — an explicit hairline `Rectangle`, not `Divider()`, over
+  any non-flat-opaque backdrop.
 - **Custom deceleration easing:** `Animation.timingCurve(0.16, 1, 0.3, 1, duration:)` is our
   go-to "confident settle" curve — keep reaching for it (or a similarly shaped curve) rather than
   re-deriving `easeInOut` variants per screen.
 
 ---
 
-## 3. Tooling / verification notes (not app bugs — but they cost real time if undiagnosed)
+## 4. Tooling / verification notes (not app bugs — but they cost real time if undiagnosed)
 
 ### iOS Simulator automation: tap coordinates are in device points, not screenshot pixels
 A `screenshot` result's image is at the device's native pixel resolution (e.g. 1206×2622 for an

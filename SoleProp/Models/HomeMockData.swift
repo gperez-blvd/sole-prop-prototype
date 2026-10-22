@@ -122,7 +122,6 @@ enum HomeMockData {
         pendingThresholdProposal: Proposal(
             context: "Priya S. — running late",
             spokenFraming: "I can text clients when you're running behind, but I don't have permission to send messages yet — want me to set that up?",
-            finding: "Texting unlocks same-day delay notices — most solo injectors turn this on in their first month.",
             options: [
                 ThresholdOption(boundaryValue: 1, label: "Set it up"),
                 ThresholdOption(boundaryValue: 0, label: "Not yet"),
@@ -156,7 +155,6 @@ enum HomeMockData {
         pendingThresholdProposal: Proposal(
             context: "Priya S. — running late",
             spokenFraming: "Since I flagged that — want me to tell you next time someone's 10 minutes late, or wait until 20?",
-            finding: "This is the first time this has come up, so I don't know yet how much notice you want.",
             options: [
                 ThresholdOption(boundaryValue: 10, label: "10 min"),
                 ThresholdOption(boundaryValue: 20, label: "20 min"),
@@ -199,7 +197,6 @@ enum HomeMockData {
         pendingThresholdProposal: Proposal(
             context: "This month — rebooking",
             spokenFraming: "Clients are drifting past your usual rebooking window — want me to text the ones who are due?",
-            finding: "About $41K a year is sitting in that gap if the pattern holds — I've seen it for three months running.",
             options: [
                 ThresholdOption(boundaryValue: 1, label: "Text them"),
                 ThresholdOption(boundaryValue: 0, label: "Not yet"),

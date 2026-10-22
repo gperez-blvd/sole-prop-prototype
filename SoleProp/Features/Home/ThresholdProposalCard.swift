@@ -4,13 +4,19 @@ import SwiftUI
 /// it's still learning her preference — e.g. "want to know at 10 minutes
 /// late, or 20?" Deliberately not a settings screen: it's one question,
 /// nested on today, gone as soon as she answers it once.
+///
+/// Simplified on purpose: this used to also carry a "Why are you asking?"
+/// disclosure and a "Not now" decline action. Both are gone — a one
+/// -question card that already reads as "pick one of these two things" is
+/// not the place for a third, fourth path out of it, and reasoning-on
+/// -demand belongs at the "Behind" tier (see CLAUDE.md), not bolted onto
+/// every card that could theoretically justify itself. The only way out
+/// of this card now is picking an option.
 struct ThresholdProposalCard: View {
     var proposal: Proposal
     var onAccept: (ThresholdOption) -> Void
-    var onDecline: () -> Void
 
     @State private var confirmedOption: ThresholdOption?
-    @State private var showReasoning = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -31,49 +37,14 @@ struct ThresholdProposalCard: View {
 
                 HStack(spacing: 8) {
                     ForEach(proposal.options) { option in
-                        optionChip(option)
+                        CardChoiceButton(title: option.label) {
+                            select(option)
+                        }
                     }
-                }
-
-                HStack {
-                    Button(showReasoning ? "Hide why" : "Why are you asking?") {
-                        withAnimation { showReasoning.toggle() }
-                    }
-                    .font(Tokens.Typography.caption)
-                    .foregroundStyle(Tokens.Color.textSecondary)
-
-                    Spacer()
-
-                    Button("Not now", action: onDecline)
-                        .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textTertiary)
-                }
-
-                if showReasoning {
-                    Text(proposal.finding)
-                        .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Color.textSecondary)
-                        .transition(.opacity)
                 }
             }
         }
         .cardStyle()
-    }
-
-    private func optionChip(_ option: ThresholdOption) -> some View {
-        Button {
-            select(option)
-        } label: {
-            Text(option.label)
-                .font(.dmSans(14, weight: .medium))
-                .foregroundStyle(Tokens.Color.accentText)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: Tokens.Radius.button).strokeBorder(Tokens.Color.accentBorderStrong)
-                )
-        }
-        .buttonStyle(.plain)
     }
 
     private func select(_ option: ThresholdOption) {
@@ -88,8 +59,7 @@ struct ThresholdProposalCard: View {
 #Preview {
     ThresholdProposalCard(
         proposal: HomeMockData.pendingThresholdProposal!,
-        onAccept: { _ in },
-        onDecline: {}
+        onAccept: { _ in }
     )
     .padding(28)
     .background(Tokens.Color.background)

@@ -48,12 +48,11 @@ struct DetailMomentStack: View {
             }
         case .proposal(let proposal):
             // A proposal is a decision, not a notice — swiping can move it,
-            // but only picking an option or "Not now" actually dismisses it.
+            // but only picking an option actually dismisses it.
             SwipeToDismissCard(onDismiss: onDismissTop, swipeToDismissEnabled: false) { requestDismiss in
                 ThresholdProposalCard(
                     proposal: proposal,
-                    onAccept: { _ in requestDismiss() },
-                    onDecline: requestDismiss
+                    onAccept: { _ in requestDismiss() }
                 )
             }
         }
