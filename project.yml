@@ -27,6 +27,11 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        # Xcode now warns unless an app either supports every
+        # orientation or declares it requires full screen (no iPad
+        # Slide Over/Split View) — this is a portrait-only phone demo,
+        # so full-screen is the correct declaration, not a workaround.
+        UIRequiresFullScreen: true
         NSMicrophoneUsageDescription: "Sole Prop uses your microphone so you can talk to your voice assistant."
         NSSpeechRecognitionUsageDescription: "Sole Prop uses on-device speech recognition to turn what you say to your voice assistant into text."
         UIAppFonts:

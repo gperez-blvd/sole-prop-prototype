@@ -73,14 +73,19 @@ final class AudioPlaybackService: NSObject {
     /// (louder/quieter syllables) instead of an arbitrary animation.
     private func startMetering(for player: AVAudioPlayer) {
         meteringTask?.cancel()
-        meteringTask = Task { [weak self] in
+        // `@MainActor` on the `Task` itself, not a `MainActor.run` hop
+        // inside a plain one — isolating the whole closure consistently
+        // is what Swift 6 actually wants here; hopping only around the
+        // mutation still left `self` referenced from a nominally
+        // concurrently-executing context.
+        meteringTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
                 player.updateMeters()
                 // Decibels (roughly -160...0) to a 0...1 linear-ish level —
                 // -50dB and quieter reads as silence, 0dB as full.
                 let decibels = player.averagePower(forChannel: 0)
                 let normalized = max(0, min(1, (decibels + 50) / 50))
-                await MainActor.run { self?.level = Double(normalized) }
+                self?.level = Double(normalized)
                 try? await Task.sleep(for: .milliseconds(60))
             }
         }
@@ -94,9 +99,17 @@ final class AudioPlaybackService: NSObject {
 }
 
 extension AudioPlaybackService: AVAudioPlayerDelegate {
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        teardownMetering()
-        continuation?.resume()
-        continuation = nil
+    // AVFoundation doesn't guarantee this runs on the main actor — it's
+    // a real potential data race otherwise, not just a style warning:
+    // `level`/`continuation` are mutated here and read elsewhere
+    // (SwiftUI, on the main thread) assuming main-actor isolation.
+    // `nonisolated` + an explicit hop is the correct fix, not silencing
+    // the warning.
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor in
+            self.teardownMetering()
+            self.continuation?.resume()
+            self.continuation = nil
+        }
     }
 }

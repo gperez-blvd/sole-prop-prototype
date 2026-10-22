@@ -87,7 +87,15 @@ final class VoiceConversationViewModel {
 
     private func listenCycle(token: Int) {
         guard isEnabled, token == sessionToken else { return }
-        Task {
+        // Weak at every level of this nested closure chain, not just the
+        // innermost one — the outer `Task` used to capture `self`
+        // strongly while the closure inside it captured weakly, which is
+        // an inconsistent mix the compiler rightly flags: the outer
+        // strong capture already keeps `self` alive for the `Task`'s
+        // whole lifetime, so the inner `weak` wasn't actually guarding
+        // against anything.
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await speech.requestPermission()
                 guard token == sessionToken else { return }
@@ -107,13 +115,14 @@ final class VoiceConversationViewModel {
                         self.listenCycle(token: token)
                         return
                     }
-                    Task {
+                    Task { [weak self] in
+                        guard let self else { return }
                         await self.handleUserUtterance(finalTranscript)
                         self.listenCycle(token: token)
                     }
                 }
             } catch {
-                guard token == self.sessionToken else { return }
+                guard token == sessionToken else { return }
                 isListening = false
                 errorMessage = error.localizedDescription
                 // Logged to the transcript too, not just a dismissable
