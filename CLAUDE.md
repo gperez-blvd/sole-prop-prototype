@@ -150,6 +150,13 @@ Each of these means the principle is slipping:
   -only mechanics, and §4 covers simulator/tooling gotchas (e.g. tap coordinates are in device
   points, not screenshot pixels). Add to it whenever something costs real time — don't let a
   lesson live only in one session's context.
+- **`VOICE_PRINCIPLES.md` — read this before designing anything about proactive speech, a
+  wake-word/hands-free flow, or a "second experience"/mode idea.** Hand-maintained: the record
+  of product-strategy decisions about how DETAIL behaves hands-free (no custom hardware, no
+  in-app mode, the wake-word layer belongs to Siri/App Intents not a custom listener, when a cue
+  should be spoken vs. left as a silent card, why there's no permission-gate before speaking, and
+  why proactive speech requires a private output channel). This is decisions-before-building, not
+  mistakes-after-building — `ENGINEERING_LESSONS.md` is for the latter.
 - **`OBJECTS.md` — read this first.** The Object Guide: every object, what it *is*, what it's
   for, what it's called in her words, where it appears nested, its attributes, its relationships
   and its actions. Start here when you need to understand a concept. Generated — never edit it;

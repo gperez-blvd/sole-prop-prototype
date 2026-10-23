@@ -1,16 +1,25 @@
 import SwiftUI
 
 /// The appointment card's popup — a slide-up sheet (not a full-screen push)
-/// with a close button and a "..." menu for edit/client-info/message. The
-/// client is nested here with the one line DETAIL knows about her; tapping
-/// her name (or "Client info") opens her page. Edit and Message have no
-/// designs yet, so they're placeholders for now.
+/// with a close button and a "..." menu for edit/cancel/client-info/
+/// message. The client is nested here with the one line DETAIL knows
+/// about her; tapping her name (or "Client info") opens her page. Message
+/// has no design yet; Edit and Cancel appointment are real, backed by
+/// `AppointmentStore` (the one shared place an edit/cancellation lives
+/// for the rest of the session, so it shows up on both Home and
+/// Schedule). Saving an edit or confirming a cancellation dismisses this
+/// sheet entirely — simplest correct behavior, since this `var
+/// appointment` is a value, not a binding, so there's no way to keep
+/// showing a "live" updated appointment in place without re-presenting.
 struct AppointmentDetailSheet: View {
     var appointment: Appointment
     var onClose: () -> Void
 
+    @Environment(AppointmentStore.self) private var appointmentStore
     @State private var placeholderMessage: String?
     @State private var showClient = false
+    @State private var showEditSheet = false
+    @State private var showCancelConfirm = false
 
     private var clientMemory: ClientMemory? { HomeMockData.clientMemory(for: appointment) }
 
@@ -83,7 +92,8 @@ struct AppointmentDetailSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("Edit") { placeholderMessage = "Edit — not designed yet." }
+                        Button("Edit") { showEditSheet = true }
+                        Button("Cancel appointment", role: .destructive) { showCancelConfirm = true }
                         Button("Client info") {
                             if clientMemory != nil { showClient = true } else { placeholderMessage = "Client info — not designed yet." }
                         }
@@ -93,6 +103,26 @@ struct AppointmentDetailSheet: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showEditSheet) {
+            EditAppointmentSheet(
+                appointment: appointment,
+                onSave: { updated in
+                    appointmentStore.update(updated)
+                    showEditSheet = false
+                    onClose()
+                },
+                onDismiss: { showEditSheet = false }
+            )
+        }
+        .alert("Cancel this appointment?", isPresented: $showCancelConfirm) {
+            Button("Cancel appointment", role: .destructive) {
+                appointmentStore.cancel(appointment)
+                onClose()
+            }
+            Button("Keep appointment", role: .cancel) {}
+        } message: {
+            Text("\(appointment.clientName) won't be notified automatically — not designed yet.")
         }
     }
 
@@ -110,4 +140,5 @@ struct AppointmentDetailSheet: View {
 
 #Preview {
     AppointmentDetailSheet(appointment: HomeMockData.todaysAppointments[0], onClose: {})
+        .environment(AppointmentStore())
 }

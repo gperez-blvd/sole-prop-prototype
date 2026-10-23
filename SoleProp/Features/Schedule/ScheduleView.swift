@@ -3,9 +3,13 @@ import SwiftUI
 /// The real Schedule — a day and a week view of the same appointments
 /// Home already surfaces a glimpse of, using the same design system
 /// (tokens, `AppointmentDetailSheet`, `.backIconButton`) as every other
-/// screen. Scoped deliberately narrow for now: look at a day or a week,
-/// swipe or tap the arrows to move between them, tap a block to see its
-/// details. Nothing else — no editing, no creating, no drag-to-reschedule.
+/// screen. Look at a day or a week, swipe or tap the arrows to move
+/// between them, tap a block to see its details — and from there, edit
+/// its time/service or cancel it (see `AppointmentDetailSheet`,
+/// `EditAppointmentSheet`). Still deliberately narrow beyond that: no
+/// creating a new appointment, no drag-to-reschedule directly on the
+/// grid — "moving" one happens by changing its time in the detail
+/// sheet, not by dragging a block.
 struct ScheduleView: View {
     @Environment(Router.self) private var router
 
@@ -111,6 +115,8 @@ struct ScheduleView: View {
 /// shape: a time gutter on the left, a line per hour, appointment blocks
 /// positioned and sized by their real start time and duration.
 private struct DayTimelineView: View {
+    @Environment(AppointmentStore.self) private var appointmentStore
+
     var date: Date
     var hours: [Int]
     var hourHeight: CGFloat
@@ -118,7 +124,9 @@ private struct DayTimelineView: View {
 
     private let gutterWidth: CGFloat = 52
 
-    private var appointments: [Appointment] { ScheduleMockData.appointments(on: date) }
+    private var appointments: [Appointment] {
+        appointmentStore.resolve(ScheduleMockData.appointments(on: date))
+    }
 
     var body: some View {
         ScrollView {
@@ -227,6 +235,8 @@ private struct AppointmentBlock: View {
 /// each day is" is the right amount of detail for this level, same as
 /// `AppointmentBlocksRow`'s own blocks on Home.
 private struct WeekTimelineView: View {
+    @Environment(AppointmentStore.self) private var appointmentStore
+
     var weekStart: Date
     var onSelect: (Appointment) -> Void
 
@@ -248,7 +258,7 @@ private struct WeekTimelineView: View {
 
     private func dayColumn(_ day: Date) -> some View {
         let isToday = Calendar.current.isDateInToday(day)
-        let appointments = ScheduleMockData.appointments(on: day).sorted { $0.startTime < $1.startTime }
+        let appointments = appointmentStore.resolve(ScheduleMockData.appointments(on: day)).sorted { $0.startTime < $1.startTime }
 
         return VStack(spacing: 8) {
             VStack(spacing: 2) {
@@ -280,4 +290,5 @@ private struct WeekTimelineView: View {
         ScheduleView()
     }
     .environment(Router())
+    .environment(AppointmentStore())
 }

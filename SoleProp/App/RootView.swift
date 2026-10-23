@@ -9,6 +9,7 @@ private enum AppPhase: Equatable {
 struct RootView: View {
     @State private var router = Router()
     @State private var voiceAssistant = VoiceConversationViewModel()
+    @State private var appointmentStore = AppointmentStore()
     @State private var phase: AppPhase = .auth
 
     // Keys the Home stack below so the PROTOTYPE lifecycle switch (see
@@ -58,8 +59,8 @@ struct RootView: View {
                                 ScheduleView()
                             case .wallet:
                                 WalletView()
-                            case .logs:
-                                LogsView()
+                            case .performance:
+                                PerformanceView()
                             case .help:
                                 HelpView()
                             case .notifications:
@@ -73,6 +74,7 @@ struct RootView: View {
                 }
                 .environment(router)
                 .environment(voiceAssistant)
+                .environment(appointmentStore)
                 .id("\(lifecycleStageRawValue)_\(resetToken)")
             }
         }

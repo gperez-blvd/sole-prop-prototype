@@ -1,6 +1,6 @@
 import Foundation
 
-/// How far back `LogsView`'s revenue chart can be scoped — the same
+/// How far back `PerformanceView`'s revenue chart can be scoped — the same
 /// Week/Month/Year shape most light business-reporting views settle on
 /// (Venmo/Cash App statements, most POS apps' free tier). There's
 /// deliberately no "All time"/multi-year option: a year is already the
@@ -17,7 +17,7 @@ enum RevenueRange: String, CaseIterable {
 ///
 /// **A stable `id` matters here, not just as hygiene.** `id` used to be
 /// `let id = UUID()` — a fresh identity every single time
-/// `HomeMockData.revenueSeries(for:)` ran, which is every time `LogsView`
+/// `HomeMockData.revenueSeries(for:)` ran, which is every time `PerformanceView`
 /// re-renders, not just when the range actually changes. SwiftUI's
 /// `ForEach`/animation diffing treats a changed `id` as "a different
 /// item," never "the same item with a new value" — so every bar looked

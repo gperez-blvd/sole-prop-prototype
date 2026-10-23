@@ -178,6 +178,7 @@ private struct AppearanceSection: View {
 /// Home stack on the current stage.
 private struct PrototypeLifecycleSection: View {
     @Environment(VoiceConversationViewModel.self) private var voiceAssistant
+    @Environment(AppointmentStore.self) private var appointmentStore
     @AppStorage("prototype.lifecycleStage") private var stageRawValue = LifecycleStage.steady.rawValue
     // Same key RootView keys the Home stack's `.id()` on — bumping this
     // forces a full reseed/rebuild even when `stageRawValue` itself isn't
@@ -245,6 +246,7 @@ private struct PrototypeLifecycleSection: View {
     /// regardless of which stage it's currently on.
     private func resetData() {
         voiceAssistant.resetConversation()
+        appointmentStore.reset()
         stageRawValue = LifecycleStage.steady.rawValue
         lastDailyBriefDate = ""
         resetToken += 1
@@ -281,4 +283,5 @@ private struct PrototypeLifecycleSection: View {
     }
     .environment(Router())
     .environment(VoiceConversationViewModel())
+    .environment(AppointmentStore())
 }

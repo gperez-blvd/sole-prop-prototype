@@ -1,12 +1,15 @@
 import SwiftUI
 
-/// Placeholder architecture for Logs — a small, fixed set of the
+/// Placeholder architecture for Performance — a small, fixed set of the
 /// business facts that actually matter, each on its own card with one
 /// simple chart: revenue over time, the service mix, product usage.
-/// Deliberately not a dashboard in the "Insights tab" sense CLAUDE.md's
-/// smells list warns about — three cards, one chart each, nothing
-/// cross-filterable, nothing that invites adding a fourth metric just
-/// because the data exists.
+/// Named for what it actually shows her (how the business is doing),
+/// not an internal term — this used to be called "Logs," which read as
+/// an audit trail rather than business performance. Deliberately not a
+/// dashboard in the "Insights tab" sense CLAUDE.md's smells list warns
+/// about — three cards, one chart each, nothing cross-filterable,
+/// nothing that invites adding a fourth metric just because the data
+/// exists.
 ///
 /// One shared Week/Month/Year toggle drives all three — not just
 /// revenue's own chart — since a time window that only reshapes one of
@@ -16,7 +19,7 @@ import SwiftUI
 /// views settle on, so the toggle can't imply more history than this
 /// screen actually has. Export surfaces the same "not designed yet"
 /// placeholder the rest of the app uses for unbuilt detail.
-struct LogsView: View {
+struct PerformanceView: View {
     @Environment(Router.self) private var router
     @State private var range: RevenueRange = .month
     @State private var placeholderMessage: String?
@@ -38,7 +41,7 @@ struct LogsView: View {
             .padding(.bottom, Tokens.Spacing.xl)
         }
         .background(Tokens.Color.background)
-        .navigationTitle("Logs")
+        .navigationTitle("Performance")
         .navigationBarTitleDisplayMode(.inline)
         .backIconButton { router.pop() }
         .toolbar {
@@ -95,7 +98,7 @@ struct LogsView: View {
 
 #Preview {
     NavigationStack {
-        LogsView()
+        PerformanceView()
     }
     .environment(Router())
 }

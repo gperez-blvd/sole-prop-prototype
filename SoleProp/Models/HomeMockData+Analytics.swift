@@ -1,6 +1,6 @@
 import Foundation
 
-/// Placeholder content for `LogsView`'s three metrics — revenue over
+/// Placeholder content for `PerformanceView`'s three metrics — revenue over
 /// time, the service mix, and product usage. Curated numbers rather
 /// than derived from `clientTransactions`/`clientDirectory`'s own thin
 /// seed data, the same way `payoutHistory` is its own curated set

@@ -6,7 +6,7 @@ enum Route: Hashable {
     case client(ClientMemory)
     case schedule
     case wallet
-    case logs
+    case performance
     case help
     case notifications
     case messages

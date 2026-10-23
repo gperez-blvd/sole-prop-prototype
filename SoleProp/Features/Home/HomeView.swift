@@ -11,6 +11,7 @@ import SwiftUI
 struct HomeView: View {
     @Environment(Router.self) private var router
     @Environment(VoiceConversationViewModel.self) private var voiceAssistant
+    @Environment(AppointmentStore.self) private var appointmentStore
 
     @State private var showMenu = false
     /// Set right before pushing a route chosen from the menu, so that
@@ -283,7 +284,7 @@ struct HomeView: View {
     private var rankedSections: [HomeSection] {
         var weights: [(HomeSection, Int)] = []
 
-        let appointmentCount = HomeMockData.todaysAppointments.count
+        let appointmentCount = resolvedAppointments.count
         if appointmentCount > 0 {
             weights.append((.appointments, appointmentCount * 10))
         }
@@ -329,17 +330,32 @@ struct HomeView: View {
         }
     }
 
+    /// `HomeMockData.todaysAppointments` with this session's own edits
+    /// and cancellations layered on top — the one place that resolution
+    /// happens, so every read site below (ranking, the next-appointment
+    /// card, the blocks row) agrees on the same, already-edited list
+    /// rather than each reaching back to the raw seed data separately.
+    private var resolvedAppointments: [Appointment] {
+        appointmentStore.resolve(HomeMockData.todaysAppointments)
+    }
+
     /// The appointment the card below should show — whichever block she
-    /// last tapped, or the real next appointment until she's touched
-    /// one at all. Always defaults forward, never to whatever happens
-    /// to be first in the list.
+    /// last tapped (looked up fresh, so an edit made after tapping it
+    /// still shows up here), or the real next appointment until she's
+    /// touched one at all. Always defaults forward, never to whatever
+    /// happens to be first in the list.
     private var displayedAppointment: Appointment? {
-        browsedAppointment ?? HomeMockData.nextAppointment
+        let appointments = resolvedAppointments
+        if let browsedAppointment, let match = appointments.first(where: { $0.id == browsedAppointment.id }) {
+            return match
+        }
+        let now = Date()
+        return appointments.first { $0.startTime >= now } ?? appointments.first
     }
 
     @ViewBuilder
     private var appointmentsSection: some View {
-        let today = HomeMockData.todaysAppointments
+        let today = resolvedAppointments
 
         VStack(alignment: .leading, spacing: 14) {
             if !today.isEmpty {
@@ -422,4 +438,5 @@ private enum HomeSection: Identifiable {
     }
     .environment(Router())
     .environment(VoiceConversationViewModel())
+    .environment(AppointmentStore())
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A minimal vertical bar chart whose bars transition between series in
-/// two explicit phases, not one simultaneous jump — used by `LogsView`'s
+/// two explicit phases, not one simultaneous jump — used by `PerformanceView`'s
 /// revenue chart when switching Week/Month/Year:
 ///
 /// 1. **Width first.** The column *count* changes to match the new
