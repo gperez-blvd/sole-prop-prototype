@@ -5,15 +5,16 @@ import SwiftUI
 /// Replaces the earlier flat line-art braid with a lit, volumetric-reading
 /// blob — modeled on the Figma reference's glossy sphere (soft ambient
 /// glow, specular sheen, bright hot spot) but deliberately not a sphere.
-/// **Two independent layers of motion, always both running:**
-/// - A constant, gentle flow — never stops, never changes with
-///   `isActive`/`level` — that's what gives it the ethereal, "always
-///   alive" quality rather than reading as a dormant button.
-/// - A pulse (scale + glow + a little extra shape amplitude) riding on
-///   top, driven only by `level` (0...1 — live mic amplitude while
-///   listening, live playback amplitude while Cue talks) — zero at rest,
-///   so it's visibly reacting only when it's actually hearing or saying
-///   something, without ever interrupting the constant flow underneath.
+/// **Two independent layers of motion, both gated by `isActive`:**
+/// - A gentle idle flow, present the moment `isActive` is true (listening
+///   or speaking — doesn't wait for actual sound) and smoothly eased away
+///   to a perfectly still circle the moment it goes false. This is the
+///   legible "listening" signal: animating means ready/listening, still
+///   means it isn't.
+/// - A pulse (scale + glow + extra shape amplitude) riding on top, driven
+///   only by `level` (0...1 — live mic amplitude while listening, live
+///   playback amplitude while Cue talks) — zero at rest, so it's visibly
+///   reacting only when it's actually hearing or saying something.
 ///
 /// Every number driving its shape is computed directly from elapsed wall
 /// -clock time inside the `TimelineView` tick — deliberately *not* via
@@ -112,20 +113,20 @@ struct VoiceOrb: View {
     }
 
     private func orbContent(phase: Double, activeEnergy: Double, level: Double) -> some View {
-        // The constant flow — always on, same whether idle, listening, or
-        // speaking. This is what reads as "ethereal"; it never pauses and
-        // never ramps with activity.
-        let constantFlow = 0.1
-        // The pulse — zero at rest, rides on top of the constant flow the
+        // The idle flow — gentle wobble present only once `isActive` is
+        // true (eased in/out via `activeEnergy`), settling to a perfectly
+        // still circle at rest. This is the legible listening signal.
+        let constantFlow = activeEnergy * 0.1
+        // The pulse — zero at rest, rides on top of the idle flow the
         // moment there's real sound (hearing you, or Cue's own voice).
-        // Weighted well above the constant flow on every term (wobble,
-        // glow, scale) so it unmistakably reads as "reacting to sound"
-        // rather than blending into the ambient motion — the original
+        // Weighted well above the idle flow on every term (wobble, glow,
+        // scale) so it unmistakably reads as "reacting to sound" rather
+        // than blending into the ambient motion — the original
         // coefficients here (0.1 / 0.3 / 0.07 on scale below) were too
         // close to the idle baseline to notice at a glance.
         let pulse = level
         let wobble = constantFlow + pulse * 0.45
-        let glow = 0.22 + activeEnergy * 0.08 + pulse * 0.55
+        let glow = activeEnergy * 0.3 + pulse * 0.55
 
         return ZStack {
             // A much wider, very faint second layer underneath the main
@@ -200,7 +201,10 @@ struct VoiceOrb: View {
             .frame(width: size, height: size)
         }
         .compositingGroup()
-        .scaleEffect(1 + pulse * 0.22)
+        // 5% smaller at rest, back to full size the moment it's listening
+        // (eased via `activeEnergy`, same as the wobble/glow above) — a
+        // second, quieter cue that this is dormant, not just unmoving.
+        .scaleEffect(0.95 + activeEnergy * 0.05 + pulse * 0.22)
     }
 
     private func blobFill(phase: Double, amplitude: Double) -> some View {
