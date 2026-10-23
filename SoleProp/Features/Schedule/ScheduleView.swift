@@ -70,7 +70,7 @@ struct ScheduleView: View {
                 navButton("chevron.right") { shift(1) }
             }
 
-            modeToggle
+            SegmentedToggle(options: Mode.allCases, selection: $mode)
         }
         .padding(.horizontal, 24)
         .padding(.top, 12)
@@ -85,27 +85,6 @@ struct ScheduleView: View {
                 .frame(width: 32, height: 32)
         }
         .buttonStyle(.plain)
-    }
-
-    private var modeToggle: some View {
-        HStack(spacing: 2) {
-            ForEach(Mode.allCases, id: \.self) { option in
-                let isSelected = option == mode
-                Button {
-                    withAnimation(Tokens.Motion.quick) { mode = option }
-                } label: {
-                    Text(option.rawValue)
-                        .font(Tokens.Typography.body)
-                        .foregroundStyle(isSelected ? Tokens.Color.onPrimaryFill : Tokens.Color.textPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(RoundedRectangle(cornerRadius: Tokens.Radius.md).fill(isSelected ? Tokens.Color.primaryFill : Color.clear))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(3)
-        .background(RoundedRectangle(cornerRadius: Tokens.Radius.card).fill(Tokens.Color.silt))
     }
 
     private var dateRangeLabel: String {

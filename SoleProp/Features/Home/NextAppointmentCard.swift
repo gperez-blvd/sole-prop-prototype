@@ -13,7 +13,7 @@ struct NextAppointmentCard: View {
             Button(action: onTap) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
-                        Avatar(name: appointment.clientName, size: 24)
+                        Avatar(name: appointment.clientName, size: 24, photoURL: PersonPhoto.url(for: appointment.clientName))
                         Text(appointment.clientName)
                             .font(Tokens.Typography.body)
                             .foregroundStyle(Tokens.Color.textPrimary)

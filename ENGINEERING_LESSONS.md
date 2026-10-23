@@ -233,6 +233,23 @@ their actionable buttons. Before giving a new card its own button styling, check
 sibling component in the same family already has one — reuse it rather than inventing a
 visually-plausible-on-its-own variant.
 
+### Check for an existing branded component before reaching for a system control
+**Rule:** before using a stock SwiftUI control (`.pickerStyle(.segmented)`, a default `Divider()`,
+a system `Toggle`, etc.) for a UI pattern that already exists elsewhere in the app with its own
+branded look, check whether that pattern has already been solved — and promote it to a shared
+component rather than letting the system default and the branded version coexist.
+**Why:** `ScheduleView` already had a branded Day/Week switch (a filled `primaryFill` pill in a
+`silt` track) when `WalletView` needed its own Wallet/Transactions switch. Nothing was wrong with
+reaching for `.pickerStyle(.segmented)` in isolation — it's a real, working system control — but
+sitting in the same app as `ScheduleView`'s bespoke version, it reads as a different design
+system entirely: a gray capsule with a system-tinted highlight next to a hand-tuned ink-filled
+pill.
+**How to apply:** the fix was extracting `ScheduleView`'s existing toggle into
+`SegmentedToggle`, a shared component now used by both screens. Before implementing a UI pattern
+a screen needs (a mode switch, a date picker, a segmented control), search the design system and
+sibling screens for one first — the system default is rarely wrong on its own, but it's
+frequently wrong *next to* a component this app already built for the exact same job.
+
 ### Don't bolt a disclosure-and-decline path onto every actionable card by default
 **Rule:** a card built around one decision (pick option A or B) doesn't automatically need a
 "why are you asking?" reasoning disclosure or a "not now" decline action just because those are

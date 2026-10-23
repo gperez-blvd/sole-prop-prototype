@@ -25,7 +25,7 @@ struct MessagesView: View {
 
     private func row(_ thread: ClientMessage) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Avatar(name: thread.clientName, size: 36)
+            Avatar(name: thread.clientName, size: 36, photoURL: PersonPhoto.url(for: thread.clientName))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(thread.clientName)

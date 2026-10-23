@@ -191,17 +191,29 @@ The actual catalog, in `SoleProp/DesignSystem/Components/`:
 |---|---|
 | `PillButton` | Full-width button — `.primary` / `.primaryLight` / `.ghost` / `.ghostLight` |
 | `ChoiceChip` | Small toggle chip (filter/selection) |
+| `CardChoiceButton` | Teal-outlined actionable CTA inside a Home `DetailMoment` card |
 | `CompactButtonStyle` | Inline filled/outline button pair for tight card contexts |
 | `QuickActionButton` | Compact icon+label pill (chat composer's Book/Sale) |
+| `SegmentedToggle` | Branded segmented control for switching equally-weighted views — see below |
 | `OnboardingField` | Labeled text input, brand-tinted fill |
 | `SocialAuthButton` | Apple/Google auth row |
-| `BadgedIconButton` | Icon button with a notification-count dot |
+| `HeaderIconButton` | Plain top-bar icon button — deliberately never carries a badge/count (see CLAUDE.md) |
 | `BackIconButtonModifier` | Plain back-chevron nav bar replacement |
 | `TrackedLabel` | Small secondary label (plain sentence case) |
-| `Avatar` | Filled initials circle |
+| `Avatar` | Filled initials circle, or a photo via `PersonPhoto.url(for:)` with initials as the load-failure fallback |
 | `FlowLayout` | Wrapping row layout for chip groups |
 | `StaggerAppear` | Shared entrance animation (see Motion) |
 | `VoiceOrb`, `AtmosphereBackground`, `OrbBackdropFade`, `ConfettiView`, `GlyphPathShape` | Bespoke/decorative — one-offs by design, not a pattern to repeat |
+
+**`SegmentedToggle`, specifically:** a filled `primaryFill` pill for the selected option inside
+a `silt`-filled track — reach for this, never the system `.pickerStyle(.segmented)`, anywhere a
+screen switches between two or more equally-weighted views of the same content (Schedule's
+Day/Week, Wallet's Wallet/Transactions). The system control's gray capsule and system-tinted
+highlight don't read as this app's own design language; this is the one treatment for that
+exact job. It was `ScheduleView`'s own private `modeToggle` first — `WalletView` needed the same
+switch later and reached for the system picker instead of that existing pattern, which is
+exactly the kind of drift promoting it to the shared catalog is meant to prevent (see
+ENGINEERING_LESSONS.md).
 
 **What the inventory audit found:** the primitives were solid, but
 several real patterns had been quietly reinvented per screen instead of

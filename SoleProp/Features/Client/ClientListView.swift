@@ -45,7 +45,7 @@ struct ClientListView: View {
 
     private func row(_ client: ClientMemory) -> some View {
         HStack(spacing: 12) {
-            Avatar(name: client.fullName, size: 32)
+            Avatar(name: client.fullName, size: 32, photoURL: PersonPhoto.url(for: client.fullName))
             VStack(alignment: .leading, spacing: 2) {
                 Text(client.fullName)
                     .font(Tokens.Typography.body)
