@@ -42,9 +42,18 @@ struct HomeView: View {
         HomeMockData.pendingCue.map(DetailMoment.cue),
         HomeMockData.pendingThresholdProposal.map(DetailMoment.proposal),
     ].compactMap { $0 }
-    /// Shown once per app launch before any of Home's own content — see
-    /// `homeContent`/`DailyBriefView`.
-    @State private var showDailyBrief = true
+    /// Shown once per *calendar day*, not once per launch/relaunch — see
+    /// `homeContent`/`DailyBriefView`. Starts `false`; `.onAppear` below
+    /// flips it on only the first time today's date doesn't match
+    /// `lastDailyBriefDate`, which is what actually makes "today" mean
+    /// today rather than "this process." A normal relaunch later the
+    /// same day (force-quit and reopen, or `HomeView` rebuilding because
+    /// `RootView` keys it on `lifecycleStageRawValue`/`resetToken`)
+    /// reads the same stored date and stays silent; a fresh install (no
+    /// stored date at all) or the PROTOTYPE "Reset demo data" button
+    /// (which clears it explicitly) both behave like "starting fresh."
+    @State private var showDailyBrief = false
+    @AppStorage("dailyBrief.lastShownDate") private var lastDailyBriefDate = ""
 
     var body: some View {
         ZStack {
@@ -67,7 +76,10 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            if showDailyBrief {
+            let today = Self.dayKey(for: Date())
+            if lastDailyBriefDate != today {
+                lastDailyBriefDate = today
+                showDailyBrief = true
                 voiceAssistant.announceDailyBrief(HomeMockData.dailyBrief)
             }
             if reopenMenuOnReturn {
@@ -379,6 +391,16 @@ struct HomeView: View {
                 }
             }
         }
+    }
+
+    /// A plain `"yyyy-MM-dd"` in the device's own calendar/time zone —
+    /// deliberately not a full timestamp, so two `onAppear`s on the same
+    /// calendar day always compare equal regardless of the exact time
+    /// each one fired.
+    fileprivate static func dayKey(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 }
 

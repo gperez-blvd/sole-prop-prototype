@@ -73,8 +73,22 @@ struct AuthFlowView: View {
     }
     private var contentStartDelay: Double { titleDrawDuration * 0.78 }
 
+    /// Bolder than the registered "9pt Regular" instance — DM Sans ships
+    /// as a variable font, so the real fix for "make it bolder" is
+    /// dialing the `wght` axis up via a CoreText font variation, not a
+    /// synthetic/faux-bold trait. Faux bold is a render-time stroke
+    /// effect; it wouldn't change the glyph outlines `GlyphPathShape`
+    /// extracts via `CTFontCreatePathForGlyph`, so the trace would still
+    /// trace the thin original letterforms even while the fill looked
+    /// bolder. A real variation instance changes the actual outlines.
     private var titleFont: UIFont {
-        UIFont(name: "DMSans-9ptRegular", size: 100) ?? .systemFont(ofSize: 100, weight: .semibold)
+        let base = UIFont(name: "DMSans-9ptRegular", size: 100) ?? .systemFont(ofSize: 100, weight: .bold)
+        let weightAxis = NSNumber(value: 0x77676874 as UInt32) // OpenType 'wght' axis tag
+        let variations: [UIFontDescriptor.AttributeName: Any] = [
+            .init(rawValue: "NSCTFontVariationAttribute"): [weightAxis: 600],
+        ]
+        let descriptor = base.fontDescriptor.addingAttributes(variations)
+        return UIFont(descriptor: descriptor, size: 100)
     }
 
     var body: some View {
@@ -104,7 +118,18 @@ struct AuthFlowView: View {
                         .padding(.top, 8)
                 }
 
-                Spacer(minLength: step == .entry ? 0 : 28)
+                // A fixed, tight gap on entry — not another flexible
+                // `Spacer` — so the wordmark/subtitle sit close to "Log
+                // in or sign up" as one visual block, with the two
+                // remaining flexible spacers (above the wordmark, below
+                // the footer) centering that whole block vertically
+                // instead of splitting the space three ways and pushing
+                // the wordmark up toward the top third.
+                if step == .entry {
+                    Spacer().frame(height: 20)
+                } else {
+                    Spacer(minLength: 28)
+                }
 
                 if step != .entry {
                     backButton
@@ -170,7 +195,7 @@ struct AuthFlowView: View {
 
             GlyphPathShape(text: "Cue", font: titleFont)
                 .trim(from: 0, to: traceProgress)
-                .stroke(Tokens.Color.ochre, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                .stroke(Tokens.Color.fog, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
                 .opacity(traceOpacity)
         }
         .frame(width: 220, height: 100)

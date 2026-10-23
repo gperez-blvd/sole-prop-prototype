@@ -33,6 +33,14 @@ struct AppointmentBlocksRow: View {
                             block(for: appointment)
                         }
                     }
+                    // Horizontal padding here too, not just vertical —
+                    // the first/last pill sits flush against the
+                    // ScrollView's own clipping edge otherwise, so its
+                    // 1.08x selected scale (which grows a pill's width,
+                    // not just its height) gets cropped on whichever
+                    // side has no buffer, visible even at rest if the
+                    // first pill starts selected.
+                    .padding(.horizontal, 6)
                     .padding(.vertical, 6)
                 }
                 // A soft fade over the last stretch rather than a hard

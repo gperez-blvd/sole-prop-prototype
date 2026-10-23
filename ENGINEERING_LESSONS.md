@@ -52,16 +52,23 @@ what the single shared value is that both treatments read from. If there isn't o
 bug, not a rendering detail to debug later. On Android this is the same question for
 `Path`/`Canvas` + `Text`, or any Compose `Modifier.drawWithContent` pairing.
 
-### A scrollable row with a "lifts when selected" state needs room to lift in
+### A scrollable row with a "lifts when selected" state needs room to lift in — in *every* axis the transform touches
 **Rule:** if an item inside a scroll container scales or translates on selection, the container
-must reserve padding in the direction of that transform — it cannot be sized flush to the item's
-resting bounds.
-**Why:** our appointment-time pills scale to 1.08× when selected. With the scroll container's
-content sized exactly to the pills' resting height, the scaled-up state got its top and bottom
-visually clipped — a real, shippable-looking bug, not a cosmetic nit.
-**How to apply:** any time a list/row item animates size or position on interaction, add
-padding (or an inset) to the scrolling axis's cross-dimension equal to at least the max growth,
-before the feature is considered done — not after QA catches the clipping.
+must reserve padding in **every direction that transform actually moves**, not just the one
+dimension that happened to get fixed first. `scaleEffect` grows a view in both width and height
+at once — reserving buffer on only one axis still leaves the other to clip.
+**Why:** our appointment-time pills scale to 1.08× when selected. The first pass reserved
+vertical padding inside the horizontal `ScrollView`'s content (top/bottom no longer clipped),
+but left no horizontal padding — so the *first* pill, sitting flush at the scroll content's
+leading edge, had its left side clipped by the scroll view's own bounds the moment it scaled,
+visible even before any scrolling happened. This is the same root cause as the original entry,
+recurring because the fix was reasoned about one axis at a time instead of "what does this
+transform actually do, in every dimension" — a rule already written down didn't prevent a
+narrower-than-needed application of it.
+**How to apply:** when a rule says "reserve padding for a transform," enumerate every axis that
+transform moves before deciding the fix is complete — a `scaleEffect` always means *both* width
+and height, a `rotationEffect` means a bounding-box change on both axes too, not just the one
+that's visually obvious in the current layout direction.
 
 ### A truncated scrollable row should fade, not guillotine
 **Rule:** when a horizontally-scrolling row of items can run past a fixed-width container (a
@@ -108,6 +115,28 @@ product's own stated rules first, not just visual taste. A plain icon button
 (`HeaderIconButton`) replaced it; the underlying mock-data counts were deleted outright rather
 than left unused, per this repo's own no-vestigial-code convention. On Android, apply the same
 check before reaching for a `BadgeDrawable` or notification-dot composable.
+
+### A computed property returning `Identifiable` structs needs a stable `id`, never `let id = UUID()`
+**Rule:** if a model's instances are produced by a computed property or a function that runs
+again on every view re-render (not cached, not stored in `@State`), its `id` must be derived
+from the data itself (a label, a key, a hash of meaningful fields) — never `let id = UUID()`,
+which mints a new identity on every single call, including calls that return "the same" data.
+**Why:** `RevenuePoint` and `RankedMetric` both had `let id = UUID()`. Both types were produced
+by computed properties (`HomeMockData.serviceMix`, `.productUsage`, `.revenueSeries(for:)`) that
+SwiftUI calls again on every body re-evaluation — not just when the underlying range actually
+changed. Every call produced brand-new UUIDs, so `ForEach`'s diffing saw "entirely different
+items" constantly, not "the same items, new values." The visible symptom was bars that appeared
+to pop in from nothing and grow, rather than an existing bar smoothly resizing — because as far
+as SwiftUI's animation system was concerned, there was no existing bar to resize, only a new one
+being inserted. This is a silent failure mode: the code compiles, the chart renders correctly at
+rest, and it only breaks the one thing (cross-update animation) that's hard to notice without
+actually watching a transition happen.
+**How to apply:** for any `Identifiable` model backing a `ForEach` whose source is a computed
+property/function rather than a stored, create-once value, make `id` a computed property derived
+from a stable field (`var id: String { label }`), not a stored `UUID()`. If the data doesn't have
+a natural stable key, that's a sign the modeling itself needs one before animation will ever work
+right. The same rule applies to Compose's `key()`/`LazyColumn` item keys on Android — a freshly
+-generated key per recomposition is the same bug under a different API.
 
 ### A system `Divider()` over a translucent/material background renders unpredictably
 **Rule:** don't use SwiftUI's native `Divider()` on top of a `.presentationBackground` material,
@@ -233,6 +262,27 @@ their actionable buttons. Before giving a new card its own button styling, check
 sibling component in the same family already has one — reuse it rather than inventing a
 visually-plausible-on-its-own variant.
 
+### A new screen defaults to the type scale and spacing tokens, not ad hoc values
+**Rule:** when building a new screen from scratch, reach for `Tokens.Typography`'s named steps
+(`.label`, `.body`, `.value`, `.largeTitle`, …) and `Tokens.Spacing`'s named steps for every
+piece of text and every gap — never a bespoke hardcoded font size or a bare integer like
+`spacing: 14`. If a screen needs something the scale doesn't have, that's a signal to add a
+token, not to freelance one inline.
+**Why:** `LogsView`'s first pass used `.label`/`.labelSmall`/`.caption` (14/12/14pt) for chart
+category names, counts, and axis labels, and `spacing: 14`/a `34pt` bar-row height picked by
+eye — all individually defensible, all landing well below what the rest of the app actually
+uses for primary content, and the accumulated effect was a screen that read as cramped and
+undersized even on a large preview, on a screen whose entire job is to be read as data. This
+happened on the *same pass* that also reused the full-saturation `accentText` for the bars —
+a repeat of "A decorative accent at full saturation reads neon, not luxurious" above, in code
+written after that rule already existed. Both are the same root cause: new code written
+without checking the system already has an answer for the thing being built.
+**How to apply:** before shipping a new screen, re-read it against `DESIGN_SYSTEM.md`'s scale
+and ask whether each text style and each gap is a named step or a number that was eyeballed.
+Category/row labels that are primary reading content belong at `.body` (16pt) or above, not
+`.caption`/`.labelSmall` — those are for genuine metadata. Spacing between a card's major
+sub-sections belongs on `Tokens.Spacing`'s scale (`.md`/`.lg`), not a bespoke `14`.
+
 ### Check for an existing branded component before reaching for a system control
 **Rule:** before using a stock SwiftUI control (`.pickerStyle(.segmented)`, a default `Divider()`,
 a system `Toggle`, etc.) for a UI pattern that already exists elsewhere in the app with its own
@@ -276,9 +326,22 @@ need one, not preemptively because the pattern is easy to copy from elsewhere.
   same `Shape` call is fine; two *different* `Shape`/`Text` types claiming to represent the same
   word is not). See §1.
 - **`.scaleEffect` inside a `ScrollView`:** the scroll container clips to its content's laid-out
-  bounds, not to the post-transform bounds. Add `.padding(.vertical, n)` (or horizontal, matching
-  the scroll axis's cross-dimension) to the `HStack`/`VStack` *inside* the `ScrollView`, sized to
-  the largest expected `scaleEffect` overflow.
+  bounds, not to the post-transform bounds. Add padding to the `HStack`/`VStack` *inside* the
+  `ScrollView` on **both** the scroll axis and its cross-axis — `scaleEffect` grows a view in
+  both width and height regardless of which way it scrolls, so padding only one side (e.g. just
+  `.padding(.vertical,n)` on a horizontally-scrolling row) still clips the first/last item's
+  scaled-up edge on the unpadded axis. See §1.
+- **A multi-beat animation ("do X, then once that's visibly settled, do Y") needs its own
+  explicit, sequenced `@State`, not one ambient `.animation(value:)`:** SwiftUI's implicit
+  animation can express "this property changed, animate it," but not "change this property,
+  wait, then change that one" — a single `.animation(value:)` modifier animates everything bound
+  to that value in one simultaneous pass. For a staged transition (`AnimatedBarChart`'s width
+  -reflow-then-height-resize when switching Week/Month/Year), own the intermediate state inside
+  the component (`visibleCount` for phase 1, `displayedAmounts`/`displayedMax` for phase 2), fire
+  phase 1 in an explicit `withAnimation`, then schedule phase 2's `withAnimation` after phase 1's
+  own duration (`DispatchQueue.main.asyncAfter(deadline: .now() + phaseGap)`). The two
+  animations' durations should be named constants referenced by both the animation itself and
+  the delay, so they can't drift out of sync with each other.
 - **Truncation fades:** `.mask(LinearGradient(stops: [...], startPoint:, endPoint:))` directly on
   the `ScrollView`, with a `.clear` stop a little before the far edge (we used `0.86 → 1.0`) reads
   as a soft fade rather than a visible gradient band.

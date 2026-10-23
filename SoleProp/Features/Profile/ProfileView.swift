@@ -7,6 +7,14 @@ import SwiftUI
 /// Appearance and the PROTOTYPE lifecycle switch are the two genuinely
 /// working controls here — both moved from `MenuSheet`, which now stays
 /// just its six real rows.
+///
+/// The "Wallet" section is where every wallet-related setting lives —
+/// on purpose, not spread across the app. `WalletView` itself only ever
+/// surfaces the things she'd touch often (balance, add/transfer funds,
+/// activity); anything about *how* the wallet is configured (which bank
+/// account, how fast transfers land, what a client can pay with) comes
+/// to this settings screen instead, the same "settings comes to the
+/// object, not the reverse" rule CLAUDE.md states for thresholds.
 struct ProfileView: View {
     @Environment(Router.self) private var router
     @Environment(VoiceConversationViewModel.self) private var voiceAssistant
@@ -16,7 +24,18 @@ struct ProfileView: View {
         ("Business", [
             ("building.2", "Business profile"),
             ("scissors", "Services & pricing"),
-            ("wallet.pass", "Payout details"),
+        ]),
+        // The baseline a wallet needs to actually operate — a bank
+        // account to land payouts in, how quickly they land, and what a
+        // client can pay with — kept to just those three rather than
+        // Venmo's full settings surface (no split payments, no privacy
+        // -per-transaction, no linked cards beyond what's needed to
+        // accept payment). One section, not scattered across the app —
+        // everything about the wallet lives here, next to the wallet.
+        ("Wallet", [
+            ("building.columns", "Bank account"),
+            ("bolt", "Auto-transfer speed"),
+            ("creditcard", "Accepted payment methods"),
         ]),
         ("Account", [
             ("bell", "Notification preferences"),
@@ -164,6 +183,10 @@ private struct PrototypeLifecycleSection: View {
     // forces a full reseed/rebuild even when `stageRawValue` itself isn't
     // changing (e.g. resetting while already on "Steady").
     @AppStorage("prototype.resetToken") private var resetToken = 0
+    // Clearing this makes Home's morning brief replay on the next
+    // launch, the same as a genuinely fresh install would — a demo
+    // reset should look like "starting fresh," not like "still today."
+    @AppStorage("dailyBrief.lastShownDate") private var lastDailyBriefDate = ""
 
     private var stage: LifecycleStage {
         LifecycleStage(rawValue: stageRawValue) ?? .steady
@@ -223,6 +246,7 @@ private struct PrototypeLifecycleSection: View {
     private func resetData() {
         voiceAssistant.resetConversation()
         stageRawValue = LifecycleStage.steady.rawValue
+        lastDailyBriefDate = ""
         resetToken += 1
     }
 

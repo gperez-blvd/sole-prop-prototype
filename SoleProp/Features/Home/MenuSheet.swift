@@ -44,7 +44,7 @@ struct MenuSheet: View {
         MenuItem(.clients, "Clients", "person.2"),
         MenuItem(.schedule, "Schedule", "calendar"),
         MenuItem(.wallet, "Wallet", "wallet.pass"),
-        MenuItem(.logs, "Logs", "list.bullet.rectangle"),
+        MenuItem(.logs, "Logs", "chart.bar"),
         MenuItem(.help, "Help", "questionmark.circle"),
     ]
 
